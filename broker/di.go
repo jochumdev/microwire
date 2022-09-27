@@ -3,7 +3,7 @@ package broker
 import (
 	"strings"
 
-	uCmd "github.com/go-micro/microwire/util/cmd"
+	mCmd "github.com/go-micro/microwire/util/cmd"
 	"github.com/go-micro/microwire/util/generic"
 	mWire "github.com/go-micro/microwire/wire"
 	"github.com/google/wire"
@@ -22,23 +22,23 @@ type BrokerOptions struct {
 func ProvideFlags(opts *mWire.Options) BrokerFlags {
 	return BrokerFlags{
 		&cli.StringFlag{
-			Name:    uCmd.PrefixName(opts.ArgPrefix, "broker"),
+			Name:    mCmd.PrefixName(opts.ArgPrefix, "broker"),
 			Usage:   "Broker for pub/sub. http, nats, rabbitmq",
 			Value:   opts.DefaultBroker,
-			EnvVars: []string{uCmd.PrefixEnv(opts.ArgPrefix, "BROKER")},
+			EnvVars: []string{mCmd.PrefixEnv(opts.ArgPrefix, "BROKER")},
 		},
 		&cli.StringFlag{
-			Name:    uCmd.PrefixName(opts.ArgPrefix, "broker_address"),
+			Name:    mCmd.PrefixName(opts.ArgPrefix, "broker_address"),
 			Usage:   "Comma-separated list of broker addresses",
-			EnvVars: []string{uCmd.PrefixEnv(opts.ArgPrefix, "BROKER_ADDRESS")},
+			EnvVars: []string{mCmd.PrefixEnv(opts.ArgPrefix, "BROKER_ADDRESS")},
 		},
 	}
 }
 
 func ProvideOptions(opts *mWire.Options, c *cli.Context) *BrokerOptions {
 	return &BrokerOptions{
-		Name:      c.String(uCmd.PrefixName(opts.ArgPrefix, "broker")),
-		Addresses: c.String(uCmd.PrefixName(opts.ArgPrefix, "broker_addresses")),
+		Name:      c.String(mCmd.PrefixName(opts.ArgPrefix, "broker")),
+		Addresses: c.String(mCmd.PrefixName(opts.ArgPrefix, "broker_addresses")),
 	}
 }
 

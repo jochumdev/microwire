@@ -3,7 +3,7 @@ package transport
 import (
 	"strings"
 
-	uCmd "github.com/go-micro/microwire/util/cmd"
+	mCmd "github.com/go-micro/microwire/util/cmd"
 	"github.com/go-micro/microwire/util/generic"
 	mWire "github.com/go-micro/microwire/wire"
 	"github.com/urfave/cli/v2"
@@ -23,23 +23,23 @@ type TransportOptions struct {
 func ProvideFlags(opts *mWire.Options) TransportFlags {
 	return TransportFlags{
 		&cli.StringFlag{
-			Name:    uCmd.PrefixName(opts.ArgPrefix, "transport"),
+			Name:    mCmd.PrefixName(opts.ArgPrefix, "transport"),
 			Usage:   "Transport for pub/sub. http, nats, rabbitmq",
 			Value:   opts.DefaultTransport,
-			EnvVars: []string{uCmd.PrefixEnv(opts.ArgPrefix, "BROKER")},
+			EnvVars: []string{mCmd.PrefixEnv(opts.ArgPrefix, "BROKER")},
 		},
 		&cli.StringFlag{
-			Name:    uCmd.PrefixName(opts.ArgPrefix, "transport_address"),
+			Name:    mCmd.PrefixName(opts.ArgPrefix, "transport_address"),
 			Usage:   "Comma-separated list of transport addresses",
-			EnvVars: []string{uCmd.PrefixEnv(opts.ArgPrefix, "BROKER_ADDRESS")},
+			EnvVars: []string{mCmd.PrefixEnv(opts.ArgPrefix, "BROKER_ADDRESS")},
 		},
 	}
 }
 
 func ProvideOptions(opts *mWire.Options, c *cli.Context) *TransportOptions {
 	return &TransportOptions{
-		Name:      c.String(uCmd.PrefixName(opts.ArgPrefix, "transport")),
-		Addresses: c.String(uCmd.PrefixName(opts.ArgPrefix, "transport_addresses")),
+		Name:      c.String(mCmd.PrefixName(opts.ArgPrefix, "transport")),
+		Addresses: c.String(mCmd.PrefixName(opts.ArgPrefix, "transport_addresses")),
 	}
 }
 

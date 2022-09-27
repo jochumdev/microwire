@@ -3,7 +3,7 @@ package registry
 import (
 	"strings"
 
-	uCmd "github.com/go-micro/microwire/util/cmd"
+	mCmd "github.com/go-micro/microwire/util/cmd"
 	"github.com/go-micro/microwire/util/generic"
 	mWire "github.com/go-micro/microwire/wire"
 	"github.com/google/wire"
@@ -22,23 +22,23 @@ type RegistryOptions struct {
 func ProvideFlags(opts *mWire.Options) RegistryFlags {
 	return RegistryFlags{
 		&cli.StringFlag{
-			Name:    uCmd.PrefixName(opts.ArgPrefix, "registry"),
+			Name:    mCmd.PrefixName(opts.ArgPrefix, "registry"),
 			Usage:   "Registry for discovery. etcd, mdns",
 			Value:   opts.DefaultRegistry,
-			EnvVars: []string{uCmd.PrefixEnv(opts.ArgPrefix, "REGISTRY")},
+			EnvVars: []string{mCmd.PrefixEnv(opts.ArgPrefix, "REGISTRY")},
 		},
 		&cli.StringFlag{
-			Name:    uCmd.PrefixName(opts.ArgPrefix, "registry_address"),
+			Name:    mCmd.PrefixName(opts.ArgPrefix, "registry_address"),
 			Usage:   "Comma-separated list of registry addresses",
-			EnvVars: []string{uCmd.PrefixEnv(opts.ArgPrefix, "REGISTRY_ADDRESS")},
+			EnvVars: []string{mCmd.PrefixEnv(opts.ArgPrefix, "REGISTRY_ADDRESS")},
 		},
 	}
 }
 
 func ProvideOptions(opts *mWire.Options, c *cli.Context) *RegistryOptions {
 	return &RegistryOptions{
-		Name:      c.String(uCmd.PrefixName(opts.ArgPrefix, "registry")),
-		Addresses: c.String(uCmd.PrefixName(opts.ArgPrefix, "registry_addresses")),
+		Name:      c.String(mCmd.PrefixName(opts.ArgPrefix, "registry")),
+		Addresses: c.String(mCmd.PrefixName(opts.ArgPrefix, "registry_addresses")),
 	}
 }
 
