@@ -1,0 +1,12 @@
+version: '3'
+
+tasks:
+  tidy:
+    cmds:
+      - find . -name 'go.mod' -print0 | xargs -0 -I {} /bin/bash -c 'pushd `dirname $1`; go mod tidy; popd' '_' '{}' \+
+  update:
+    cmds:
+      - find . -name 'go.mod' -print0 | xargs -0 -I {} /bin/bash -c 'pushd `dirname $1`; go get -u ./...; popd' '_' '{}' \+
+  workuse:
+    cmds:
+      - find . -name 'go.mod' -print0 | xargs -0 -I {} /bin/bash -c 'go work use `dirname $1`' '_' '{}' \+
