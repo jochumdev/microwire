@@ -19,7 +19,7 @@ type BrokerOptions struct {
 	Addresses string
 }
 
-func ProvideBrokerFlags(opts *mWire.Options) BrokerFlags {
+func ProvideFlags(opts *mWire.Options) BrokerFlags {
 	return BrokerFlags{
 		&cli.StringFlag{
 			Name:    uCmd.PrefixName(opts.ArgPrefix, "broker"),
@@ -35,7 +35,7 @@ func ProvideBrokerFlags(opts *mWire.Options) BrokerFlags {
 	}
 }
 
-func ProvideBrokerOptions(opts *mWire.Options, c *cli.Context) *BrokerOptions {
+func ProvideOptions(opts *mWire.Options, c *cli.Context) *BrokerOptions {
 	return &BrokerOptions{
 		Name:      c.String(uCmd.PrefixName(opts.ArgPrefix, "broker")),
 		Addresses: c.String(uCmd.PrefixName(opts.ArgPrefix, "broker_addresses")),
@@ -61,5 +61,5 @@ func Provide(opts *BrokerOptions) (broker.Broker, error) {
 	return result, nil
 }
 
-var BrokerServiceSet = wire.NewSet(ProvideBrokerOptions, Provide)
+var BrokerServiceSet = wire.NewSet(ProvideOptions, Provide)
 var Container = generic.NewContainer(func(opts ...broker.Option) broker.Broker { return nil })

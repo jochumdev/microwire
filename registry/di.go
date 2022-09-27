@@ -19,7 +19,7 @@ type RegistryOptions struct {
 	Addresses string
 }
 
-func ProvideRegistryFlags(opts *mWire.Options) RegistryFlags {
+func ProvideFlags(opts *mWire.Options) RegistryFlags {
 	return RegistryFlags{
 		&cli.StringFlag{
 			Name:    uCmd.PrefixName(opts.ArgPrefix, "registry"),
@@ -35,7 +35,7 @@ func ProvideRegistryFlags(opts *mWire.Options) RegistryFlags {
 	}
 }
 
-func ProvideRegistryOptions(opts *mWire.Options, c *cli.Context) *RegistryOptions {
+func ProvideOptions(opts *mWire.Options, c *cli.Context) *RegistryOptions {
 	return &RegistryOptions{
 		Name:      c.String(uCmd.PrefixName(opts.ArgPrefix, "registry")),
 		Addresses: c.String(uCmd.PrefixName(opts.ArgPrefix, "registry_addresses")),
@@ -62,4 +62,4 @@ func Provide(opts *RegistryOptions) (registry.Registry, error) {
 }
 
 var Container = generic.NewContainer(func(opts ...registry.Option) registry.Registry { return nil })
-var RegistryServiceSet = wire.NewSet(ProvideRegistryOptions, Provide)
+var RegistryServiceSet = wire.NewSet(ProvideOptions, Provide)

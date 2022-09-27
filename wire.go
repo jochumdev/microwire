@@ -18,9 +18,9 @@ func DefaultApp(opts ...mWire.Option) (*cli.App, error) {
 	panic(wire.Build(
 		ProvideDefaultServiceInitializer,
 		mWire.ProvideOptions,
-		mBroker.ProvideBrokerFlags,
-		mRegistry.ProvideRegistryFlags,
-		mTransport.ProvideTransportFlags,
+		mBroker.ProvideFlags,
+		mRegistry.ProvideFlags,
+		mTransport.ProvideFlags,
 		ProvideDefaultFlags,
 		mWire.ProvideApp,
 	))

@@ -20,26 +20,26 @@ import (
 func DefaultApp(opts ...wire.Option) (*cli.App, error) {
 	initializeServiceFunc := ProvideDefaultServiceInitializer()
 	options := wire.ProvideOptions(opts, initializeServiceFunc)
-	brokerFlags := broker.ProvideBrokerFlags(options)
-	registryFlags := registry.ProvideRegistryFlags(options)
-	transportFlags := transport.ProvideTransportFlags(options)
+	brokerFlags := broker.ProvideFlags(options)
+	registryFlags := registry.ProvideFlags(options)
+	transportFlags := transport.ProvideFlags(options)
 	internalFlags := ProvideDefaultFlags(options, brokerFlags, registryFlags, transportFlags)
 	app := wire.ProvideApp(options, internalFlags)
 	return app, nil
 }
 
 func DefaultService(ctx *cli.Context, opts *wire.Options) (micro.Service, error) {
-	brokerOptions := broker.ProvideBrokerOptions(opts, ctx)
+	brokerOptions := broker.ProvideOptions(opts, ctx)
 	brokerBroker, err := broker.Provide(brokerOptions)
 	if err != nil {
 		return nil, err
 	}
-	registryOptions := registry.ProvideRegistryOptions(opts, ctx)
+	registryOptions := registry.ProvideOptions(opts, ctx)
 	registryRegistry, err := registry.Provide(registryOptions)
 	if err != nil {
 		return nil, err
 	}
-	transportOptions := transport.ProvideTransportOptions(opts, ctx)
+	transportOptions := transport.ProvideOptions(opts, ctx)
 	transportTransport, err := transport.Provide(transportOptions)
 	if err != nil {
 		return nil, err

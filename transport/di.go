@@ -20,7 +20,7 @@ type TransportOptions struct {
 	Addresses string
 }
 
-func ProvideTransportFlags(opts *mWire.Options) TransportFlags {
+func ProvideFlags(opts *mWire.Options) TransportFlags {
 	return TransportFlags{
 		&cli.StringFlag{
 			Name:    uCmd.PrefixName(opts.ArgPrefix, "transport"),
@@ -36,7 +36,7 @@ func ProvideTransportFlags(opts *mWire.Options) TransportFlags {
 	}
 }
 
-func ProvideTransportOptions(opts *mWire.Options, c *cli.Context) *TransportOptions {
+func ProvideOptions(opts *mWire.Options, c *cli.Context) *TransportOptions {
 	return &TransportOptions{
 		Name:      c.String(uCmd.PrefixName(opts.ArgPrefix, "transport")),
 		Addresses: c.String(uCmd.PrefixName(opts.ArgPrefix, "transport_addresses")),
@@ -62,5 +62,5 @@ func Provide(opts *TransportOptions) (transport.Transport, error) {
 	return result, nil
 }
 
-var TransportServiceSet = wire.NewSet(ProvideTransportOptions, Provide)
+var TransportServiceSet = wire.NewSet(ProvideOptions, Provide)
 var Container = generic.NewContainer(func(opts ...transport.Option) transport.Transport { return nil })
