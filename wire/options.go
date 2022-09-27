@@ -1,4 +1,4 @@
-package microwire
+package wire
 
 import (
 	"github.com/urfave/cli/v2"
@@ -11,17 +11,26 @@ type HookFunc func() error
 type ActionFunc func(*cli.Context, micro.Service) error
 
 type Options struct {
-	ArgPrefix   string
-	Name        string
-	Version     string
-	Usage       string
-	Flags       []cli.Flag
-	InitService InitializeServiceFunc
+	ArgPrefix string
+	Name      string
+	Version   string
+	Usage     string
+	Flags     []cli.Flag
+
+	// Default
+	DefaultBroker    string
+	DefaultTransport string
+	DefaultRegistry  string
+
+	// Livecycle
 	Actions     []ActionFunc
 	BeforeStart []HookFunc
 	BeforeStop  []HookFunc
 	AfterStart  []HookFunc
 	AfterStop   []HookFunc
+
+	// Internal
+	InitService InitializeServiceFunc
 }
 
 type Option func(*Options)
@@ -56,26 +65,22 @@ func Flags(n []cli.Flag) Option {
 	}
 }
 
-func ProvideOptions(opts []Option, initService InitializeServiceFunc) *Options {
-	options := &Options{
-		ArgPrefix:   "",
-		Name:        "",
-		Version:     "",
-		Usage:       "",
-		Flags:       []cli.Flag{},
-		InitService: initService,
-		Actions:     []ActionFunc{},
-		BeforeStart: []HookFunc{},
-		BeforeStop:  []HookFunc{},
-		AfterStart:  []HookFunc{},
-		AfterStop:   []HookFunc{},
+func DefaultBroker(n string) Option {
+	return func(o *Options) {
+		o.DefaultBroker = n
 	}
+}
 
-	for _, o := range opts {
-		o(options)
+func DefaultTransport(n string) Option {
+	return func(o *Options) {
+		o.DefaultTransport = n
 	}
+}
 
-	return options
+func DefaultRegistry(n string) Option {
+	return func(o *Options) {
+		o.DefaultRegistry = n
+	}
 }
 
 func Action(fn ActionFunc) Option {
@@ -112,4 +117,31 @@ func AfterStop(fn HookFunc) Option {
 	return func(o *Options) {
 		o.AfterStop = append(o.AfterStop, fn)
 	}
+}
+
+func ProvideOptions(opts []Option, initService InitializeServiceFunc) *Options {
+	options := &Options{
+		ArgPrefix: "",
+		Name:      "",
+		Version:   "",
+		Usage:     "",
+		Flags:     []cli.Flag{},
+
+		DefaultBroker:    "http",
+		DefaultRegistry:  "mdns",
+		DefaultTransport: "http",
+
+		Actions:     []ActionFunc{},
+		BeforeStart: []HookFunc{},
+		BeforeStop:  []HookFunc{},
+		AfterStart:  []HookFunc{},
+		AfterStop:   []HookFunc{},
+		InitService: initService,
+	}
+
+	for _, o := range opts {
+		o(options)
+	}
+
+	return options
 }
