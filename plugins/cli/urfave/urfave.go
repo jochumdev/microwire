@@ -1,9 +1,6 @@
 package urfave
 
 import (
-	"flag"
-	"fmt"
-
 	mCli "github.com/go-micro/microwire/cli"
 	"github.com/urfave/cli/v2"
 )
@@ -13,16 +10,16 @@ func init() {
 }
 
 type FlagCLI struct {
-	stringFlags map[string]cli.StringFlag
-	intFlags    map[string]cli.IntFlag
+	stringFlags map[string]*cli.StringFlag
+	intFlags    map[string]*cli.IntFlag
 	options     *mCli.Options
 	ctx         *cli.Context
 }
 
 func NewCLI(opts ...mCli.Option) mCli.CLI {
 	return &FlagCLI{
-		stringFlags: make(map[string]cli.StringFlag),
-		intFlags:    make(map[string]cli.IntFlag),
+		stringFlags: make(map[string]*cli.StringFlag),
+		intFlags:    make(map[string]*cli.IntFlag),
 		options:     mCli.NewCLIOptions(),
 	}
 }
@@ -30,7 +27,7 @@ func NewCLI(opts ...mCli.Option) mCli.CLI {
 func (c *FlagCLI) AddInt(opts ...mCli.FlagOption) error {
 	options := mCli.NewFlag(opts...)
 
-	c.intFlags[options.Name] = cli.IntFlag{
+	c.intFlags[options.Name] = &cli.IntFlag{
 		Name:    options.Name,
 		Usage:   options.Usage,
 		Value:   options.DefaultInt,
@@ -43,7 +40,7 @@ func (c *FlagCLI) AddInt(opts ...mCli.FlagOption) error {
 func (c *FlagCLI) AddString(opts ...mCli.FlagOption) error {
 	options := mCli.NewFlag(opts...)
 
-	c.stringFlags[options.Name] = cli.StringFlag{
+	c.stringFlags[options.Name] = &cli.StringFlag{
 		Name:    options.Name,
 		Usage:   options.Usage,
 		Value:   options.DefaultString,
@@ -58,36 +55,35 @@ func (c *FlagCLI) Init(args []string, opts ...mCli.Option) error {
 		o(c.options)
 	}
 
-	set := flag.NewFlagSet(c.options.Name, flag.ContinueOnError)
-
+	flags := []cli.Flag{}
 	for _, f := range c.stringFlags {
-		if err := f.Apply(set); err != nil {
-			return err
-		}
+		flags = append(flags, f)
 	}
 
 	for _, f := range c.intFlags {
-		if err := f.Apply(set); err != nil {
-			return err
-		}
+		flags = append(flags, f)
 	}
 
+	var ctx *cli.Context
 	app := &cli.App{
 		Version:     c.options.Version,
 		Description: c.options.Description,
 		Usage:       c.options.Usage,
+		Flags:       flags,
+		Action: func(fCtx *cli.Context) error {
+			// Extract the ctx from the urfave app
+			ctx = fCtx
+			return nil
+		},
 	}
 	if len(c.options.Version) < 1 {
 		app.HideVersion = true
 	}
-	c.ctx = cli.NewContext(app, set, nil)
 
-	if err := set.Parse(args); err != nil {
+	if err := app.Run(args); err != nil {
 		return err
 	}
-	if len(set.Args()) > 1 {
-		return fmt.Errorf("unknown flags '%v' given", set.Args())
-	}
+	c.ctx = ctx
 
 	return nil
 }
