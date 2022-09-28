@@ -28,8 +28,8 @@ func TestParse(t *testing.T) {
 		cli.CliUsage("Test Usage"),
 	)
 
-	myCmd.AddString(cli.Name(FlagString), cli.DefaultValue("default string"), cli.EnvVars("STRINGFLAG"), cli.Usage("string flag usage"))
-	myCmd.AddInt(cli.Name(FlagInt), cli.DefaultValue(0), cli.EnvVars("INTFLAG"), cli.Usage("int flag usage"))
+	myCmd.Add(cli.Name(FlagString), cli.Default("default string"), cli.EnvVars("STRINGFLAG"), cli.Usage("string flag usage"))
+	myCmd.Add(cli.Name(FlagInt), cli.Default(0), cli.EnvVars("INTFLAG"), cli.Usage("int flag usage"))
 
 	err := myCmd.Init(
 		[]string{
@@ -42,6 +42,6 @@ func TestParse(t *testing.T) {
 	)
 	expect(t, err, nil)
 
-	expect(t, myCmd.String(FlagString), "demo")
-	expect(t, myCmd.Int(FlagInt), 42)
+	expect(t, myCmd.StringValue(FlagString), "demo")
+	expect(t, myCmd.IntValue(FlagInt), 42)
 }

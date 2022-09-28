@@ -29,18 +29,19 @@ func ProvideFlags(opts *mWire.Options, c mCli.CLI) (*DiFlags, error) {
 		return nil, nil
 	}
 
-	if err := c.AddString(
+	if err := c.Add(
 		mCli.Name(mCli.PrefixName(opts.ArgPrefix, cliArg)),
 		mCli.Usage("Broker for pub/sub. http, nats, rabbitmq"),
-		mCli.DefaultValue(opts.Components[ComponentName]),
+		mCli.Default(opts.Components[ComponentName]),
 		mCli.EnvVars(mCli.PrefixEnv(opts.ArgPrefix, cliArg)),
 	); err != nil {
 		return nil, err
 	}
 
-	if err := c.AddString(
+	if err := c.Add(
 		mCli.Name(mCli.PrefixName(opts.ArgPrefix, cliArgAddress)),
 		mCli.Usage("Comma-separated list of broker addresses"),
+		mCli.Default(""),
 		mCli.EnvVars(mCli.PrefixEnv(opts.ArgPrefix, cliArgAddress)),
 	); err != nil {
 		return nil, err
@@ -56,8 +57,8 @@ func ProvideOpts(opts *mWire.Options, c mWire.InitializedCli) (*DiOptions, error
 	}
 
 	return &DiOptions{
-		Plugin:    c.String(mCli.PrefixName(opts.ArgPrefix, cliArg)),
-		Addresses: c.String(mCli.PrefixName(opts.ArgPrefix, cliArgAddress)),
+		Plugin:    c.StringValue(mCli.PrefixName(opts.ArgPrefix, cliArg)),
+		Addresses: c.StringValue(mCli.PrefixName(opts.ArgPrefix, cliArgAddress)),
 	}, nil
 }
 

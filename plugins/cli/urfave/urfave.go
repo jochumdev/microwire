@@ -3,6 +3,7 @@ package urfave
 import (
 	mCli "github.com/go-micro/microwire/cli"
 	"github.com/urfave/cli/v2"
+	"go-micro.dev/v4/errors"
 )
 
 func init() {
@@ -10,6 +11,7 @@ func init() {
 }
 
 type FlagCLI struct {
+	flags       map[string]cli.Flag
 	stringFlags map[string]*cli.StringFlag
 	intFlags    map[string]*cli.IntFlag
 	options     *mCli.Options
@@ -18,33 +20,40 @@ type FlagCLI struct {
 
 func NewCLI(opts ...mCli.Option) mCli.CLI {
 	return &FlagCLI{
+		flags:       make(map[string]cli.Flag),
 		stringFlags: make(map[string]*cli.StringFlag),
 		intFlags:    make(map[string]*cli.IntFlag),
 		options:     mCli.NewCLIOptions(),
 	}
 }
 
-func (c *FlagCLI) AddInt(opts ...mCli.FlagOption) error {
-	options := mCli.NewFlag(opts...)
-
-	c.intFlags[options.Name] = &cli.IntFlag{
-		Name:    options.Name,
-		Usage:   options.Usage,
-		Value:   options.DefaultInt,
-		EnvVars: options.EnvVars,
+func (c *FlagCLI) Add(opts ...mCli.FlagOption) error {
+	options, err := mCli.NewFlag(opts...)
+	if err != nil {
+		return err
 	}
 
-	return nil
-}
-
-func (c *FlagCLI) AddString(opts ...mCli.FlagOption) error {
-	options := mCli.NewFlag(opts...)
-
-	c.stringFlags[options.Name] = &cli.StringFlag{
-		Name:    options.Name,
-		Usage:   options.Usage,
-		Value:   options.DefaultString,
-		EnvVars: options.EnvVars,
+	switch options.FlagType {
+	case mCli.FlagTypeInt:
+		f := &cli.IntFlag{
+			Name:    options.Name,
+			Usage:   options.Usage,
+			Value:   options.DefaultInt,
+			EnvVars: options.EnvVars,
+		}
+		c.flags[options.Name] = f
+		c.intFlags[options.Name] = f
+	case mCli.FlagTypeString:
+		f := &cli.StringFlag{
+			Name:    options.Name,
+			Usage:   options.Usage,
+			Value:   options.DefaultString,
+			EnvVars: options.EnvVars,
+		}
+		c.flags[options.Name] = f
+		c.stringFlags[options.Name] = f
+	default:
+		return errors.InternalServerError("USER_FLAG_WITHOUT_A_DEFAULTOPTION", "found a flag without a default option")
 	}
 
 	return nil
@@ -55,13 +64,11 @@ func (c *FlagCLI) Init(args []string, opts ...mCli.Option) error {
 		o(c.options)
 	}
 
-	flags := []cli.Flag{}
-	for _, f := range c.stringFlags {
-		flags = append(flags, f)
-	}
-
-	for _, f := range c.intFlags {
-		flags = append(flags, f)
+	i := 0
+	flags := make([]cli.Flag, len(c.flags))
+	for _, f := range c.flags {
+		flags[i] = f
+		i += 1
 	}
 
 	var ctx *cli.Context
@@ -73,6 +80,7 @@ func (c *FlagCLI) Init(args []string, opts ...mCli.Option) error {
 		Action: func(fCtx *cli.Context) error {
 			// Extract the ctx from the urfave app
 			ctx = fCtx
+
 			return nil
 		},
 	}
@@ -88,7 +96,11 @@ func (c *FlagCLI) Init(args []string, opts ...mCli.Option) error {
 	return nil
 }
 
-func (c *FlagCLI) String(name string) string {
+func (c *FlagCLI) String() string {
+	return "urfave"
+}
+
+func (c *FlagCLI) StringValue(name string) string {
 	flag, ok := c.stringFlags[name]
 	if !ok {
 		return ""
@@ -97,7 +109,7 @@ func (c *FlagCLI) String(name string) string {
 	return flag.Get(c.ctx)
 }
 
-func (c *FlagCLI) Int(name string) int {
+func (c *FlagCLI) IntValue(name string) int {
 	flag, ok := c.intFlags[name]
 	if !ok {
 		return 0

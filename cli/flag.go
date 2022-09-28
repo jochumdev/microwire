@@ -3,6 +3,8 @@
 
 package cli
 
+import "fmt"
+
 const (
 	FlagTypeNone   int = 0
 	FlagTypeString int = 1
@@ -30,9 +32,9 @@ func (f *Flag) AsOptions() []FlagOption {
 
 	switch f.FlagType {
 	case FlagTypeString:
-		result = append(result, DefaultValue(f.DefaultString))
+		result = append(result, Default(f.DefaultString))
 	case FlagTypeInt:
-		result = append(result, DefaultValue(f.DefaultInt))
+		result = append(result, Default(f.DefaultInt))
 	}
 
 	return result
@@ -56,7 +58,7 @@ func Usage(n string) FlagOption {
 	}
 }
 
-func DefaultValue[T any](n T) FlagOption {
+func Default[T any](n T) FlagOption {
 	return func(o *Flag) {
 		switch any(n).(type) {
 		case string:
@@ -69,7 +71,7 @@ func DefaultValue[T any](n T) FlagOption {
 	}
 }
 
-func NewFlag(opts ...FlagOption) *Flag {
+func NewFlag(opts ...FlagOption) (*Flag, error) {
 	options := &Flag{
 		Name:          "",
 		EnvVars:       []string{},
@@ -83,5 +85,9 @@ func NewFlag(opts ...FlagOption) *Flag {
 		o(options)
 	}
 
-	return options
+	if options.FlagType == FlagTypeNone {
+		return nil, fmt.Errorf("found flag '%s' without a default option", options.Name)
+	}
+
+	return options, nil
 }

@@ -12,7 +12,6 @@ import (
 	"github.com/google/wire"
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/broker"
-	"go-micro.dev/v4/errors"
 	"go-micro.dev/v4/registry"
 	"go-micro.dev/v4/transport"
 )
@@ -80,13 +79,8 @@ func ProvideInitializedCLI(
 ) (mWire.InitializedCli, error) {
 	// User flags
 	for _, f := range opts.Flags {
-		switch f.FlagType {
-		case mCli.FlagTypeString:
-			c.AddString(f.AsOptions()...)
-		case mCli.FlagTypeInt:
-			c.AddInt(f.AsOptions()...)
-		default:
-			return nil, errors.InternalServerError("USER_FLAG_WITHOUT_A_DEFAULTOPTION", "found a flag without a default option")
+		if err := c.Add(f.AsOptions()...); err != nil {
+			return nil, err
 		}
 	}
 
@@ -116,17 +110,14 @@ func ProvideMicroOpts(
 		micro.Version(opts.Version),
 	}
 
-	for n := range opts.Components {
-		switch n {
-		case mCli.ComponentName:
-			continue
-		case mBroker.ComponentName:
-			result = append(result, micro.Broker(broker))
-		case mRegistry.ComponentName:
-			result = append(result, micro.Registry(registry))
-		case mTransport.ComponentName:
-			result = append(result, micro.Transport(transport))
-		}
+	if broker != nil {
+		result = append(result, micro.Broker(broker))
+	}
+	if registry != nil {
+		result = append(result, micro.Registry(registry))
+	}
+	if transport != nil {
+		result = append(result, micro.Transport(transport))
 	}
 
 	for _, fn := range opts.BeforeStart {
