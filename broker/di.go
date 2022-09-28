@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	mCmd "github.com/go-micro/microwire/util/cmd"
-	"github.com/go-micro/microwire/util/generic"
 	mWire "github.com/go-micro/microwire/wire"
 	"github.com/google/wire"
 	"github.com/urfave/cli/v2"
@@ -62,4 +61,3 @@ func Provide(opts *BrokerOptions) (broker.Broker, error) {
 }
 
 var BrokerServiceSet = wire.NewSet(ProvideOptions, Provide)
-var Container = generic.NewContainer(func(opts ...broker.Option) broker.Broker { return nil })
