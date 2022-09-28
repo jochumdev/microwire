@@ -8,13 +8,6 @@ import (
 type HookFunc func() error
 type ActionFunc func(cli.CLI, micro.Service) error
 
-const (
-	ComponentBroker    = "broker"
-	ComponentCli       = "cli"
-	ComponentRegistry  = "registry"
-	ComponentTransport = "transport"
-)
-
 type Options struct {
 	ArgPrefix   string
 	Name        string

@@ -7,24 +7,63 @@
 package microwire
 
 import (
+	"github.com/go-micro/microwire/broker"
+	"github.com/go-micro/microwire/registry"
+	"github.com/go-micro/microwire/transport"
 	"github.com/go-micro/microwire/wire"
 	"go-micro.dev/v4"
 )
 
 // Injectors from wire.go:
 
-func WireService(opts ...wire.Option) (micro.Service, error) {
-	options := wire.ProvideOptions(opts)
+func NewWireService(opts ...wire.Option) (micro.Service, error) {
+	options := ProvideOptions(opts)
 	cli, err := ProvideCLI(options)
 	if err != nil {
 		return nil, err
 	}
 	cliArgs := ProvideCliArgs()
-	initializedCli, err := ProvideInitializedCLI(options, cli, cliArgs)
+	diFlags, err := broker.ProvideFlags(options, cli)
 	if err != nil {
 		return nil, err
 	}
-	v, err := ProvideMicroOpts(options, initializedCli)
+	registryDiFlags, err := registry.ProvideFlags(options, cli)
+	if err != nil {
+		return nil, err
+	}
+	transportDiFlags, err := transport.ProvideFlags(options, cli)
+	if err != nil {
+		return nil, err
+	}
+	initializedCli, err := ProvideInitializedCLI(options, cli, cliArgs, diFlags, registryDiFlags, transportDiFlags)
+	if err != nil {
+		return nil, err
+	}
+	diOptions, err := broker.ProvideOpts(options, initializedCli)
+	if err != nil {
+		return nil, err
+	}
+	brokerBroker, err := broker.Provide(options, diOptions)
+	if err != nil {
+		return nil, err
+	}
+	registryDiOptions, err := registry.ProvideOpts(options, initializedCli)
+	if err != nil {
+		return nil, err
+	}
+	registryRegistry, err := registry.Provide(options, registryDiOptions)
+	if err != nil {
+		return nil, err
+	}
+	transportDiOptions, err := transport.ProvideOpts(options, initializedCli)
+	if err != nil {
+		return nil, err
+	}
+	transportTransport, err := transport.Provide(options, transportDiOptions)
+	if err != nil {
+		return nil, err
+	}
+	v, err := ProvideMicroOpts(options, initializedCli, brokerBroker, registryRegistry, transportTransport)
 	if err != nil {
 		return nil, err
 	}

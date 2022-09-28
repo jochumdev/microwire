@@ -4,17 +4,61 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/go-micro/microwire/broker"
-	"github.com/go-micro/microwire/cli"
-	"github.com/go-micro/microwire/registry"
-	"github.com/go-micro/microwire/transport"
+	mBroker "github.com/go-micro/microwire/broker"
+	mCli "github.com/go-micro/microwire/cli"
+	mRegistry "github.com/go-micro/microwire/registry"
+	mTransport "github.com/go-micro/microwire/transport"
 	mWire "github.com/go-micro/microwire/wire"
+	"github.com/google/wire"
 	"go-micro.dev/v4"
+	"go-micro.dev/v4/broker"
 	"go-micro.dev/v4/errors"
+	"go-micro.dev/v4/registry"
+	"go-micro.dev/v4/transport"
 )
 
-func ProvideCLI(opts *mWire.Options) (cli.CLI, error) {
-	c, err := cli.Container.Get(opts.Components[mWire.ComponentCli])
+type CliArgs []string
+
+func ProvideOptions(opts []mWire.Option) *mWire.Options {
+	options := &mWire.Options{
+		ArgPrefix:   "",
+		Name:        "",
+		Description: "",
+		Version:     "",
+		Usage:       "",
+		Flags:       []mCli.Flag{},
+
+		Components: make(map[string]string),
+
+		Actions:     []mWire.ActionFunc{},
+		BeforeStart: []mWire.HookFunc{},
+		BeforeStop:  []mWire.HookFunc{},
+		AfterStart:  []mWire.HookFunc{},
+		AfterStop:   []mWire.HookFunc{},
+	}
+
+	for _, o := range opts {
+		o(options)
+	}
+
+	// Set default components
+	defaultComponents := map[string]string{
+		mBroker.ComponentName:    "http",
+		mCli.ComponentName:       "urfave",
+		mRegistry.ComponentName:  "mdns",
+		mTransport.ComponentName: "http",
+	}
+	for n, v := range defaultComponents {
+		if _, ok := options.Components[n]; !ok {
+			options.Components[n] = v
+		}
+	}
+
+	return options
+}
+
+func ProvideCLI(opts *mWire.Options) (mCli.CLI, error) {
+	c, err := mCli.Plugins.Get(opts.Components[mCli.ComponentName])
 	if err != nil {
 		return nil, fmt.Errorf("unknown cli given: %v", err)
 	}
@@ -22,37 +66,24 @@ func ProvideCLI(opts *mWire.Options) (cli.CLI, error) {
 	return c(), nil
 }
 
-func ProvideCliArgs() mWire.CliArgs {
+func ProvideCliArgs() CliArgs {
 	return os.Args
 }
 
-func ProvideInitializedCLI(opts *mWire.Options, c cli.CLI, args mWire.CliArgs) (mWire.InitializedCli, error) {
-
-	for n, _ := range opts.Components {
-		switch n {
-		case mWire.ComponentCli:
-			continue
-		case mWire.ComponentBroker:
-			if err := broker.InjectFlags(opts, c); err != nil {
-				return nil, err
-			}
-		case mWire.ComponentRegistry:
-			if err := registry.InjectFlags(opts, c); err != nil {
-				return nil, err
-			}
-		case mWire.ComponentTransport:
-			if err := transport.InjectFlags(opts, c); err != nil {
-				return nil, err
-			}
-		}
-	}
-
+func ProvideInitializedCLI(
+	opts *mWire.Options,
+	c mCli.CLI,
+	args CliArgs,
+	_ *mBroker.DiFlags,
+	_ *mRegistry.DiFlags,
+	_ *mTransport.DiFlags,
+) (mWire.InitializedCli, error) {
 	// User flags
 	for _, f := range opts.Flags {
 		switch f.FlagType {
-		case cli.FlagTypeString:
+		case mCli.FlagTypeString:
 			c.AddString(f.AsOptions()...)
-		case cli.FlagTypeInt:
+		case mCli.FlagTypeInt:
 			c.AddInt(f.AsOptions()...)
 		default:
 			return nil, errors.InternalServerError("USER_FLAG_WITHOUT_A_DEFAULTOPTION", "found a flag without a default option")
@@ -62,10 +93,10 @@ func ProvideInitializedCLI(opts *mWire.Options, c cli.CLI, args mWire.CliArgs) (
 	// Initialize the CLI / parse flags
 	if err := c.Init(
 		args,
-		cli.CliName(opts.Name),
-		cli.CliVersion(opts.Version),
-		cli.CliDescription(opts.Description),
-		cli.CliUsage(opts.Usage),
+		mCli.CliName(opts.Name),
+		mCli.CliVersion(opts.Version),
+		mCli.CliDescription(opts.Description),
+		mCli.CliUsage(opts.Usage),
 	); err != nil {
 		return nil, err
 	}
@@ -73,34 +104,28 @@ func ProvideInitializedCLI(opts *mWire.Options, c cli.CLI, args mWire.CliArgs) (
 	return c, nil
 }
 
-func ProvideMicroOpts(opts *mWire.Options, c mWire.InitializedCli) ([]micro.Option, error) {
+func ProvideMicroOpts(
+	opts *mWire.Options,
+	c mWire.InitializedCli,
+	broker broker.Broker,
+	registry registry.Registry,
+	transport transport.Transport,
+) ([]micro.Option, error) {
 	result := []micro.Option{
 		micro.Name(opts.Name),
 		micro.Version(opts.Version),
 	}
 
-	for n, _ := range opts.Components {
+	for n := range opts.Components {
 		switch n {
-		case mWire.ComponentCli:
+		case mCli.ComponentName:
 			continue
-		case mWire.ComponentBroker:
-			b, err := broker.Inject(opts, c)
-			if err != nil {
-				return result, fmt.Errorf("unknown broker: %v", err)
-			}
-			result = append(result, micro.Broker(b))
-		case mWire.ComponentRegistry:
-			r, err := registry.Inject(opts, c)
-			if err != nil {
-				return result, fmt.Errorf("unknown registry: %v", err)
-			}
-			result = append(result, micro.Registry(r))
-		case mWire.ComponentTransport:
-			t, err := transport.Inject(opts, c)
-			if err != nil {
-				return result, fmt.Errorf("unknown transport: %v", err)
-			}
-			result = append(result, micro.Transport(t))
+		case mBroker.ComponentName:
+			result = append(result, micro.Broker(broker))
+		case mRegistry.ComponentName:
+			result = append(result, micro.Registry(registry))
+		case mTransport.ComponentName:
+			result = append(result, micro.Transport(transport))
 		}
 	}
 
@@ -120,7 +145,7 @@ func ProvideMicroOpts(opts *mWire.Options, c mWire.InitializedCli) ([]micro.Opti
 	return result, nil
 }
 
-func ProvideMicroService(opts *mWire.Options, c cli.CLI, mOpts []micro.Option) (micro.Service, error) {
+func ProvideMicroService(opts *mWire.Options, c mCli.CLI, mOpts []micro.Option) (micro.Service, error) {
 	service := micro.NewService(
 		mOpts...,
 	)
@@ -133,3 +158,9 @@ func ProvideMicroService(opts *mWire.Options, c cli.CLI, mOpts []micro.Option) (
 
 	return service, nil
 }
+
+var AllComponentsSet = wire.NewSet(
+	mBroker.Provide,
+	mRegistry.Provide,
+	mTransport.Provide,
+)

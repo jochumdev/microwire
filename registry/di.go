@@ -1,18 +1,20 @@
 package registry
 
 import (
+	"fmt"
 	"strings"
 
 	mCli "github.com/go-micro/microwire/cli"
 	mWire "github.com/go-micro/microwire/wire"
+	"github.com/google/wire"
 	"go-micro.dev/v4/registry"
 	"go-micro.dev/v4/util/cmd"
 )
 
-type RegistryFlags bool
+type DiFlags struct{}
 
-type RegistryOptions struct {
-	Name      string
+type DiOptions struct {
+	Plugin    string
 	Addresses string
 }
 
@@ -21,14 +23,19 @@ const (
 	cliArgAddress = "registry_address"
 )
 
-func InjectFlags(opts *mWire.Options, c mCli.CLI) error {
+func ProvideFlags(opts *mWire.Options, c mCli.CLI) (*DiFlags, error) {
+	if _, ok := opts.Components[ComponentName]; !ok {
+		// Not defined silently ignore that
+		return nil, nil
+	}
+
 	if err := c.AddString(
 		mCli.Name(mCli.PrefixName(opts.ArgPrefix, cliArg)),
 		mCli.Usage("Registry for discovery. etcd, mdns"),
-		mCli.DefaultValue(opts.Components[mWire.ComponentRegistry]),
+		mCli.DefaultValue(opts.Components[ComponentName]),
 		mCli.EnvVars(mCli.PrefixEnv(opts.ArgPrefix, cliArg)),
 	); err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := c.AddString(
@@ -36,30 +43,47 @@ func InjectFlags(opts *mWire.Options, c mCli.CLI) error {
 		mCli.Usage("Comma-separated list of registry addresses"),
 		mCli.EnvVars(mCli.PrefixEnv(opts.ArgPrefix, cliArgAddress)),
 	); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &DiFlags{}, nil
 }
 
-func Inject(opts *mWire.Options, c mWire.InitializedCli) (registry.Registry, error) {
-	name := c.String(mCli.PrefixName(opts.ArgPrefix, cliArg))
-	addresses := c.String(mCli.PrefixName(opts.ArgPrefix, cliArgAddress))
+func ProvideOpts(opts *mWire.Options, c mWire.InitializedCli) (*DiOptions, error) {
+	if _, ok := opts.Components[ComponentName]; !ok {
+		// Not defined silently ignore that
+		return nil, nil
+	}
 
-	b, err := Container.Get(name)
+	return &DiOptions{
+		Plugin:    c.String(mCli.PrefixName(opts.ArgPrefix, cliArg)),
+		Addresses: c.String(mCli.PrefixName(opts.ArgPrefix, cliArgAddress)),
+	}, nil
+}
+
+func Provide(opts *mWire.Options, diOpts *DiOptions) (registry.Registry, error) {
+	if _, ok := opts.Components[ComponentName]; !ok {
+		// Not defined silently ignore that
+		return nil, nil
+	}
+
+	b, err := Plugins.Get(diOpts.Plugin)
 	if err != nil {
 		var ok bool
-		if b, ok = cmd.DefaultRegistries[name]; !ok {
-			return nil, err
+		if b, ok = cmd.DefaultRegistries[diOpts.Plugin]; !ok {
+			return nil, fmt.Errorf("unknown registry: %v", err)
 		}
 	}
 
 	var result registry.Registry
-	if len(addresses) > 0 {
-		result = b(registry.Addrs(strings.Split(addresses, ",")...))
+	if len(diOpts.Addresses) > 0 {
+		result = b(registry.Addrs(strings.Split(diOpts.Addresses, ",")...))
 	} else {
 		result = b()
 	}
 
 	return result, nil
 }
+
+// Provide is not in here as we always need to call it
+var Set = wire.NewSet(ProvideFlags, ProvideOpts)
