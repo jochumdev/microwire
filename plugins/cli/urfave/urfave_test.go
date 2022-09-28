@@ -16,22 +16,35 @@ func expect(t *testing.T, a interface{}, b interface{}) {
 	t.Helper()
 
 	if !reflect.DeepEqual(a, b) {
-		t.Errorf("Expected %v (type %v) - Got %v (type %v)", b, reflect.TypeOf(b), a, reflect.TypeOf(a))
+		t.Fatalf("Expected %v (type %v) - Got %v (type %v)", b, reflect.TypeOf(b), a, reflect.TypeOf(a))
 	}
 }
 
 func TestParse(t *testing.T) {
-	myCmd := NewCLI(
+	myCli := NewCLI(
 		cli.CliName("test"),
 		cli.CliVersion("v0.0.1"),
 		cli.CliDescription("Test Description"),
 		cli.CliUsage("Test Usage"),
 	)
 
-	myCmd.Add(cli.Name(FlagString), cli.Default("default string"), cli.EnvVars("STRINGFLAG"), cli.Usage("string flag usage"))
-	myCmd.Add(cli.Name(FlagInt), cli.Default(0), cli.EnvVars("INTFLAG"), cli.Usage("int flag usage"))
+	var destString string
+	var destInt int
+	myCli.Add(
+		cli.Name(FlagString),
+		cli.Default("micro!1!1"),
+		cli.EnvVars("STRINGFLAG"),
+		cli.Usage("string flag usage"),
+		cli.Destination(&destString),
+	)
+	myCli.Add(
+		cli.Name(FlagInt),
+		cli.EnvVars("INTFLAG"),
+		cli.Usage("int flag usage"),
+		cli.Destination(&destInt),
+	)
 
-	err := myCmd.Init(
+	err := myCli.Init(
 		[]string{
 			"testapp",
 			"--string",
@@ -42,6 +55,6 @@ func TestParse(t *testing.T) {
 	)
 	expect(t, err, nil)
 
-	expect(t, myCmd.StringValue(FlagString), "demo")
-	expect(t, myCmd.IntValue(FlagInt), 42)
+	expect(t, destString, "demo")
+	expect(t, destInt, 42)
 }

@@ -39,7 +39,7 @@ func NewWireService(opts ...wire.Option) (micro.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	diOptions, err := broker.ProvideOpts(options, initializedCli)
+	diOptions, err := broker.ProvideOpts(diFlags, initializedCli)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func NewWireService(opts ...wire.Option) (micro.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	registryDiOptions, err := registry.ProvideOpts(options, initializedCli)
+	registryDiOptions, err := registry.ProvideOpts(registryDiFlags, initializedCli)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func NewWireService(opts ...wire.Option) (micro.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	transportDiOptions, err := transport.ProvideOpts(options, initializedCli)
+	transportDiOptions, err := transport.ProvideOpts(transportDiFlags, initializedCli)
 	if err != nil {
 		return nil, err
 	}

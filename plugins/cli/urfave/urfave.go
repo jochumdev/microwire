@@ -20,7 +20,6 @@ type FlagCLI struct {
 
 func NewCLI(opts ...mCli.Option) mCli.CLI {
 	return &FlagCLI{
-		flags:       make(map[string]cli.Flag),
 		stringFlags: make(map[string]*cli.StringFlag),
 		intFlags:    make(map[string]*cli.IntFlag),
 		options:     mCli.NewCLIOptions(),
@@ -36,21 +35,21 @@ func (c *FlagCLI) Add(opts ...mCli.FlagOption) error {
 	switch options.FlagType {
 	case mCli.FlagTypeInt:
 		f := &cli.IntFlag{
-			Name:    options.Name,
-			Usage:   options.Usage,
-			Value:   options.DefaultInt,
-			EnvVars: options.EnvVars,
+			Name:        options.Name,
+			Usage:       options.Usage,
+			Value:       options.DefaultInt,
+			EnvVars:     options.EnvVars,
+			Destination: options.DestinationInt,
 		}
-		c.flags[options.Name] = f
 		c.intFlags[options.Name] = f
 	case mCli.FlagTypeString:
 		f := &cli.StringFlag{
-			Name:    options.Name,
-			Usage:   options.Usage,
-			Value:   options.DefaultString,
-			EnvVars: options.EnvVars,
+			Name:        options.Name,
+			Usage:       options.Usage,
+			Value:       options.DefaultString,
+			EnvVars:     options.EnvVars,
+			Destination: options.DestinationString,
 		}
-		c.flags[options.Name] = f
 		c.stringFlags[options.Name] = f
 	default:
 		return errors.InternalServerError("USER_FLAG_WITHOUT_A_DEFAULTOPTION", "found a flag without a default option")
@@ -65,8 +64,12 @@ func (c *FlagCLI) Init(args []string, opts ...mCli.Option) error {
 	}
 
 	i := 0
-	flags := make([]cli.Flag, len(c.flags))
-	for _, f := range c.flags {
+	flags := make([]cli.Flag, len(c.stringFlags)+len(c.intFlags))
+	for _, f := range c.stringFlags {
+		flags[i] = f
+		i += 1
+	}
+	for _, f := range c.intFlags {
 		flags[i] = f
 		i += 1
 	}
@@ -98,22 +101,4 @@ func (c *FlagCLI) Init(args []string, opts ...mCli.Option) error {
 
 func (c *FlagCLI) String() string {
 	return "urfave"
-}
-
-func (c *FlagCLI) StringValue(name string) string {
-	flag, ok := c.stringFlags[name]
-	if !ok {
-		return ""
-	}
-
-	return flag.Get(c.ctx)
-}
-
-func (c *FlagCLI) IntValue(name string) int {
-	flag, ok := c.intFlags[name]
-	if !ok {
-		return 0
-	}
-
-	return flag.Get(c.ctx)
 }

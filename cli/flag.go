@@ -16,9 +16,13 @@ type Flag struct {
 	EnvVars []string
 	Usage   string
 
-	FlagType      int
-	DefaultString string
-	DefaultInt    int
+	FlagType int
+
+	DefaultString     string
+	DestinationString *string
+
+	DefaultInt     int
+	DestinationInt *int
 }
 
 type FlagOption func(*Flag)
@@ -62,11 +66,24 @@ func Default[T any](n T) FlagOption {
 	return func(o *Flag) {
 		switch any(n).(type) {
 		case string:
-			o.FlagType = FlagTypeString
 			o.DefaultString = any(n).(string)
 		case int:
-			o.FlagType = FlagTypeInt
 			o.DefaultInt = any(n).(int)
+		}
+	}
+}
+
+func Destination[T any](n T) FlagOption {
+	return func(o *Flag) {
+		switch any(n).(type) {
+		case *string:
+			o.FlagType = FlagTypeString
+			o.DestinationString = any(n).(*string)
+		case *int:
+			o.FlagType = FlagTypeInt
+			o.DestinationInt = any(n).(*int)
+		default:
+			o.FlagType = FlagTypeNone
 		}
 	}
 }
@@ -86,7 +103,7 @@ func NewFlag(opts ...FlagOption) (*Flag, error) {
 	}
 
 	if options.FlagType == FlagTypeNone {
-		return nil, fmt.Errorf("found flag '%s' without a default option", options.Name)
+		return nil, fmt.Errorf("found flag '%s' without an Destination() option", options.Name)
 	}
 
 	return options, nil

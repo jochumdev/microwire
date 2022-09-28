@@ -11,12 +11,12 @@ import (
 	"go-micro.dev/v4/util/cmd"
 )
 
-type DiFlags struct{}
-
-type DiOptions struct {
+type DiFlags struct {
 	Plugin    string
 	Addresses string
 }
+
+type DiOptions DiFlags
 
 const (
 	cliArg        = "broker"
@@ -26,14 +26,17 @@ const (
 func ProvideFlags(opts *mWire.Options, c mCli.CLI) (*DiFlags, error) {
 	if _, ok := opts.Components[ComponentName]; !ok {
 		// Not defined silently ignore that
-		return nil, nil
+		return &DiFlags{}, nil
 	}
+
+	result := &DiFlags{}
 
 	if err := c.Add(
 		mCli.Name(mCli.PrefixName(opts.ArgPrefix, cliArg)),
 		mCli.Usage("Broker for pub/sub. http, nats, rabbitmq"),
 		mCli.Default(opts.Components[ComponentName]),
 		mCli.EnvVars(mCli.PrefixEnv(opts.ArgPrefix, cliArg)),
+		mCli.Destination(&result.Plugin),
 	); err != nil {
 		return nil, err
 	}
@@ -41,24 +44,19 @@ func ProvideFlags(opts *mWire.Options, c mCli.CLI) (*DiFlags, error) {
 	if err := c.Add(
 		mCli.Name(mCli.PrefixName(opts.ArgPrefix, cliArgAddress)),
 		mCli.Usage("Comma-separated list of broker addresses"),
-		mCli.Default(""),
 		mCli.EnvVars(mCli.PrefixEnv(opts.ArgPrefix, cliArgAddress)),
+		mCli.Destination(&result.Addresses),
 	); err != nil {
 		return nil, err
 	}
 
-	return &DiFlags{}, nil
+	return result, nil
 }
 
-func ProvideOpts(opts *mWire.Options, c mWire.InitializedCli) (*DiOptions, error) {
-	if _, ok := opts.Components[ComponentName]; !ok {
-		// Not defined silently ignore that
-		return nil, nil
-	}
-
+func ProvideOpts(diOpts *DiFlags, _ mWire.InitializedCli) (*DiOptions, error) {
 	return &DiOptions{
-		Plugin:    c.StringValue(mCli.PrefixName(opts.ArgPrefix, cliArg)),
-		Addresses: c.StringValue(mCli.PrefixName(opts.ArgPrefix, cliArgAddress)),
+		Plugin:    diOpts.Plugin,
+		Addresses: diOpts.Addresses,
 	}, nil
 }
 
@@ -86,5 +84,4 @@ func Provide(opts *mWire.Options, diOpts *DiOptions) (broker.Broker, error) {
 	return result, nil
 }
 
-// Provide is not in here as we always need to call it
 var Set = wire.NewSet(ProvideFlags, ProvideOpts)
