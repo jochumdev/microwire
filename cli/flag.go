@@ -6,9 +6,9 @@ package cli
 import "fmt"
 
 const (
-	FlagTypeNone   int = 0
-	FlagTypeString int = 1
-	FlagTypeInt    int = 2
+	FlagTypeNone   = iota
+	FlagTypeString = iota
+	FlagTypeInt    = iota
 )
 
 type Flag struct {
