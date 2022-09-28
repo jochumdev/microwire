@@ -15,11 +15,11 @@ func init() {
 type FlagCLI struct {
 	stringFlags map[string]cli.StringFlag
 	intFlags    map[string]cli.IntFlag
-	options     *mCli.CLIOptions
+	options     *mCli.Options
 	ctx         *cli.Context
 }
 
-func NewCLI(opts ...mCli.CLIOption) mCli.CLI {
+func NewCLI(opts ...mCli.Option) mCli.CLI {
 	return &FlagCLI{
 		stringFlags: make(map[string]cli.StringFlag),
 		intFlags:    make(map[string]cli.IntFlag),
@@ -27,8 +27,8 @@ func NewCLI(opts ...mCli.CLIOption) mCli.CLI {
 	}
 }
 
-func (c *FlagCLI) AddInt(opts ...mCli.Option) {
-	options := mCli.NewOptions(opts...)
+func (c *FlagCLI) AddInt(opts ...mCli.FlagOption) error {
+	options := mCli.NewFlag(opts...)
 
 	c.intFlags[options.Name] = cli.IntFlag{
 		Name:    options.Name,
@@ -36,10 +36,12 @@ func (c *FlagCLI) AddInt(opts ...mCli.Option) {
 		Value:   options.DefaultInt,
 		EnvVars: options.EnvVars,
 	}
+
+	return nil
 }
 
-func (c *FlagCLI) AddString(opts ...mCli.Option) {
-	options := mCli.NewOptions(opts...)
+func (c *FlagCLI) AddString(opts ...mCli.FlagOption) error {
+	options := mCli.NewFlag(opts...)
 
 	c.stringFlags[options.Name] = cli.StringFlag{
 		Name:    options.Name,
@@ -47,9 +49,11 @@ func (c *FlagCLI) AddString(opts ...mCli.Option) {
 		Value:   options.DefaultString,
 		EnvVars: options.EnvVars,
 	}
+
+	return nil
 }
 
-func (c *FlagCLI) Init(args []string, opts ...mCli.CLIOption) error {
+func (c *FlagCLI) Init(args []string, opts ...mCli.Option) error {
 	for _, o := range opts {
 		o(c.options)
 	}
@@ -81,7 +85,7 @@ func (c *FlagCLI) Init(args []string, opts ...mCli.CLIOption) error {
 	if err := set.Parse(args); err != nil {
 		return err
 	}
-	if len(set.Args()) > 0 {
+	if len(set.Args()) > 1 {
 		return fmt.Errorf("unknown flags '%v' given", set.Args())
 	}
 

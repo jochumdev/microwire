@@ -3,61 +3,61 @@ package broker
 import (
 	"strings"
 
-	mCmd "github.com/go-micro/microwire/util/cmd"
+	mCli "github.com/go-micro/microwire/cli"
 	mWire "github.com/go-micro/microwire/wire"
-	"github.com/google/wire"
-	"github.com/urfave/cli/v2"
 	"go-micro.dev/v4/broker"
 	"go-micro.dev/v4/util/cmd"
 )
-
-type BrokerFlags []cli.Flag
 
 type BrokerOptions struct {
 	Name      string
 	Addresses string
 }
 
-func ProvideFlags(opts *mWire.Options) BrokerFlags {
-	return BrokerFlags{
-		&cli.StringFlag{
-			Name:    mCmd.PrefixName(opts.ArgPrefix, "broker"),
-			Usage:   "Broker for pub/sub. http, nats, rabbitmq",
-			Value:   opts.DefaultBroker,
-			EnvVars: []string{mCmd.PrefixEnv(opts.ArgPrefix, "BROKER")},
-		},
-		&cli.StringFlag{
-			Name:    mCmd.PrefixName(opts.ArgPrefix, "broker_address"),
-			Usage:   "Comma-separated list of broker addresses",
-			EnvVars: []string{mCmd.PrefixEnv(opts.ArgPrefix, "BROKER_ADDRESS")},
-		},
+const (
+	cliArg        = "broker"
+	cliArgAddress = "broker_address"
+)
+
+func InjectFlags(opts *mWire.Options, c mCli.CLI) error {
+	if err := c.AddString(
+		mCli.Name(mCli.PrefixName(opts.ArgPrefix, cliArg)),
+		mCli.Usage("Broker for pub/sub. http, nats, rabbitmq"),
+		mCli.DefaultValue(opts.Components[mWire.ComponentBroker]),
+		mCli.EnvVars(mCli.PrefixEnv(opts.ArgPrefix, cliArg)),
+	); err != nil {
+		return err
 	}
+
+	if err := c.AddString(
+		mCli.Name(mCli.PrefixName(opts.ArgPrefix, cliArgAddress)),
+		mCli.Usage("Comma-separated list of broker addresses"),
+		mCli.EnvVars(mCli.PrefixEnv(opts.ArgPrefix, cliArgAddress)),
+	); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func ProvideOptions(opts *mWire.Options, c *cli.Context) *BrokerOptions {
-	return &BrokerOptions{
-		Name:      c.String(mCmd.PrefixName(opts.ArgPrefix, "broker")),
-		Addresses: c.String(mCmd.PrefixName(opts.ArgPrefix, "broker_addresses")),
-	}
-}
+func Inject(opts *mWire.Options, c mWire.InitializedCli) (broker.Broker, error) {
+	name := c.String(mCli.PrefixName(opts.ArgPrefix, cliArg))
+	addresses := c.String(mCli.PrefixName(opts.ArgPrefix, cliArgAddress))
 
-func Provide(opts *BrokerOptions) (broker.Broker, error) {
-	b, err := Container.Get(opts.Name)
+	b, err := Container.Get(name)
 	if err != nil {
 		var ok bool
-		if b, ok = cmd.DefaultBrokers[opts.Name]; !ok {
+		if b, ok = cmd.DefaultBrokers[name]; !ok {
 			return nil, err
 		}
 	}
 
 	var result broker.Broker
-	if len(opts.Addresses) > 0 {
-		result = b(broker.Addrs(strings.Split(opts.Addresses, ",")...))
+	if len(addresses) > 0 {
+		result = b(broker.Addrs(strings.Split(addresses, ",")...))
 	} else {
 		result = b()
 	}
 
 	return result, nil
 }
-
-var BrokerServiceSet = wire.NewSet(ProvideOptions, Provide)

@@ -7,44 +7,30 @@
 package microwire
 
 import (
-	"github.com/go-micro/microwire/broker"
-	"github.com/go-micro/microwire/registry"
-	"github.com/go-micro/microwire/transport"
 	"github.com/go-micro/microwire/wire"
-	"github.com/urfave/cli/v2"
 	"go-micro.dev/v4"
 )
 
 // Injectors from wire.go:
 
-func DefaultApp(opts ...wire.Option) (*cli.App, error) {
-	initializeServiceFunc := ProvideDefaultServiceInitializer()
-	options := wire.ProvideOptions(opts, initializeServiceFunc)
-	brokerFlags := broker.ProvideFlags(options)
-	registryFlags := registry.ProvideFlags(options)
-	transportFlags := transport.ProvideFlags(options)
-	internalFlags := ProvideDefaultFlags(options, brokerFlags, registryFlags, transportFlags)
-	app := wire.ProvideApp(options, internalFlags)
-	return app, nil
-}
-
-func DefaultService(ctx *cli.Context, opts *wire.Options) (micro.Service, error) {
-	brokerOptions := broker.ProvideOptions(opts, ctx)
-	brokerBroker, err := broker.Provide(brokerOptions)
+func DefaultApp(opts ...wire.Option) (micro.Service, error) {
+	options := wire.ProvideOptions(opts)
+	cli, err := ProvideCLI(options)
 	if err != nil {
 		return nil, err
 	}
-	registryOptions := registry.ProvideOptions(opts, ctx)
-	registryRegistry, err := registry.Provide(registryOptions)
+	cliArgs := ProvideCliArgs()
+	initializedCli, err := ProvideInitializedCLI(options, cli, cliArgs)
 	if err != nil {
 		return nil, err
 	}
-	transportOptions := transport.ProvideOptions(opts, ctx)
-	transportTransport, err := transport.Provide(transportOptions)
+	v, err := ProvideMicroOpts(options, initializedCli)
 	if err != nil {
 		return nil, err
 	}
-	v := ProvideDefaultMicroOpts(opts, brokerBroker, registryRegistry, transportTransport)
-	service := wire.ProvideMicroService(opts, ctx, v)
+	service, err := ProvideMicroService(options, cli, v)
+	if err != nil {
+		return nil, err
+	}
 	return service, nil
 }

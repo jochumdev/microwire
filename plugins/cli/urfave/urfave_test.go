@@ -33,6 +33,7 @@ func TestParse(t *testing.T) {
 
 	err := myCmd.Init(
 		[]string{
+			"testapp",
 			"--string",
 			"demo",
 			"--int",

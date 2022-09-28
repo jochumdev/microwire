@@ -1,26 +1,29 @@
 package wire
 
 import (
-	"github.com/urfave/cli/v2"
+	"github.com/go-micro/microwire/cli"
 	"go-micro.dev/v4"
 )
 
-type InitializeServiceFunc func(*cli.Context, *Options) (micro.Service, error)
-
 type HookFunc func() error
-type ActionFunc func(*cli.Context, micro.Service) error
+type ActionFunc func(cli.CLI, micro.Service) error
+
+const (
+	ComponentBroker    = "broker"
+	ComponentCli       = "cli"
+	ComponentRegistry  = "registry"
+	ComponentTransport = "transport"
+)
 
 type Options struct {
-	ArgPrefix string
-	Name      string
-	Version   string
-	Usage     string
-	Flags     []cli.Flag
+	ArgPrefix   string
+	Name        string
+	Description string
+	Version     string
+	Usage       string
+	Flags       []cli.Flag
 
-	// Default
-	DefaultBroker    string
-	DefaultTransport string
-	DefaultRegistry  string
+	Components map[string]string
 
 	// Livecycle
 	Actions     []ActionFunc
@@ -28,9 +31,6 @@ type Options struct {
 	BeforeStop  []HookFunc
 	AfterStart  []HookFunc
 	AfterStop   []HookFunc
-
-	// Internal
-	InitService InitializeServiceFunc
 }
 
 type Option func(*Options)
@@ -44,6 +44,12 @@ func ArgPrefix(n string) Option {
 func Name(n string) Option {
 	return func(o *Options) {
 		o.Name = n
+	}
+}
+
+func Description(n string) Option {
+	return func(o *Options) {
+		o.Description = n
 	}
 }
 
@@ -65,21 +71,9 @@ func Flags(n []cli.Flag) Option {
 	}
 }
 
-func DefaultBroker(n string) Option {
+func Component(name string, plugin string) Option {
 	return func(o *Options) {
-		o.DefaultBroker = n
-	}
-}
-
-func DefaultTransport(n string) Option {
-	return func(o *Options) {
-		o.DefaultTransport = n
-	}
-}
-
-func DefaultRegistry(n string) Option {
-	return func(o *Options) {
-		o.DefaultRegistry = n
+		o.Components[name] = plugin
 	}
 }
 
@@ -117,31 +111,4 @@ func AfterStop(fn HookFunc) Option {
 	return func(o *Options) {
 		o.AfterStop = append(o.AfterStop, fn)
 	}
-}
-
-func ProvideOptions(opts []Option, initService InitializeServiceFunc) *Options {
-	options := &Options{
-		ArgPrefix: "",
-		Name:      "",
-		Version:   "",
-		Usage:     "",
-		Flags:     []cli.Flag{},
-
-		DefaultBroker:    "http",
-		DefaultRegistry:  "mdns",
-		DefaultTransport: "http",
-
-		Actions:     []ActionFunc{},
-		BeforeStart: []HookFunc{},
-		BeforeStop:  []HookFunc{},
-		AfterStart:  []HookFunc{},
-		AfterStop:   []HookFunc{},
-		InitService: initService,
-	}
-
-	for _, o := range opts {
-		o(options)
-	}
-
-	return options
 }

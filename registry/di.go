@@ -3,63 +3,63 @@ package registry
 import (
 	"strings"
 
-	mCmd "github.com/go-micro/microwire/util/cmd"
-	"github.com/go-micro/microwire/util/generic"
+	mCli "github.com/go-micro/microwire/cli"
 	mWire "github.com/go-micro/microwire/wire"
-	"github.com/google/wire"
-	"github.com/urfave/cli/v2"
 	"go-micro.dev/v4/registry"
 	"go-micro.dev/v4/util/cmd"
 )
 
-type RegistryFlags []cli.Flag
+type RegistryFlags bool
 
 type RegistryOptions struct {
 	Name      string
 	Addresses string
 }
 
-func ProvideFlags(opts *mWire.Options) RegistryFlags {
-	return RegistryFlags{
-		&cli.StringFlag{
-			Name:    mCmd.PrefixName(opts.ArgPrefix, "registry"),
-			Usage:   "Registry for discovery. etcd, mdns",
-			Value:   opts.DefaultRegistry,
-			EnvVars: []string{mCmd.PrefixEnv(opts.ArgPrefix, "REGISTRY")},
-		},
-		&cli.StringFlag{
-			Name:    mCmd.PrefixName(opts.ArgPrefix, "registry_address"),
-			Usage:   "Comma-separated list of registry addresses",
-			EnvVars: []string{mCmd.PrefixEnv(opts.ArgPrefix, "REGISTRY_ADDRESS")},
-		},
+const (
+	cliArg        = "registry"
+	cliArgAddress = "registry_address"
+)
+
+func InjectFlags(opts *mWire.Options, c mCli.CLI) error {
+	if err := c.AddString(
+		mCli.Name(mCli.PrefixName(opts.ArgPrefix, cliArg)),
+		mCli.Usage("Registry for discovery. etcd, mdns"),
+		mCli.DefaultValue(opts.Components[mWire.ComponentRegistry]),
+		mCli.EnvVars(mCli.PrefixEnv(opts.ArgPrefix, cliArg)),
+	); err != nil {
+		return err
 	}
+
+	if err := c.AddString(
+		mCli.Name(mCli.PrefixName(opts.ArgPrefix, cliArgAddress)),
+		mCli.Usage("Comma-separated list of registry addresses"),
+		mCli.EnvVars(mCli.PrefixEnv(opts.ArgPrefix, cliArgAddress)),
+	); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func ProvideOptions(opts *mWire.Options, c *cli.Context) *RegistryOptions {
-	return &RegistryOptions{
-		Name:      c.String(mCmd.PrefixName(opts.ArgPrefix, "registry")),
-		Addresses: c.String(mCmd.PrefixName(opts.ArgPrefix, "registry_addresses")),
-	}
-}
+func Inject(opts *mWire.Options, c mWire.InitializedCli) (registry.Registry, error) {
+	name := c.String(mCli.PrefixName(opts.ArgPrefix, cliArg))
+	addresses := c.String(mCli.PrefixName(opts.ArgPrefix, cliArgAddress))
 
-func Provide(opts *RegistryOptions) (registry.Registry, error) {
-	b, err := Container.Get(opts.Name)
+	b, err := Container.Get(name)
 	if err != nil {
 		var ok bool
-		if b, ok = cmd.DefaultRegistries[opts.Name]; !ok {
+		if b, ok = cmd.DefaultRegistries[name]; !ok {
 			return nil, err
 		}
 	}
 
 	var result registry.Registry
-	if len(opts.Addresses) > 0 {
-		result = b(registry.Addrs(strings.Split(opts.Addresses, ",")...))
+	if len(addresses) > 0 {
+		result = b(registry.Addrs(strings.Split(addresses, ",")...))
 	} else {
 		result = b()
 	}
 
 	return result, nil
 }
-
-var Container = generic.NewContainer(func(opts ...registry.Option) registry.Registry { return nil })
-var RegistryServiceSet = wire.NewSet(ProvideOptions, Provide)

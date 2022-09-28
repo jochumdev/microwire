@@ -2,13 +2,13 @@ package cli
 
 type CLI interface {
 	// AddString adds a String Flag to CLI
-	AddString(opts ...Option)
+	AddString(opts ...FlagOption) error
 
 	// AddInt adds a Int Flag to CLI
-	AddInt(opts ...Option)
+	AddInt(opts ...FlagOption) error
 
 	// Init parses flags from args you MUST Add Flags first
-	Init(args []string, opts ...CLIOption) error
+	Init(args []string, opts ...Option) error
 
 	// String returns the string value of a flag
 	String(name string) string

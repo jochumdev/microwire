@@ -3,64 +3,63 @@ package transport
 import (
 	"strings"
 
-	mCmd "github.com/go-micro/microwire/util/cmd"
-	"github.com/go-micro/microwire/util/generic"
+	mCli "github.com/go-micro/microwire/cli"
 	mWire "github.com/go-micro/microwire/wire"
-	"github.com/urfave/cli/v2"
 	"go-micro.dev/v4/transport"
 	"go-micro.dev/v4/util/cmd"
-
-	"github.com/google/wire"
 )
 
-type TransportFlags []cli.Flag
+type TransportFlags bool
 
 type TransportOptions struct {
 	Name      string
 	Addresses string
 }
 
-func ProvideFlags(opts *mWire.Options) TransportFlags {
-	return TransportFlags{
-		&cli.StringFlag{
-			Name:    mCmd.PrefixName(opts.ArgPrefix, "transport"),
-			Usage:   "Transport for pub/sub. http, nats, rabbitmq",
-			Value:   opts.DefaultTransport,
-			EnvVars: []string{mCmd.PrefixEnv(opts.ArgPrefix, "BROKER")},
-		},
-		&cli.StringFlag{
-			Name:    mCmd.PrefixName(opts.ArgPrefix, "transport_address"),
-			Usage:   "Comma-separated list of transport addresses",
-			EnvVars: []string{mCmd.PrefixEnv(opts.ArgPrefix, "BROKER_ADDRESS")},
-		},
+const (
+	cliArg        = "transport"
+	cliArgAddress = "transport_address"
+)
+
+func InjectFlags(opts *mWire.Options, c mCli.CLI) error {
+	if err := c.AddString(
+		mCli.Name(mCli.PrefixName(opts.ArgPrefix, cliArg)),
+		mCli.Usage("Transport for pub/sub. http, nats, rabbitmq"),
+		mCli.DefaultValue(opts.Components[mWire.ComponentTransport]),
+		mCli.EnvVars(mCli.PrefixEnv(opts.ArgPrefix, cliArg)),
+	); err != nil {
+		return err
 	}
+
+	if err := c.AddString(
+		mCli.Name(mCli.PrefixName(opts.ArgPrefix, cliArgAddress)),
+		mCli.Usage("Comma-separated list of broker addresses"),
+		mCli.EnvVars(mCli.PrefixEnv(opts.ArgPrefix, cliArgAddress)),
+	); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func ProvideOptions(opts *mWire.Options, c *cli.Context) *TransportOptions {
-	return &TransportOptions{
-		Name:      c.String(mCmd.PrefixName(opts.ArgPrefix, "transport")),
-		Addresses: c.String(mCmd.PrefixName(opts.ArgPrefix, "transport_addresses")),
-	}
-}
+func Inject(opts *mWire.Options, c mWire.InitializedCli) (transport.Transport, error) {
+	name := c.String(mCli.PrefixName(opts.ArgPrefix, cliArg))
+	addresses := c.String(mCli.PrefixName(opts.ArgPrefix, cliArgAddress))
 
-func Provide(opts *TransportOptions) (transport.Transport, error) {
-	b, err := Container.Get(opts.Name)
+	b, err := Container.Get(name)
 	if err != nil {
 		var ok bool
-		if b, ok = cmd.DefaultTransports[opts.Name]; !ok {
+		if b, ok = cmd.DefaultTransports[name]; !ok {
 			return nil, err
 		}
 	}
 
 	var result transport.Transport
-	if len(opts.Addresses) > 0 {
-		result = b(transport.Addrs(strings.Split(opts.Addresses, ",")...))
+	if len(addresses) > 0 {
+		result = b(transport.Addrs(strings.Split(addresses, ",")...))
 	} else {
 		result = b()
 	}
 
 	return result, nil
 }
-
-var TransportServiceSet = wire.NewSet(ProvideOptions, Provide)
-var Container = generic.NewContainer(func(opts ...transport.Option) transport.Transport { return nil })
