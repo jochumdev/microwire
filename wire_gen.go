@@ -13,7 +13,7 @@ import (
 
 // Injectors from wire.go:
 
-func DefaultApp(opts ...wire.Option) (micro.Service, error) {
+func WireService(opts ...wire.Option) (micro.Service, error) {
 	options := wire.ProvideOptions(opts)
 	cli, err := ProvideCLI(options)
 	if err != nil {

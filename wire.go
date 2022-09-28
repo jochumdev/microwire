@@ -10,7 +10,7 @@ import (
 	"go-micro.dev/v4"
 )
 
-func DefaultApp(opts ...mWire.Option) (micro.Service, error) {
+func WireService(opts ...mWire.Option) (micro.Service, error) {
 	panic(wire.Build(
 		mWire.ProvideOptions,
 		ProvideCLI,
