@@ -38,7 +38,7 @@ func ProvideFlags(
 
 	if err := c.Add(
 		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArg)),
-		mCli.Usage("Transport for pub/sub. http, nats, rabbitmq"),
+		mCli.Usage("Transport mechanism used; http"),
 		mCli.Default(config.Plugin),
 		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArg)),
 		mCli.Destination(&result.Plugin),
@@ -49,6 +49,7 @@ func ProvideFlags(
 	if err := c.Add(
 		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgAddress)),
 		mCli.Usage("Comma-separated list of transport addresses"),
+		mCli.Default(strings.Join(config.Addresses, ",")),
 		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddress)),
 		mCli.Destination(&result.Addresses),
 	); err != nil {

@@ -49,6 +49,7 @@ func ProvideFlags(
 	if err := c.Add(
 		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgAddress)),
 		mCli.Usage("Comma-separated list of broker addresses"),
+		mCli.Default(strings.Join(config.Addresses, ",")),
 		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddress)),
 		mCli.Destination(&result.Addresses),
 	); err != nil {
