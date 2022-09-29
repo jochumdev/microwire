@@ -1,7 +1,5 @@
 package cli
 
-type InitializedCli CLI
-
 type CLI interface {
 	// Add adds a Flag to CLI
 	Add(opts ...FlagOption) error

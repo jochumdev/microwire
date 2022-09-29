@@ -53,7 +53,7 @@ func ProvideFlags(opts *mWire.Options, c mCli.CLI) (*DiFlags, error) {
 	return result, nil
 }
 
-func ProvideOpts(diOpts *DiFlags, _ mWire.InitializedCli) (*DiOptions, error) {
+func ProvideOpts(diOpts *DiFlags, _ mCli.ParsedCli) (*DiOptions, error) {
 	return &DiOptions{
 		Plugin:    diOpts.Plugin,
 		Addresses: diOpts.Addresses,

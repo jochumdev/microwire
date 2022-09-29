@@ -78,7 +78,7 @@ func ProvideInitializedCLI(
 	_ *mBroker.DiFlags,
 	_ *mRegistry.DiFlags,
 	_ *mTransport.DiFlags,
-) (mCli.InitializedCli, error) {
+) (mCli.ParsedCli, error) {
 	// User flags
 	for _, f := range opts.Flags {
 		if err := c.Add(f.AsOptions()...); err != nil {
@@ -102,7 +102,7 @@ func ProvideInitializedCLI(
 
 func ProvideMicroOpts(
 	opts *mWire.Options,
-	c mCli.InitializedCli,
+	c mCli.ParsedCli,
 	broker broker.Broker,
 	registry registry.Registry,
 	transport transport.Transport,
