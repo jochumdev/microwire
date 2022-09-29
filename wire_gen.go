@@ -10,64 +10,189 @@ import (
 	"github.com/go-micro/microwire/broker"
 	"github.com/go-micro/microwire/registry"
 	"github.com/go-micro/microwire/transport"
-	"github.com/go-micro/microwire/wire"
 	"go-micro.dev/v4"
 )
 
 // Injectors from wire.go:
 
-func NewWireService(opts ...wire.Option) (micro.Service, error) {
+func NewService(opts ...Option) (micro.Service, error) {
+	configStore, err := ProvideConfigStore()
+	if err != nil {
+		return nil, err
+	}
 	options := ProvideOptions(opts)
-	cli, err := ProvideCLI(options)
+	diDefaultConfigStore, err := ProvideDefaultConfigStore()
+	if err != nil {
+		return nil, err
+	}
+	diStage1ConfigStore, err := ProvideStage1ConfigStore(options, configStore, diDefaultConfigStore)
+	if err != nil {
+		return nil, err
+	}
+	brokerConfigStore, err := ProvideBrokerConfigStore(diStage1ConfigStore, configStore)
+	if err != nil {
+		return nil, err
+	}
+	cliConfigStore, err := ProvideCliConfigStore(diStage1ConfigStore, configStore)
+	if err != nil {
+		return nil, err
+	}
+	cli, err := ProvideCLI(diStage1ConfigStore, cliConfigStore)
+	if err != nil {
+		return nil, err
+	}
+	diFlags, err := broker.ProvideFlags(brokerConfigStore, cliConfigStore, cli)
+	if err != nil {
+		return nil, err
+	}
+	registryConfigStore, err := ProvideRegistryConfigStore(diStage1ConfigStore, configStore)
+	if err != nil {
+		return nil, err
+	}
+	registryDiFlags, err := registry.ProvideFlags(registryConfigStore, cliConfigStore, cli)
+	if err != nil {
+		return nil, err
+	}
+	transportConfigStore, err := ProvideTransportConfigStore(diStage1ConfigStore, configStore)
+	if err != nil {
+		return nil, err
+	}
+	transportDiFlags, err := transport.ProvideFlags(transportConfigStore, cliConfigStore, cli)
 	if err != nil {
 		return nil, err
 	}
 	cliArgs := ProvideCliArgs()
-	diFlags, err := broker.ProvideFlags(options, cli)
+	parsedCli, err := ProvideInitializedCLI(diFlags, registryDiFlags, transportDiFlags, options, cli, cliArgs)
 	if err != nil {
 		return nil, err
 	}
-	registryDiFlags, err := registry.ProvideFlags(options, cli)
+	diStage2ConfigStore, err := ProvideStage2ConfigStore(diStage1ConfigStore, configStore)
 	if err != nil {
 		return nil, err
 	}
-	transportDiFlags, err := transport.ProvideFlags(options, cli)
+	diStage3ConfigStore, err := ProvideStage3ConfigStore(diStage2ConfigStore, configStore)
 	if err != nil {
 		return nil, err
 	}
-	parsedCli, err := ProvideInitializedCLI(options, cli, cliArgs, diFlags, registryDiFlags, transportDiFlags)
+	diConfig, err := broker.ProvideDiConfig(parsedCli, diFlags, cliConfigStore, brokerConfigStore)
 	if err != nil {
 		return nil, err
 	}
-	diOptions, err := broker.ProvideOpts(diFlags, parsedCli)
+	brokerBroker, err := broker.Provide(diStage3ConfigStore, brokerConfigStore, diConfig)
 	if err != nil {
 		return nil, err
 	}
-	brokerBroker, err := broker.Provide(options, diOptions)
+	registryDiConfig, err := registry.ProvideDiConfig(parsedCli, registryDiFlags, cliConfigStore, registryConfigStore)
 	if err != nil {
 		return nil, err
 	}
-	registryDiOptions, err := registry.ProvideOpts(registryDiFlags, parsedCli)
+	registryRegistry, err := registry.Provide(diStage3ConfigStore, registryConfigStore, registryDiConfig)
 	if err != nil {
 		return nil, err
 	}
-	registryRegistry, err := registry.Provide(options, registryDiOptions)
+	transportDiConfig, err := transport.ProvideDiConfig(parsedCli, transportDiFlags, cliConfigStore, transportConfigStore)
 	if err != nil {
 		return nil, err
 	}
-	transportDiOptions, err := transport.ProvideOpts(transportDiFlags, parsedCli)
+	transportTransport, err := transport.Provide(diStage3ConfigStore, transportConfigStore, transportDiConfig)
 	if err != nil {
 		return nil, err
 	}
-	transportTransport, err := transport.Provide(options, transportDiOptions)
+	v, err := ProvideMicroOpts(options, parsedCli, diStage3ConfigStore, brokerBroker, registryRegistry, transportTransport)
 	if err != nil {
 		return nil, err
 	}
-	v, err := ProvideMicroOpts(options, parsedCli, brokerBroker, registryRegistry, transportTransport)
+	service, err := ProvideMicroService(configStore, options, v)
 	if err != nil {
 		return nil, err
 	}
-	service, err := ProvideMicroService(options, cli, v)
+	return service, nil
+}
+
+func NewServiceWithConfigStore(config ConfigStore, opts ...Option) (micro.Service, error) {
+	options := ProvideOptions(opts)
+	diDefaultConfigStore, err := ProvideDefaultConfigStore()
+	if err != nil {
+		return nil, err
+	}
+	diStage1ConfigStore, err := ProvideStage1ConfigStore(options, config, diDefaultConfigStore)
+	if err != nil {
+		return nil, err
+	}
+	configStore, err := ProvideBrokerConfigStore(diStage1ConfigStore, config)
+	if err != nil {
+		return nil, err
+	}
+	cliConfigStore, err := ProvideCliConfigStore(diStage1ConfigStore, config)
+	if err != nil {
+		return nil, err
+	}
+	cli, err := ProvideCLI(diStage1ConfigStore, cliConfigStore)
+	if err != nil {
+		return nil, err
+	}
+	diFlags, err := broker.ProvideFlags(configStore, cliConfigStore, cli)
+	if err != nil {
+		return nil, err
+	}
+	registryConfigStore, err := ProvideRegistryConfigStore(diStage1ConfigStore, config)
+	if err != nil {
+		return nil, err
+	}
+	registryDiFlags, err := registry.ProvideFlags(registryConfigStore, cliConfigStore, cli)
+	if err != nil {
+		return nil, err
+	}
+	transportConfigStore, err := ProvideTransportConfigStore(diStage1ConfigStore, config)
+	if err != nil {
+		return nil, err
+	}
+	transportDiFlags, err := transport.ProvideFlags(transportConfigStore, cliConfigStore, cli)
+	if err != nil {
+		return nil, err
+	}
+	cliArgs := ProvideCliArgs()
+	parsedCli, err := ProvideInitializedCLI(diFlags, registryDiFlags, transportDiFlags, options, cli, cliArgs)
+	if err != nil {
+		return nil, err
+	}
+	diStage2ConfigStore, err := ProvideStage2ConfigStore(diStage1ConfigStore, config)
+	if err != nil {
+		return nil, err
+	}
+	diStage3ConfigStore, err := ProvideStage3ConfigStore(diStage2ConfigStore, config)
+	if err != nil {
+		return nil, err
+	}
+	diConfig, err := broker.ProvideDiConfig(parsedCli, diFlags, cliConfigStore, configStore)
+	if err != nil {
+		return nil, err
+	}
+	brokerBroker, err := broker.Provide(diStage3ConfigStore, configStore, diConfig)
+	if err != nil {
+		return nil, err
+	}
+	registryDiConfig, err := registry.ProvideDiConfig(parsedCli, registryDiFlags, cliConfigStore, registryConfigStore)
+	if err != nil {
+		return nil, err
+	}
+	registryRegistry, err := registry.Provide(diStage3ConfigStore, registryConfigStore, registryDiConfig)
+	if err != nil {
+		return nil, err
+	}
+	transportDiConfig, err := transport.ProvideDiConfig(parsedCli, transportDiFlags, cliConfigStore, transportConfigStore)
+	if err != nil {
+		return nil, err
+	}
+	transportTransport, err := transport.Provide(diStage3ConfigStore, transportConfigStore, transportDiConfig)
+	if err != nil {
+		return nil, err
+	}
+	v, err := ProvideMicroOpts(options, parsedCli, diStage3ConfigStore, brokerBroker, registryRegistry, transportTransport)
+	if err != nil {
+		return nil, err
+	}
+	service, err := ProvideMicroService(config, options, v)
 	if err != nil {
 		return nil, err
 	}

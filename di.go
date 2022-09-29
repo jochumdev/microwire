@@ -6,10 +6,10 @@ import (
 
 	mBroker "github.com/go-micro/microwire/broker"
 	mCli "github.com/go-micro/microwire/cli"
+
 	mRegistry "github.com/go-micro/microwire/registry"
 	mTransport "github.com/go-micro/microwire/transport"
 	mWire "github.com/go-micro/microwire/wire"
-	"github.com/google/wire"
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/broker"
 	"go-micro.dev/v4/registry"
@@ -18,46 +18,37 @@ import (
 
 type CliArgs []string
 
-func ProvideOptions(opts []mWire.Option) *mWire.Options {
-	options := &mWire.Options{
+func ProvideOptions(opts []Option) *Options {
+	options := &Options{
 		ArgPrefix:   "",
 		Name:        "",
 		Description: "",
 		Version:     "",
 		Usage:       "",
+		NoFlags:     false,
 		Flags:       []mCli.Flag{},
 
 		Components: make(map[string]string),
 
-		Actions:     []mWire.ActionFunc{},
-		BeforeStart: []mWire.HookFunc{},
-		BeforeStop:  []mWire.HookFunc{},
-		AfterStart:  []mWire.HookFunc{},
-		AfterStop:   []mWire.HookFunc{},
+		Actions:     []ActionFunc{},
+		BeforeStart: []HookFunc{},
+		BeforeStop:  []HookFunc{},
+		AfterStart:  []HookFunc{},
+		AfterStop:   []HookFunc{},
 	}
 
 	for _, o := range opts {
 		o(options)
 	}
 
-	// Set default components
-	defaultComponents := map[string]string{
-		mBroker.ComponentName:    "http",
-		mCli.ComponentName:       "urfave",
-		mRegistry.ComponentName:  "mdns",
-		mTransport.ComponentName: "http",
-	}
-	for n, v := range defaultComponents {
-		if _, ok := options.Components[n]; !ok {
-			options.Components[n] = v
-		}
-	}
-
 	return options
 }
 
-func ProvideCLI(opts *mWire.Options) (mCli.CLI, error) {
-	c, err := mCli.Plugins.Get(opts.Components[mCli.ComponentName])
+func ProvideCLI(
+	_ mWire.DiStage1ConfigStore,
+	config *mCli.ConfigStore,
+) (mCli.CLI, error) {
+	c, err := mCli.Plugins.Get(config.Plugin)
 	if err != nil {
 		return nil, fmt.Errorf("unknown cli given: %v", err)
 	}
@@ -70,14 +61,14 @@ func ProvideCliArgs() CliArgs {
 }
 
 func ProvideInitializedCLI(
-	opts *mWire.Options,
-	c mCli.CLI,
-	args CliArgs,
-
 	// These are here because they do something with cli.CLI
 	_ *mBroker.DiFlags,
 	_ *mRegistry.DiFlags,
 	_ *mTransport.DiFlags,
+
+	opts *Options,
+	c mCli.CLI,
+	args CliArgs,
 ) (mCli.ParsedCli, error) {
 	// User flags
 	for _, f := range opts.Flags {
@@ -101,8 +92,12 @@ func ProvideInitializedCLI(
 }
 
 func ProvideMicroOpts(
-	opts *mWire.Options,
+	opts *Options,
 	c mCli.ParsedCli,
+
+	// Just to be save and clear, all components require stage3
+	_ mWire.DiStage3ConfigStore,
+
 	broker broker.Broker,
 	registry registry.Registry,
 	transport transport.Transport,
@@ -138,22 +133,16 @@ func ProvideMicroOpts(
 	return result, nil
 }
 
-func ProvideMicroService(opts *mWire.Options, c mCli.CLI, mOpts []micro.Option) (micro.Service, error) {
+func ProvideMicroService(config ConfigStore, opts *Options, mOpts []micro.Option) (micro.Service, error) {
 	service := micro.NewService(
 		mOpts...,
 	)
 
 	for _, fn := range opts.Actions {
-		if err := fn(c, service); err != nil {
+		if err := fn(config, service); err != nil {
 			return nil, err
 		}
 	}
 
 	return service, nil
 }
-
-var AllComponentsSet = wire.NewSet(
-	mBroker.Provide,
-	mRegistry.Provide,
-	mTransport.Provide,
-)

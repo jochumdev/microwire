@@ -1,4 +1,4 @@
-package wire
+package microwire
 
 import (
 	"github.com/go-micro/microwire/cli"
@@ -6,7 +6,7 @@ import (
 )
 
 type HookFunc func() error
-type ActionFunc func(cli.CLI, micro.Service) error
+type ActionFunc func(ConfigStore, micro.Service) error
 
 type Options struct {
 	ArgPrefix   string
@@ -14,6 +14,7 @@ type Options struct {
 	Description string
 	Version     string
 	Usage       string
+	NoFlags     bool
 	Flags       []cli.Flag
 
 	Components map[string]string
@@ -55,6 +56,12 @@ func Version(n string) Option {
 func Usage(n string) Option {
 	return func(o *Options) {
 		o.Usage = n
+	}
+}
+
+func NoFlags() Option {
+	return func(o *Options) {
+		o.NoFlags = true
 	}
 }
 

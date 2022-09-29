@@ -16,34 +16,40 @@ type DiFlags struct {
 	Addresses string
 }
 
-type DiOptions DiFlags
+// DiConfig is marker that DiFlags has been parsed into Config
+type DiConfig struct{}
 
 const (
 	cliArg        = "transport"
 	cliArgAddress = "transport_address"
 )
 
-func ProvideFlags(opts *mWire.Options, c mCli.CLI) (*DiFlags, error) {
-	if _, ok := opts.Components[ComponentName]; !ok {
-		// Not defined silently ignore that
+func ProvideFlags(
+	config *ConfigStore,
+	cliConfig *mCli.ConfigStore,
+	c mCli.CLI,
+) (*DiFlags, error) {
+	if cliConfig.NoFlags {
+		// Defined silently ignore that
 		return &DiFlags{}, nil
 	}
 
 	result := &DiFlags{}
+
 	if err := c.Add(
-		mCli.Name(mCli.PrefixName(opts.ArgPrefix, cliArg)),
+		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArg)),
 		mCli.Usage("Transport for pub/sub. http, nats, rabbitmq"),
-		mCli.Default(opts.Components[ComponentName]),
-		mCli.EnvVars(mCli.PrefixEnv(opts.ArgPrefix, cliArg)),
+		mCli.Default(config.Plugin),
+		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArg)),
 		mCli.Destination(&result.Plugin),
 	); err != nil {
 		return nil, err
 	}
 
 	if err := c.Add(
-		mCli.Name(mCli.PrefixName(opts.ArgPrefix, cliArgAddress)),
-		mCli.Usage("Comma-separated list of broker addresses"),
-		mCli.EnvVars(mCli.PrefixEnv(opts.ArgPrefix, cliArgAddress)),
+		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgAddress)),
+		mCli.Usage("Comma-separated list of transport addresses"),
+		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddress)),
 		mCli.Destination(&result.Addresses),
 	); err != nil {
 		return nil, err
@@ -52,30 +58,48 @@ func ProvideFlags(opts *mWire.Options, c mCli.CLI) (*DiFlags, error) {
 	return result, nil
 }
 
-func ProvideOpts(diOpts *DiFlags, _ mCli.ParsedCli) (*DiOptions, error) {
-	return &DiOptions{
-		Plugin:    diOpts.Plugin,
-		Addresses: diOpts.Addresses,
-	}, nil
+func ProvideDiConfig(
+	// Marker so cli is parsed before coming here
+	_ mCli.ParsedCli,
+
+	diFlags *DiFlags,
+	cliConfig *mCli.ConfigStore,
+	config *ConfigStore,
+) (DiConfig, error) {
+	if cliConfig.NoFlags {
+		// Defined silently ignore that
+		return DiConfig{}, nil
+	}
+
+	config.Plugin = diFlags.Plugin
+	config.Addresses = strings.Split(diFlags.Addresses, ",")
+	return DiConfig{}, nil
 }
 
-func Provide(opts *mWire.Options, diOpts *DiOptions) (transport.Transport, error) {
-	if _, ok := opts.Components[ComponentName]; !ok {
+func Provide(
+	// We want config at Stage3 (compile->files->flags|env)
+	_ mWire.DiStage3ConfigStore,
+	config *ConfigStore,
+
+	// Marker so cli has been merged into Config
+	_ DiConfig,
+) (transport.Transport, error) {
+	if len(config.Plugin) == 0 {
 		// Not defined silently ignore that
 		return nil, nil
 	}
 
-	b, err := Plugins.Get(diOpts.Plugin)
+	b, err := Plugins.Get(config.Plugin)
 	if err != nil {
 		var ok bool
-		if b, ok = cmd.DefaultTransports[diOpts.Plugin]; !ok {
+		if b, ok = cmd.DefaultTransports[config.Plugin]; !ok {
 			return nil, fmt.Errorf("unknown transport: %v", err)
 		}
 	}
 
 	var result transport.Transport
-	if len(diOpts.Addresses) > 0 {
-		result = b(transport.Addrs(strings.Split(diOpts.Addresses, ",")...))
+	if len(config.Addresses) > 0 {
+		result = b(transport.Addrs(config.Addresses...))
 	} else {
 		result = b()
 	}
@@ -83,4 +107,4 @@ func Provide(opts *mWire.Options, diOpts *DiOptions) (transport.Transport, error
 	return result, nil
 }
 
-var Set = wire.NewSet(ProvideFlags, ProvideOpts)
+var DiSet = wire.NewSet(ProvideFlags, ProvideDiConfig)
