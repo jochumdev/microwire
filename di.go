@@ -65,6 +65,7 @@ func ProvideInitializedCLI(
 	_ *mBroker.DiFlags,
 	_ *mRegistry.DiFlags,
 	_ *mTransport.DiFlags,
+	_ *mCli.DiFlags,
 
 	opts *Options,
 	c mCli.CLI,

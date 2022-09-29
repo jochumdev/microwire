@@ -16,7 +16,7 @@ type ConfigStore interface {
 
 type ConfigStoreImpl struct {
 	Broker    mBroker.ConfigStore    `json:"broker" yaml:"Broker"`
-	Cli       mCli.ConfigStore       `json:"cli" yaml:"Cli"`
+	Global    mCli.ConfigStore       `json:"global" yaml:"Global"`
 	Registry  mRegistry.ConfigStore  `json:"registry" yaml:"Registry"`
 	Transport mTransport.ConfigStore `json:"transport" yaml:"Transport"`
 }
@@ -26,7 +26,7 @@ func (s *ConfigStoreImpl) GetBroker() *mBroker.ConfigStore {
 }
 
 func (s *ConfigStoreImpl) GetCli() *mCli.ConfigStore {
-	return &s.Cli
+	return &s.Global
 }
 
 func (s *ConfigStoreImpl) GetRegistry() *mRegistry.ConfigStore {
@@ -40,7 +40,7 @@ func (s *ConfigStoreImpl) GetTransport() *mTransport.ConfigStore {
 func NewConfigStore() (ConfigStore, error) {
 	return &ConfigStoreImpl{
 		Broker:    mBroker.DefaultConfigStore(),
-		Cli:       mCli.DefaultConfigStore(),
+		Global:    mCli.DefaultConfigStore(),
 		Registry:  mRegistry.DefaultConfigStore(),
 		Transport: mTransport.DefaultConfigStore(),
 	}, nil

@@ -13,7 +13,6 @@ func NewService(opts ...Option) (micro.Service, error) {
 	panic(wire.Build(
 		ProvideOptions,
 		ProvideConfigStore,
-		ProvideDefaultConfigStore,
 		DiCliSet,
 		DiConfigStagesSet,
 		DiAllComponentsSuperSet,
@@ -28,7 +27,6 @@ func NewServiceWithConfigStore(
 ) (micro.Service, error) {
 	panic(wire.Build(
 		ProvideOptions,
-		ProvideDefaultConfigStore,
 		DiCliSet,
 		DiConfigStagesSet,
 		DiAllComponentsSuperSet,

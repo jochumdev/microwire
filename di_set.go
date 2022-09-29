@@ -2,6 +2,7 @@ package microwire
 
 import (
 	mBroker "github.com/go-micro/microwire/broker"
+	mCli "github.com/go-micro/microwire/cli"
 	mRegistry "github.com/go-micro/microwire/registry"
 	mTransport "github.com/go-micro/microwire/transport"
 	"github.com/google/wire"
@@ -41,6 +42,7 @@ var DiCliSet = wire.NewSet(
 	ProvideCLI,
 	ProvideCliArgs,
 	ProvideInitializedCLI,
+	mCli.DiSet,
 )
 
 var DiMicroServiceSet = wire.NewSet(

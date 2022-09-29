@@ -60,8 +60,8 @@ func ProvideFlags(
 }
 
 func ProvideDiConfig(
-	// Marker so cli is parsed before coming here
-	_ mCli.ParsedCli,
+	// Stage2Config must have been populated before
+	_ mWire.DiStage2ConfigStore,
 
 	diFlags *DiFlags,
 	cliConfig *mCli.ConfigStore,
@@ -72,8 +72,11 @@ func ProvideDiConfig(
 		return DiConfig{}, nil
 	}
 
-	config.Plugin = diFlags.Plugin
-	config.Addresses = strings.Split(diFlags.Addresses, ",")
+	defCfg := &ConfigStore{}
+	defCfg.Plugin = diFlags.Plugin
+	defCfg.Addresses = strings.Split(diFlags.Addresses, ",")
+	config.Merge(defCfg)
+
 	return DiConfig{}, nil
 }
 
