@@ -61,6 +61,7 @@ func ProvideStage1ConfigStore(
 // ProvideStage2ConfigStore loads the config from config sources
 func ProvideStage2ConfigStore(
 	_ mWire.DiStage1ConfigStore,
+
 	config ConfigStore,
 ) (mWire.DiStage2ConfigStore, error) {
 	return mWire.DiStage2ConfigStore{}, nil
@@ -69,6 +70,8 @@ func ProvideStage2ConfigStore(
 // ProvideStage3ConfigStore loads (env|flags) into the store
 func ProvideStage3ConfigStore(
 	_ mWire.DiStage2ConfigStore,
+	_ mCli.ParsedCli,
+
 	config ConfigStore,
 ) (mWire.DiStage3ConfigStore, error) {
 	return mWire.DiStage3ConfigStore{}, nil

@@ -70,7 +70,7 @@ func NewService(opts ...Option) (micro.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	diStage3ConfigStore, err := ProvideStage3ConfigStore(diStage2ConfigStore, configStore)
+	diStage3ConfigStore, err := ProvideStage3ConfigStore(diStage2ConfigStore, parsedCli, configStore)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +160,7 @@ func NewServiceWithConfigStore(config ConfigStore, opts ...Option) (micro.Servic
 	if err != nil {
 		return nil, err
 	}
-	diStage3ConfigStore, err := ProvideStage3ConfigStore(diStage2ConfigStore, config)
+	diStage3ConfigStore, err := ProvideStage3ConfigStore(diStage2ConfigStore, parsedCli, config)
 	if err != nil {
 		return nil, err
 	}

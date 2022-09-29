@@ -22,6 +22,8 @@ var DiTransportSet = wire.NewSet(
 	mTransport.DiSet,
 )
 
+// DiAllComponentsSuperSet is a set of all things components need, except the components themself.
+// Components have been excluded so users of go-micro have another way to filter them out.
 var DiAllComponentsSuperSet = wire.NewSet(
 	DiBrokerSet,
 	DiRegistrySet,
