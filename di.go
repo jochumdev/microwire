@@ -73,6 +73,8 @@ func ProvideInitializedCLI(
 	opts *mWire.Options,
 	c mCli.CLI,
 	args CliArgs,
+
+	// These are here because they do something with cli.CLI
 	_ *mBroker.DiFlags,
 	_ *mRegistry.DiFlags,
 	_ *mTransport.DiFlags,
@@ -85,7 +87,7 @@ func ProvideInitializedCLI(
 	}
 
 	// Initialize the CLI / parse flags
-	if err := c.Init(
+	if err := c.Parse(
 		args,
 		mCli.CliName(opts.Name),
 		mCli.CliVersion(opts.Version),

@@ -6,7 +6,7 @@ microwire intends to replace go-micro.dev/v4/util/cmd with wire generated code.
 
 ## Known bugs
 
-- When you execute an App with "--help" or "--version" you get an error after the normal output
+- When you execute an App with "--help" or "--version" it does not exit after that.
 
 ## Authors
 

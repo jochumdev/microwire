@@ -44,7 +44,7 @@ func TestParse(t *testing.T) {
 		cli.Destination(&destInt),
 	)
 
-	err := myCli.Init(
+	err := myCli.Parse(
 		[]string{
 			"testapp",
 			"--string",

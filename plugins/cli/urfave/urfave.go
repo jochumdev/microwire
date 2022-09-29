@@ -11,7 +11,6 @@ func init() {
 }
 
 type FlagCLI struct {
-	flags       map[string]cli.Flag
 	stringFlags map[string]*cli.StringFlag
 	intFlags    map[string]*cli.IntFlag
 	options     *mCli.Options
@@ -58,7 +57,7 @@ func (c *FlagCLI) Add(opts ...mCli.FlagOption) error {
 	return nil
 }
 
-func (c *FlagCLI) Init(args []string, opts ...mCli.Option) error {
+func (c *FlagCLI) Parse(args []string, opts ...mCli.Option) error {
 	for _, o := range opts {
 		o(c.options)
 	}

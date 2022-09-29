@@ -6,6 +6,7 @@ import (
 	"go-micro.dev/v4/transport"
 )
 
+// The only reason this lives here atm.
 func init() {
 	mTransport.Plugins.Add("http", NewTransport)
 }
