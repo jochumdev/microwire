@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	mCli.Plugins.Add("urfave", NewCLI)
+	_ = mCli.Plugins.Add("urfave", NewCLI)
 }
 
 type FlagCLI struct {

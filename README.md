@@ -37,19 +37,19 @@ Broker:
   Enabled: true
   Plugin: nats
   Addresses:
-  - nats://localhost:4222
+    - nats://localhost:4222
 Registry:
   Enabled: true
   Plugin: nats
   Addresses:
-  - nats://localhost:4222
+    - nats://localhost:4222
 Store:
   Enabled: false
 Transport:
   Enabled: true
   Plugin: nats
   Addresses:
-  - nats://localhost:4222
+    - nats://localhost:4222
 ```
 
 ## Known bugs

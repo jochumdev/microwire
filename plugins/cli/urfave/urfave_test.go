@@ -30,21 +30,24 @@ func TestParse(t *testing.T) {
 
 	var destString string
 	var destInt int
-	myCli.Add(
+	err := myCli.Add(
 		cli.Name(FlagString),
 		cli.Default("micro!1!1"),
 		cli.EnvVars("STRINGFLAG"),
 		cli.Usage("string flag usage"),
 		cli.Destination(&destString),
 	)
-	myCli.Add(
+	expect(t, err, nil)
+
+	err = myCli.Add(
 		cli.Name(FlagInt),
 		cli.EnvVars("INTFLAG"),
 		cli.Usage("int flag usage"),
 		cli.Destination(&destInt),
 	)
+	expect(t, err, nil)
 
-	err := myCli.Parse(
+	err = myCli.Parse(
 		[]string{
 			"testapp",
 			"--string",
