@@ -11,7 +11,7 @@ import (
 
 func NewService(opts ...Option) (micro.Service, error) {
 	panic(wire.Build(
-		ProvideOptions,
+		NewOptions,
 		ProvideConfigStore,
 		DiCliSet,
 		DiConfigStagesSet,
@@ -26,7 +26,7 @@ func NewServiceWithConfigStore(
 	opts ...Option,
 ) (micro.Service, error) {
 	panic(wire.Build(
-		ProvideOptions,
+		NewOptions,
 		DiCliSet,
 		DiConfigStagesSet,
 		DiAllComponentsSuperSet,

@@ -15,3 +15,22 @@ func DefaultConfigStore() ConfigStore {
 		ConfigFile: "",
 	}
 }
+
+func (d *ConfigStore) Merge(src *ConfigStore) error {
+	def := DefaultConfigStore()
+
+	if src.NoFlags != def.NoFlags {
+		d.NoFlags = src.NoFlags
+	}
+	if src.ArgPrefix != def.ArgPrefix {
+		d.ArgPrefix = src.ArgPrefix
+	}
+	if src.Plugin != def.Plugin {
+		d.Plugin = src.Plugin
+	}
+	if src.ConfigFile != def.ConfigFile {
+		d.ConfigFile = src.ConfigFile
+	}
+
+	return nil
+}

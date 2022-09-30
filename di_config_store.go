@@ -29,39 +29,12 @@ func ProvideStage1ConfigStore(
 	opts *Options,
 	config ConfigStore,
 ) (mWire.DiStage1ConfigStore, error) {
-	defConfig, err := NewConfigStore()
-	if err != nil {
+	defConfig := mCli.DefaultConfigStore()
+
+	defConfig.ArgPrefix = opts.ArgPrefix
+	defConfig.NoFlags = opts.NoFlags
+	if err := config.GetCli().Merge(&defConfig); err != nil {
 		return mWire.DiStage1ConfigStore{}, err
-	}
-
-	if len(opts.ArgPrefix) > 0 && config.GetCli().ArgPrefix == defConfig.GetCli().ArgPrefix {
-		config.GetCli().ArgPrefix = opts.ArgPrefix
-	}
-
-	config.GetCli().NoFlags = opts.NoFlags
-
-	for n, p := range opts.Components {
-		switch n {
-		case mCli.ComponentName:
-			if config.GetCli().Plugin == defConfig.GetCli().Plugin {
-				config.GetCli().Plugin = p
-			}
-		case mBroker.ComponentName:
-			config.GetBroker().Enabled = true
-			if config.GetBroker().Plugin == defConfig.GetBroker().Plugin {
-				config.GetBroker().Plugin = p
-			}
-		case mRegistry.ComponentName:
-			config.GetRegistry().Enabled = true
-			if config.GetRegistry().Plugin == defConfig.GetRegistry().Plugin {
-				config.GetRegistry().Plugin = p
-			}
-		case mTransport.ComponentName:
-			config.GetTransport().Enabled = true
-			if config.GetTransport().Plugin == defConfig.GetTransport().Plugin {
-				config.GetTransport().Plugin = p
-			}
-		}
 	}
 
 	return mWire.DiStage1ConfigStore{}, nil

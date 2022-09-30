@@ -2,6 +2,7 @@ package microwire
 
 import (
 	"github.com/go-micro/microwire/cli"
+	mCli "github.com/go-micro/microwire/cli"
 	"go-micro.dev/v4"
 )
 
@@ -17,14 +18,36 @@ type Options struct {
 	NoFlags     bool
 	Flags       []cli.Flag
 
-	Components map[string]string
-
 	// Livecycle
 	Actions     []ActionFunc
 	BeforeStart []HookFunc
 	BeforeStop  []HookFunc
 	AfterStart  []HookFunc
 	AfterStop   []HookFunc
+}
+
+func NewOptions(opts []Option) *Options {
+	options := &Options{
+		ArgPrefix:   "",
+		Name:        "",
+		Description: "",
+		Version:     "",
+		Usage:       "",
+		NoFlags:     false,
+		Flags:       []mCli.Flag{},
+
+		Actions:     []ActionFunc{},
+		BeforeStart: []HookFunc{},
+		BeforeStop:  []HookFunc{},
+		AfterStart:  []HookFunc{},
+		AfterStop:   []HookFunc{},
+	}
+
+	for _, o := range opts {
+		o(options)
+	}
+
+	return options
 }
 
 type Option func(*Options)
@@ -68,12 +91,6 @@ func NoFlags() Option {
 func Flags(n []cli.Flag) Option {
 	return func(o *Options) {
 		o.Flags = n
-	}
-}
-
-func Component(name string, plugin string) Option {
-	return func(o *Options) {
-		o.Components[name] = plugin
 	}
 }
 

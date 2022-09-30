@@ -1,6 +1,9 @@
-version: '3'
+version: "3"
 
 tasks:
+  lint:
+    cmds:
+      - trunk check
   tidy:
     cmds:
       - find . -name 'go.mod' -print0 | xargs -0 -I {} /bin/bash -c 'pushd `dirname $1`; go mod tidy; popd' '_' '{}' \+

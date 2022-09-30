@@ -18,32 +18,6 @@ import (
 
 type CliArgs []string
 
-func ProvideOptions(opts []Option) *Options {
-	options := &Options{
-		ArgPrefix:   "",
-		Name:        "",
-		Description: "",
-		Version:     "",
-		Usage:       "",
-		NoFlags:     false,
-		Flags:       []mCli.Flag{},
-
-		Components: make(map[string]string),
-
-		Actions:     []ActionFunc{},
-		BeforeStart: []HookFunc{},
-		BeforeStop:  []HookFunc{},
-		AfterStart:  []HookFunc{},
-		AfterStop:   []HookFunc{},
-	}
-
-	for _, o := range opts {
-		o(options)
-	}
-
-	return options
-}
-
 func ProvideCLI(
 	_ mWire.DiStage1ConfigStore,
 	config *mCli.ConfigStore,
@@ -61,7 +35,7 @@ func ProvideCliArgs() CliArgs {
 }
 
 func ProvideInitializedCLI(
-	// These are here because they do something with cli.CLI
+	// These are here because theier flags needs to be added before Parsing the CLI
 	_ *mBroker.DiFlags,
 	_ *mRegistry.DiFlags,
 	_ *mTransport.DiFlags,

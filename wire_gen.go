@@ -21,7 +21,7 @@ func NewService(opts ...Option) (micro.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	options := ProvideOptions(opts)
+	options := NewOptions(opts)
 	diStage1ConfigStore, err := ProvideStage1ConfigStore(options, configStore)
 	if err != nil {
 		return nil, err
@@ -115,7 +115,7 @@ func NewService(opts ...Option) (micro.Service, error) {
 }
 
 func NewServiceWithConfigStore(config ConfigStore, opts ...Option) (micro.Service, error) {
-	options := ProvideOptions(opts)
+	options := NewOptions(opts)
 	diStage1ConfigStore, err := ProvideStage1ConfigStore(options, config)
 	if err != nil {
 		return nil, err

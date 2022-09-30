@@ -1,7 +1,5 @@
 package transport
 
-import "golang.org/x/exp/slices"
-
 type ConfigStore struct {
 	Enabled   bool     `json:"enabled" yaml:"enabled"`
 	Plugin    string   `json:"plugin" yaml:"Plugin"`
@@ -19,13 +17,9 @@ func DefaultConfigStore() ConfigStore {
 func (d *ConfigStore) Merge(src *ConfigStore) error {
 	def := DefaultConfigStore()
 
-	if src.Enabled != def.Enabled {
-		d.Enabled = src.Enabled
-	}
 	if src.Plugin != def.Plugin {
+		d.Enabled = src.Enabled
 		d.Plugin = src.Plugin
-	}
-	if slices.Compare(src.Addresses, def.Addresses) != 0 {
 		d.Addresses = src.Addresses
 	}
 
