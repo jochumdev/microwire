@@ -1,6 +1,6 @@
 # microwire
 
-**WIP - This is work in Progress - DO NOT USE**
+## WIP - This is work in Progress - DO NOT USE
 
 microwire intends to extends go-micro with wire generated code, its intended to merge microwire into go-micro.dev/v5.
 
