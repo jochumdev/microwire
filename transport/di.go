@@ -20,7 +20,7 @@ type DiFlags struct {
 type DiConfig struct{}
 
 const (
-	cliArg        = "transport"
+	cliArgPlugin  = "transport"
 	cliArgAddress = "transport_address"
 )
 
@@ -37,10 +37,10 @@ func ProvideFlags(
 	result := &DiFlags{}
 
 	if err := c.Add(
-		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArg)),
+		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)),
 		mCli.Usage("Transport mechanism used; http"),
 		mCli.Default(config.Plugin),
-		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArg)),
+		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgPlugin)),
 		mCli.Destination(&result.Plugin),
 	); err != nil {
 		return nil, err
@@ -89,8 +89,8 @@ func Provide(
 	// Marker so cli has been merged into Config
 	_ DiConfig,
 ) (transport.Transport, error) {
-	if len(config.Plugin) == 0 {
-		// Not defined silently ignore that
+	if !config.Enabled {
+		// Not enabled silently ignore that
 		return nil, nil
 	}
 
