@@ -30,7 +30,7 @@ func ProvideStage1ConfigStore(
 	opts *Options,
 	config ConfigStore,
 ) (mWire.DiStage1ConfigStore, error) {
-	defConfig := mCli.DefaultConfigStore()
+	defConfig := mCli.NewConfigStore()
 
 	defConfig.ArgPrefix = opts.ArgPrefix
 	defConfig.NoFlags = opts.NoFlags

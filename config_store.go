@@ -46,9 +46,9 @@ func (s *ConfigStoreImpl) GetTransport() *mTransport.ConfigStore {
 
 func NewConfigStore() (ConfigStore, error) {
 	return &ConfigStoreImpl{
-		Broker:    mBroker.DefaultConfigStore(),
-		Cli:       mCli.DefaultConfigStore(),
-		Registry:  mRegistry.DefaultConfigStore(),
-		Transport: mTransport.DefaultConfigStore(),
+		Broker:    mBroker.NewConfigStore(),
+		Cli:       mCli.NewConfigStore(),
+		Registry:  mRegistry.NewConfigStore(),
+		Transport: mTransport.NewConfigStore(),
 	}, nil
 }

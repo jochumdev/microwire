@@ -8,7 +8,7 @@ type ConfigStore struct {
 	Table     string   `json:"table" yaml:"Table"`
 }
 
-func DefaultConfigStore() ConfigStore {
+func NewConfigStore() ConfigStore {
 	return ConfigStore{
 		Enabled:   false,
 		Plugin:    "",
@@ -19,7 +19,7 @@ func DefaultConfigStore() ConfigStore {
 }
 
 func (d *ConfigStore) Merge(src *ConfigStore) error {
-	def := DefaultConfigStore()
+	def := NewConfigStore()
 
 	if src.Plugin != def.Plugin {
 		d.Enabled = src.Enabled

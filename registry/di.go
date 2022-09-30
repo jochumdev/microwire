@@ -72,7 +72,7 @@ func ProvideDiConfig(
 		return DiConfig{}, nil
 	}
 
-	defCfg := DefaultConfigStore()
+	defCfg := NewConfigStore()
 	defCfg.Plugin = diFlags.Plugin
 	defCfg.Addresses = strings.Split(diFlags.Addresses, ",")
 	if err := config.Merge(&defCfg); err != nil {

@@ -6,7 +6,7 @@ type ConfigStore struct {
 	Addresses []string `json:"addresses" yaml:"Addresses"`
 }
 
-func DefaultConfigStore() ConfigStore {
+func NewConfigStore() ConfigStore {
 	return ConfigStore{
 		Enabled:   true,
 		Plugin:    "http",
@@ -15,7 +15,7 @@ func DefaultConfigStore() ConfigStore {
 }
 
 func (d *ConfigStore) Merge(src *ConfigStore) error {
-	def := DefaultConfigStore()
+	def := NewConfigStore()
 
 	if src.Plugin != def.Plugin {
 		d.Enabled = src.Enabled

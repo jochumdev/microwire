@@ -51,7 +51,7 @@ func ProvideDiConfig(
 		return DiConfig{}, nil
 	}
 
-	defConfig := DefaultConfigStore()
+	defConfig := NewConfigStore()
 	defConfig.ConfigFile = diFlags.ConfigFile
 	if err := config.Merge(&defConfig); err != nil {
 		return DiConfig{}, err

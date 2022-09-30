@@ -95,7 +95,7 @@ func ProvideDiConfig(
 		return DiConfig{}, nil
 	}
 
-	defCfg := DefaultConfigStore()
+	defCfg := NewConfigStore()
 	defCfg.Plugin = diFlags.Plugin
 	defCfg.Addresses = strings.Split(diFlags.Addresses, ",")
 	defCfg.Database = diFlags.Database

@@ -7,7 +7,7 @@ type ConfigStore struct {
 	ConfigFile string `json:"config_file" yaml:"ConfigFile"`
 }
 
-func DefaultConfigStore() ConfigStore {
+func NewConfigStore() ConfigStore {
 	return ConfigStore{
 		NoFlags:    false,
 		ArgPrefix:  "",
@@ -17,7 +17,7 @@ func DefaultConfigStore() ConfigStore {
 }
 
 func (d *ConfigStore) Merge(src *ConfigStore) error {
-	def := DefaultConfigStore()
+	def := NewConfigStore()
 
 	if src.NoFlags != def.NoFlags {
 		d.NoFlags = src.NoFlags
