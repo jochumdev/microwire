@@ -21,6 +21,8 @@ import (
 	uFile "go-micro.dev/v4/util/file"
 )
 
+type DiConfig config.Config
+
 func ProvideConfigStore() (ConfigStore, error) {
 	return NewConfigStore()
 }
@@ -41,49 +43,68 @@ func ProvideStage1ConfigStore(
 	return mWire.DiStage1ConfigStore{}, nil
 }
 
-// ProvideStage2ConfigStore loads the config from config sources
-func ProvideStage2ConfigStore(
+func ProvideConfigFile(
 	_ mWire.DiStage1ConfigStore,
 	_ mCli.ParsedCli,
 	_ mCli.DiConfig,
 
+	cfg ConfigStore,
+) (DiConfig, error) {
+	// Guess the file extension
+	strFp := strings.ToLower(cfg.GetCli().ConfigFile)
+	if ok, err2 := uFile.Exists(fmt.Sprintf("%s.toml", strFp)); ok && err2 == nil {
+		strFp = fmt.Sprintf("%s.toml", strFp)
+	} else if ok, err2 := uFile.Exists(fmt.Sprintf("%s.yaml", strFp)); ok && err2 == nil {
+		strFp = fmt.Sprintf("%s.yaml", strFp)
+	} else if ok, err2 := uFile.Exists(fmt.Sprintf("%s.yml", strFp)); ok && err2 == nil {
+		strFp = fmt.Sprintf("%s.yml", strFp)
+	} else if ok, err2 := uFile.Exists(fmt.Sprintf("%s.yml", strFp)); !ok || err2 != nil {
+		return nil, fmt.Errorf("unknown config file '%s' with extension '%s' given", strFp, filepath.Ext(strFp))
+	}
+
+	// Provide config.Config based on the file extension
+	switch filepath.Ext(strFp) {
+	case ".toml":
+		configor, err := config.NewConfig(
+			config.WithSource(file.NewSource(file.WithPath(strFp))),
+			config.WithReader(uJson.NewReader(reader.WithEncoder(toml.NewEncoder()))),
+		)
+		if err != nil {
+			return nil, err
+		}
+		return configor, nil
+	case ".yaml":
+		configor, err := config.NewConfig(
+			config.WithSource(file.NewSource(file.WithPath(strFp))),
+			config.WithReader(uJson.NewReader(reader.WithEncoder(yaml.NewEncoder()))),
+		)
+		if err != nil {
+			return nil, err
+		}
+		return configor, nil
+	case ".yml":
+		configor, err := config.NewConfig(
+			config.WithSource(file.NewSource(file.WithPath(strFp))),
+			config.WithReader(uJson.NewReader(reader.WithEncoder(yaml.NewEncoder()))),
+		)
+		if err != nil {
+			return nil, err
+		}
+		return configor, nil
+	default:
+		return nil, fmt.Errorf("unknown file extension '%s'", filepath.Ext(strFp))
+	}
+}
+
+// ProvideStage2ConfigStore loads the config from config sources
+func ProvideStage2ConfigStore(
+	configor DiConfig,
 	cfg ConfigStore,
 ) (mWire.DiStage2ConfigStore, error) {
 	if len(cfg.GetCli().ConfigFile) == 0 {
 		return mWire.DiStage2ConfigStore{}, nil
 	}
 
-	var configor config.Config
-	var err error
-	switch strings.ToLower(filepath.Ext(cfg.GetCli().ConfigFile)) {
-	case ".toml":
-		configor, err = config.NewConfig(
-			config.WithSource(file.NewSource(file.WithPath(cfg.GetCli().ConfigFile))),
-			config.WithReader(uJson.NewReader(reader.WithEncoder(toml.NewEncoder()))),
-		)
-	case ".yaml":
-		configor, err = config.NewConfig(
-			config.WithSource(file.NewSource(file.WithPath(cfg.GetCli().ConfigFile))),
-			config.WithReader(uJson.NewReader(reader.WithEncoder(yaml.NewEncoder()))),
-		)
-	default:
-		if ok, err2 := uFile.Exists(fmt.Sprintf("%s.toml", cfg.GetCli().ConfigFile)); ok && err2 == nil {
-			configor, err = config.NewConfig(
-				config.WithSource(file.NewSource(file.WithPath(fmt.Sprintf("%s.toml", cfg.GetCli().ConfigFile)))),
-				config.WithReader(uJson.NewReader(reader.WithEncoder(toml.NewEncoder()))),
-			)
-		} else if ok, err2 := uFile.Exists(fmt.Sprintf("%s.yaml", cfg.GetCli().ConfigFile)); ok && err2 == nil {
-			configor, err = config.NewConfig(
-				config.WithSource(file.NewSource(file.WithPath(fmt.Sprintf("%s.yaml", cfg.GetCli().ConfigFile)))),
-				config.WithReader(uJson.NewReader(reader.WithEncoder(yaml.NewEncoder()))),
-			)
-		} else {
-			return mWire.DiStage2ConfigStore{}, fmt.Errorf("unknown config file '%s' with extension '%s' given", cfg.GetCli().ConfigFile, filepath.Ext(cfg.GetCli().ConfigFile))
-		}
-	}
-	if err != nil {
-		return mWire.DiStage2ConfigStore{}, err
-	}
 	if err := configor.Load(); err != nil {
 		return mWire.DiStage2ConfigStore{}, err
 	}
@@ -125,7 +146,7 @@ func ProvideStage3ConfigStore(
 	return mWire.DiStage3ConfigStore{}, nil
 }
 
-var DiConfigStagesSet = wire.NewSet(ProvideStage1ConfigStore, ProvideStage2ConfigStore, ProvideStage3ConfigStore)
+var DiConfigStagesSet = wire.NewSet(ProvideStage1ConfigStore, ProvideConfigFile, ProvideStage2ConfigStore, ProvideStage3ConfigStore)
 
 func ProvideCliConfigStore(
 	_ mWire.DiStage1ConfigStore,
