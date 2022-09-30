@@ -10,6 +10,8 @@ tasks:
       - trunk check --sample 10
   pre-commit:
     cmds:
+      - task: tidy
+      - task: gosums
       - task: generate
       - task: check
   tidy:
@@ -18,6 +20,9 @@ tasks:
   update:
     cmds:
       - find . -name 'go.mod' -print0 | xargs -0 -I {} /bin/bash -c 'pushd `dirname $1`; go get -u ./...; popd' '_' '{}' \+
+  gosums:
+    cmds:
+      - find . -name 'go.mod' -print0 | xargs -0 -I {} /bin/bash -c 'pushd `dirname $1`; git add go.mod go.sum; popd' '_' '{}' \+
   workuse:
     cmds:
       - find . -name 'go.mod' -print0 | xargs -0 -I {} /bin/bash -c 'go work use `dirname $1`' '_' '{}' \+

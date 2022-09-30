@@ -5,9 +5,9 @@ go 1.19
 replace github.com/go-micro/microwire => ../../..
 
 require (
-	github.com/go-micro/microwire v0.0.0-20220927072204-2725db247467
+	github.com/go-micro/microwire v0.0.0-20220929161603-757c9eef2536
 	github.com/urfave/cli/v2 v2.17.1
-	go-micro.dev/v4 v4.8.1
+	go-micro.dev/v4 v4.9.0
 )
 
 require (
