@@ -10,9 +10,9 @@ tasks:
       - trunk check --sample 10
   pre-commit:
     cmds:
+      - task: generate
       - task: tidy
       - task: gosums
-      - task: generate
       - task: check
   tidy:
     cmds:

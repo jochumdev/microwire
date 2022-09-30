@@ -114,4 +114,4 @@ func Provide(
 	return result, nil
 }
 
-var DiSet = wire.NewSet(ProvideFlags, ProvideDiConfig)
+var DiSet = wire.NewSet(ProvideFlags, ProvideDiConfig, Provide)

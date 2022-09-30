@@ -16,7 +16,6 @@ func NewService(opts ...Option) (micro.Service, error) {
 		DiCliSet,
 		DiConfigStagesSet,
 		DiAllComponentsSuperSet,
-		DiAllComponentProvidersSet,
 		DiMicroServiceSet,
 	))
 }
@@ -30,7 +29,6 @@ func NewServiceWithConfigStore(
 		DiCliSet,
 		DiConfigStagesSet,
 		DiAllComponentsSuperSet,
-		DiAllComponentProvidersSet,
 		DiMicroServiceSet,
 	))
 }
