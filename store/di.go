@@ -137,7 +137,7 @@ func Provide(
 		opts = append(opts, store.Database(config.Database))
 	}
 	if len(config.Table) > 0 {
-		opts = append(opts, store.Database(config.Table))
+		opts = append(opts, store.Table(config.Table))
 	}
 
 	return b(opts...), nil
