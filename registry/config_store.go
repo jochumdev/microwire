@@ -17,14 +17,11 @@ func NewConfigStore() ConfigStore {
 func (d *ConfigStore) Merge(src *ConfigStore) error {
 	def := NewConfigStore()
 
-	if src.Enabled != def.Enabled {
-		d.Enabled = src.Enabled
-	}
+	d.Enabled = src.Enabled
 
 	if src.Plugin != def.Plugin {
 		d.Plugin = src.Plugin
 		d.Addresses = src.Addresses
-
 	}
 
 	return nil

@@ -4,18 +4,32 @@ CapsName: Registry
 PluralCapsName: Registries
 
 di_go:
+  Imports: |-
+    "strings"
   DiFlags:
-    Fields: ""
-  Consts: ""
+    Fields: |-
+      Addresses string
+  Consts: |-
+    cliArgAddresses = "registry_address"
 
   ProvideFlags:
     Plugin:
       Usage: "Registry for discovery. etcd, mdns"
 
-    Body: ""
+    Body: |-
+      if err := c.Add(
+        mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
+        mCli.Usage("Comma-separated list of registry addresses"),
+        mCli.Default(strings.Join(config.Addresses, ",")),
+        mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
+        mCli.Destination(&result.Addresses),
+      ); err != nil {
+        return nil, err
+      }
 
   ProvideDiConfig:
-    Body: ""
+    Body: |-
+      defCfg.Addresses = strings.Split(diFlags.Addresses, ",")
 
   Provide:
     Body: |-
@@ -28,10 +42,13 @@ config_store_go:
   NewConfigStore:
     Enabled: "true"
     Plugin: "http"
-    Fields: ""
+    Fields: |-
+      Addresses: []string{},
 
   ConfigStore:
-    Fields: ""
+    Fields: |-
+      Addresses []string `json:"addresses,omitempty" yaml:"Addresses,omitempty"`
 
   ConfigStoreMerge:
-    Fields: ""
+    Fields: |-
+      d.Addresses = src.Addresses

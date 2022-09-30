@@ -4,12 +4,16 @@ CapsName: Store
 PluralCapsName: Stores
 
 di_go:
+  Imports: |-
+    "strings"
   DiFlags:
     Fields: |-
-        Database  string
-        Table     string
+      Addresses string
+      Database  string
+      Table     string
 
   Consts: |-
+    cliArgAddresses = "store_address"
     cliArgDatabase  = "store_database"
     cliArgTable     = "store_table"
 
@@ -18,6 +22,16 @@ di_go:
       Usage: "Store for pub/sub. http, nats, rabbitmq"
 
     Body: |-
+      if err := c.Add(
+        mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
+        mCli.Usage("Comma-separated list of store addresses"),
+        mCli.Default(strings.Join(config.Addresses, ",")),
+        mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
+        mCli.Destination(&result.Addresses),
+      ); err != nil {
+        return nil, err
+      }
+
       if err := c.Add(
         mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgDatabase)),
         mCli.Usage("Database option for the underlying store"),
@@ -40,6 +54,7 @@ di_go:
 
   ProvideDiConfig:
     Body: |-
+      defCfg.Addresses = strings.Split(diFlags.Addresses, ",")
       defCfg.Database = diFlags.Database
       defCfg.Table = diFlags.Table
 
@@ -61,15 +76,18 @@ config_store_go:
     Enabled: "false"
     Plugin: ""
     Fields: |-
-        Database:  "",
-        Table:     "",
+      Addresses: []string{},
+      Database:  "",
+      Table:     "",
 
   ConfigStore:
     Fields: |-
-        Database  string   `json:"database" yaml:"Database,omitempty"`
-        Table     string   `json:"table" yaml:"Table,omitempty"`
+      Addresses []string `json:"addresses,omitempty" yaml:"Addresses,omitempty"`
+      Database  string   `json:"database,omitempty" yaml:"Database,omitempty"`
+      Table     string   `json:"table,omitempty" yaml:"Table,omitempty"`
 
   ConfigStoreMerge:
     Fields: |-
-        d.Database = src.Database
-        d.Table = src.Table
+      d.Addresses = src.Addresses
+      d.Database = src.Database
+      d.Table = src.Table

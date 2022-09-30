@@ -4,8 +4,8 @@ type ConfigStore struct {
 	Enabled   bool     `json:"enabled" yaml:"Enabled"`
 	Plugin    string   `json:"plugin,omitempty" yaml:"Plugin,omitempty"`
 	Addresses []string `json:"addresses,omitempty" yaml:"Addresses,omitempty"`
-	Database  string   `json:"database" yaml:"Database,omitempty"`
-	Table     string   `json:"table" yaml:"Table,omitempty"`
+	Database  string   `json:"database,omitempty" yaml:"Database,omitempty"`
+	Table     string   `json:"table,omitempty" yaml:"Table,omitempty"`
 }
 
 func NewConfigStore() ConfigStore {
@@ -21,9 +21,7 @@ func NewConfigStore() ConfigStore {
 func (d *ConfigStore) Merge(src *ConfigStore) error {
 	def := NewConfigStore()
 
-	if src.Enabled != def.Enabled {
-		d.Enabled = src.Enabled
-	}
+	d.Enabled = src.Enabled
 
 	if src.Plugin != def.Plugin {
 		d.Plugin = src.Plugin

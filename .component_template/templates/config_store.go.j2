@@ -3,7 +3,6 @@ package {{Name}}
 type ConfigStore struct {
 	Enabled   bool     `json:"enabled" yaml:"Enabled"`
 	Plugin    string   `json:"plugin,omitempty" yaml:"Plugin,omitempty"`
-	Addresses []string `json:"addresses,omitempty" yaml:"Addresses,omitempty"`
 	{{config_store_go.ConfigStore.Fields}}
 }
 
@@ -11,7 +10,6 @@ func NewConfigStore() ConfigStore {
 	return ConfigStore{
 		Enabled:   {{config_store_go.NewConfigStore.Enabled}},
 		Plugin:    "{{config_store_go.NewConfigStore.Plugin}}",
-		Addresses: []string{},
 		{{config_store_go.NewConfigStore.Fields}}
 	}
 }
@@ -19,13 +17,10 @@ func NewConfigStore() ConfigStore {
 func (d *ConfigStore) Merge(src *ConfigStore) error {
 	def := NewConfigStore()
 
-	if src.Enabled != def.Enabled {
-		d.Enabled = src.Enabled
-	}
+	d.Enabled = src.Enabled
 
 	if src.Plugin != def.Plugin {
 		d.Plugin = src.Plugin
-		d.Addresses = src.Addresses
 		{{config_store_go.ConfigStoreMerge.Fields}}
 	}
 
