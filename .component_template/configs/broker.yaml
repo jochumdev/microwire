@@ -1,0 +1,37 @@
+---
+Name: broker
+CapsName: Broker
+PluralCapsName: Brokers
+
+di_go:
+  DiFlags:
+    Fields: ""
+  Consts: ""
+
+  ProvideFlags:
+    Plugin:
+      Usage: "Broker for pub/sub. http, nats, rabbitmq"
+
+    Body: ""
+
+  ProvideDiConfig:
+    Body: ""
+
+  Provide:
+    Body: |-
+      opts := []broker.Option{}
+      if len(config.Addresses) > 0 {
+        opts = append(opts, broker.Addrs(config.Addresses...))
+      }
+
+config_store_go:
+  NewConfigStore:
+    Enabled: "true"
+    Plugin: "http"
+    Fields: ""
+
+  ConfigStore:
+    Fields: ""
+
+  ConfigStoreMerge:
+    Fields: ""

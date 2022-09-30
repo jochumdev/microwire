@@ -1,0 +1,75 @@
+---
+Name: store
+CapsName: Store
+PluralCapsName: Stores
+
+di_go:
+  DiFlags:
+    Fields: |-
+        Database  string
+        Table     string
+
+  Consts: |-
+    cliArgDatabase  = "store_database"
+    cliArgTable     = "store_table"
+
+  ProvideFlags:
+    Plugin:
+      Usage: "Store for pub/sub. http, nats, rabbitmq"
+
+    Body: |-
+      if err := c.Add(
+        mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgDatabase)),
+        mCli.Usage("Database option for the underlying store"),
+        mCli.Default(config.Database),
+        mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgDatabase)),
+        mCli.Destination(&result.Database),
+      ); err != nil {
+        return nil, err
+      }
+
+      if err := c.Add(
+        mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgTable)),
+        mCli.Usage("Table option for the underlying store"),
+        mCli.Default(config.Table),
+        mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgTable)),
+        mCli.Destination(&result.Table),
+      ); err != nil {
+        return nil, err
+      }
+
+  ProvideDiConfig:
+    Body: |-
+      defCfg.Database = diFlags.Database
+      defCfg.Table = diFlags.Table
+
+  Provide:
+    Body: |-
+      opts := []store.Option{}
+      if len(config.Addresses) > 0 {
+        opts = append(opts, store.Nodes(config.Addresses...))
+      }
+      if len(config.Database) > 0 {
+        opts = append(opts, store.Database(config.Database))
+      }
+      if len(config.Table) > 0 {
+        opts = append(opts, store.Table(config.Table))
+      }
+
+config_store_go:
+  NewConfigStore:
+    Enabled: "false"
+    Plugin: ""
+    Fields: |-
+        Database:  "",
+        Table:     "",
+
+  ConfigStore:
+    Fields: |-
+        Database  string   `json:"database" yaml:"Database,omitempty"`
+        Table     string   `json:"table" yaml:"Table,omitempty"`
+
+  ConfigStoreMerge:
+    Fields: |-
+        d.Database = src.Database
+        d.Table = src.Table

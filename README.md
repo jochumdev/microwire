@@ -32,24 +32,21 @@ microwire intends to extends go-micro with wire generated code, its intended to 
 ## Example yaml config
 
 ```yaml
+---
 Broker:
-  enabled: true
+  Enabled: true
   Plugin: nats
   Addresses:
   - nats://localhost:4222
 Registry:
-  enabled: true
+  Enabled: true
   Plugin: nats
   Addresses:
   - nats://localhost:4222
 Store:
-  enabled: false
-  Plugin: ""
-  Addresses: []
-  Database: ""
-  Table: ""
+  Enabled: false
 Transport:
-  enabled: true
+  Enabled: true
   Plugin: nats
   Addresses:
   - nats://localhost:4222

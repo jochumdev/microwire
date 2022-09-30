@@ -1,4 +1,4 @@
-package store
+package {{Name}}
 
 import (
 	"fmt"
@@ -7,25 +7,23 @@ import (
 	mCli "github.com/go-micro/microwire/cli"
 	mWire "github.com/go-micro/microwire/wire"
 	"github.com/google/wire"
-	"go-micro.dev/v4/store"
+	"go-micro.dev/v4/{{Name}}"
 	"go-micro.dev/v4/util/cmd"
 )
 
 type DiFlags struct {
 	Plugin    string
 	Addresses string
-	Database  string
-	Table     string
+	{{di_go.DiFlags.Fields}}
 }
 
 // DiConfig is marker that DiFlags has been parsed into Config
 type DiConfig struct{}
 
 const (
-	cliArgPlugin    = "store"
-	cliArgAddresses = "store_address"
-	cliArgDatabase  = "store_database"
-	cliArgTable     = "store_table"
+	cliArgPlugin  = "{{Name}}"
+	cliArgAddresses = "{{Name}}_address"
+	{{di_go.Consts}}
 )
 
 func ProvideFlags(
@@ -42,7 +40,7 @@ func ProvideFlags(
 
 	if err := c.Add(
 		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)),
-		mCli.Usage("Store for pub/sub. http, nats, rabbitmq"),
+		mCli.Usage("{{di_go.ProvideFlags.Plugin.Usage}}"),
 		mCli.Default(config.Plugin),
 		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgPlugin)),
 		mCli.Destination(&result.Plugin),
@@ -52,7 +50,7 @@ func ProvideFlags(
 
 	if err := c.Add(
 		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
-		mCli.Usage("Comma-separated list of store addresses"),
+		mCli.Usage("Comma-separated list of {{Name}} addresses"),
 		mCli.Default(strings.Join(config.Addresses, ",")),
 		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
 		mCli.Destination(&result.Addresses),
@@ -60,25 +58,7 @@ func ProvideFlags(
 		return nil, err
 	}
 
-	if err := c.Add(
-		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgDatabase)),
-		mCli.Usage("Database option for the underlying store"),
-		mCli.Default(config.Database),
-		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgDatabase)),
-		mCli.Destination(&result.Database),
-	); err != nil {
-		return nil, err
-	}
-
-	if err := c.Add(
-		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgTable)),
-		mCli.Usage("Table option for the underlying store"),
-		mCli.Default(config.Table),
-		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgTable)),
-		mCli.Destination(&result.Table),
-	); err != nil {
-		return nil, err
-	}
+	{{di_go.ProvideFlags.Body}}
 
 	return result, nil
 }
@@ -99,8 +79,7 @@ func ProvideDiConfig(
 	defCfg := NewConfigStore()
 	defCfg.Plugin = diFlags.Plugin
 	defCfg.Addresses = strings.Split(diFlags.Addresses, ",")
-	defCfg.Database = diFlags.Database
-	defCfg.Table = diFlags.Table
+	{{di_go.ProvideDiConfig.Body}}
 	if err := config.Merge(&defCfg); err != nil {
 		return DiConfig{}, err
 	}
@@ -116,7 +95,7 @@ func Provide(
 
 	// Marker so cli has been merged into Config
 	_ DiConfig,
-) (store.Store, error) {
+) ({{Name}}.{{CapsName}}, error) {
 	if !config.Enabled {
 		// Not enabled silently ignore that
 		return nil, nil
@@ -125,21 +104,12 @@ func Provide(
 	b, err := Plugins.Get(config.Plugin)
 	if err != nil {
 		var ok bool
-		if b, ok = cmd.DefaultStores[config.Plugin]; !ok {
-			return nil, fmt.Errorf("unknown store: %v", err)
+		if b, ok = cmd.Default{{PluralCapsName}}[config.Plugin]; !ok {
+			return nil, fmt.Errorf("unknown {{Name}}: %v", err)
 		}
 	}
 
-	opts := []store.Option{}
-	if len(config.Addresses) > 0 {
-		opts = append(opts, store.Nodes(config.Addresses...))
-	}
-	if len(config.Database) > 0 {
-		opts = append(opts, store.Database(config.Database))
-	}
-	if len(config.Table) > 0 {
-		opts = append(opts, store.Table(config.Table))
-	}
+	{{di_go.Provide.Body}}
 
 	return b(opts...), nil
 }

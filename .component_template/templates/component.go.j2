@@ -1,0 +1,12 @@
+package {{Name}}
+
+import (
+	"github.com/go-micro/microwire/util/generic"
+	"go-micro.dev/v4/{{Name}}"
+)
+
+const (
+	ComponentName = "{{Name}}"
+)
+
+var Plugins = generic.NewContainer(func(opts ...{{Name}}.Option) {{Name}}.{{CapsName}} { return nil })

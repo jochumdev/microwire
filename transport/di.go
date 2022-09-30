@@ -20,8 +20,8 @@ type DiFlags struct {
 type DiConfig struct{}
 
 const (
-	cliArgPlugin  = "transport"
-	cliArgAddress = "transport_address"
+	cliArgPlugin    = "transport"
+	cliArgAddresses = "transport_address"
 )
 
 func ProvideFlags(
@@ -47,10 +47,10 @@ func ProvideFlags(
 	}
 
 	if err := c.Add(
-		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgAddress)),
+		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
 		mCli.Usage("Comma-separated list of transport addresses"),
 		mCli.Default(strings.Join(config.Addresses, ",")),
-		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddress)),
+		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
 		mCli.Destination(&result.Addresses),
 	); err != nil {
 		return nil, err
@@ -75,15 +75,18 @@ func ProvideDiConfig(
 	defCfg := NewConfigStore()
 	defCfg.Plugin = diFlags.Plugin
 	defCfg.Addresses = strings.Split(diFlags.Addresses, ",")
+
 	if err := config.Merge(&defCfg); err != nil {
 		return DiConfig{}, err
 	}
+
 	return DiConfig{}, nil
 }
 
 func Provide(
 	// We want config at Stage3 (compile->files->flags|env)
 	_ mWire.DiStage3ConfigStore,
+
 	config *ConfigStore,
 
 	// Marker so cli has been merged into Config
@@ -102,14 +105,12 @@ func Provide(
 		}
 	}
 
-	var result transport.Transport
+	opts := []transport.Option{}
 	if len(config.Addresses) > 0 {
-		result = b(transport.Addrs(config.Addresses...))
-	} else {
-		result = b()
+		opts = append(opts, transport.Addrs(config.Addresses...))
 	}
 
-	return result, nil
+	return b(opts...), nil
 }
 
 var DiSet = wire.NewSet(ProvideFlags, ProvideDiConfig, Provide)

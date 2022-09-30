@@ -20,8 +20,8 @@ type DiFlags struct {
 type DiConfig struct{}
 
 const (
-	cliArgPlugin  = "broker"
-	cliArgAddress = "broker_address"
+	cliArgPlugin    = "broker"
+	cliArgAddresses = "broker_address"
 )
 
 func ProvideFlags(
@@ -47,10 +47,10 @@ func ProvideFlags(
 	}
 
 	if err := c.Add(
-		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgAddress)),
+		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
 		mCli.Usage("Comma-separated list of broker addresses"),
 		mCli.Default(strings.Join(config.Addresses, ",")),
-		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddress)),
+		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
 		mCli.Destination(&result.Addresses),
 	); err != nil {
 		return nil, err
@@ -75,6 +75,7 @@ func ProvideDiConfig(
 	defCfg := NewConfigStore()
 	defCfg.Plugin = diFlags.Plugin
 	defCfg.Addresses = strings.Split(diFlags.Addresses, ",")
+
 	if err := config.Merge(&defCfg); err != nil {
 		return DiConfig{}, err
 	}
@@ -104,14 +105,12 @@ func Provide(
 		}
 	}
 
-	var result broker.Broker
+	opts := []broker.Option{}
 	if len(config.Addresses) > 0 {
-		result = b(broker.Addrs(config.Addresses...))
-	} else {
-		result = b()
+		opts = append(opts, broker.Addrs(config.Addresses...))
 	}
 
-	return result, nil
+	return b(opts...), nil
 }
 
 var DiSet = wire.NewSet(ProvideFlags, ProvideDiConfig, Provide)
