@@ -8,11 +8,13 @@ import (
 	mCli "github.com/go-micro/microwire/cli"
 
 	mRegistry "github.com/go-micro/microwire/registry"
+	mStore "github.com/go-micro/microwire/store"
 	mTransport "github.com/go-micro/microwire/transport"
 	mWire "github.com/go-micro/microwire/wire"
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/broker"
 	"go-micro.dev/v4/registry"
+	"go-micro.dev/v4/store"
 	"go-micro.dev/v4/transport"
 )
 
@@ -40,6 +42,7 @@ func ProvideInitializedCLI(
 	_ *mRegistry.DiFlags,
 	_ *mTransport.DiFlags,
 	_ *mCli.DiFlags,
+	_ *mStore.DiFlags,
 
 	opts *Options,
 	c mCli.CLI,
@@ -75,6 +78,7 @@ func ProvideMicroOpts(
 
 	broker broker.Broker,
 	registry registry.Registry,
+	store store.Store,
 	transport transport.Transport,
 ) ([]micro.Option, error) {
 	result := []micro.Option{
@@ -87,6 +91,9 @@ func ProvideMicroOpts(
 	}
 	if registry != nil {
 		result = append(result, micro.Registry(registry))
+	}
+	if store != nil {
+		result = append(result, micro.Store(store))
 	}
 	if transport != nil {
 		result = append(result, micro.Transport(transport))

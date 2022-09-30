@@ -4,6 +4,7 @@ import (
 	mBroker "github.com/go-micro/microwire/broker"
 	mCli "github.com/go-micro/microwire/cli"
 	mRegistry "github.com/go-micro/microwire/registry"
+	mStore "github.com/go-micro/microwire/store"
 	mTransport "github.com/go-micro/microwire/transport"
 	"github.com/google/wire"
 )
@@ -18,6 +19,11 @@ var DiRegistrySet = wire.NewSet(
 	mRegistry.DiSet,
 )
 
+var DiStoreSet = wire.NewSet(
+	ProvideStoreConfigStore,
+	mStore.DiSet,
+)
+
 var DiTransportSet = wire.NewSet(
 	ProvideTransportConfigStore,
 	mTransport.DiSet,
@@ -28,12 +34,14 @@ var DiTransportSet = wire.NewSet(
 var DiAllComponentsSuperSet = wire.NewSet(
 	DiBrokerSet,
 	DiRegistrySet,
+	DiStoreSet,
 	DiTransportSet,
 )
 
 var DiAllComponentProvidersSet = wire.NewSet(
 	mBroker.Provide,
 	mRegistry.Provide,
+	mStore.Provide,
 	mTransport.Provide,
 )
 

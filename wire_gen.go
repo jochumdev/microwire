@@ -10,6 +10,7 @@ import (
 	"github.com/go-micro/microwire/broker"
 	"github.com/go-micro/microwire/cli"
 	"github.com/go-micro/microwire/registry"
+	"github.com/go-micro/microwire/store"
 	"github.com/go-micro/microwire/transport"
 	"go-micro.dev/v4"
 )
@@ -62,8 +63,16 @@ func NewService(opts ...Option) (micro.Service, error) {
 	if err != nil {
 		return nil, err
 	}
+	storeConfigStore, err := ProvideStoreConfigStore(diStage1ConfigStore, configStore)
+	if err != nil {
+		return nil, err
+	}
+	storeDiFlags, err := store.ProvideFlags(storeConfigStore, cliConfigStore, cliCLI)
+	if err != nil {
+		return nil, err
+	}
 	cliArgs := ProvideCliArgs()
-	parsedCli, err := ProvideInitializedCLI(diFlags, registryDiFlags, transportDiFlags, cliDiFlags, options, cliCLI, cliArgs)
+	parsedCli, err := ProvideInitializedCLI(diFlags, registryDiFlags, transportDiFlags, cliDiFlags, storeDiFlags, options, cliCLI, cliArgs)
 	if err != nil {
 		return nil, err
 	}
@@ -99,11 +108,19 @@ func NewService(opts ...Option) (micro.Service, error) {
 	if err != nil {
 		return nil, err
 	}
+	storeDiConfig, err := store.ProvideDiConfig(diStage2ConfigStore, storeDiFlags, cliConfigStore, storeConfigStore)
+	if err != nil {
+		return nil, err
+	}
+	storeStore, err := store.Provide(diStage3ConfigStore, storeConfigStore, storeDiConfig)
+	if err != nil {
+		return nil, err
+	}
 	transportTransport, err := transport.Provide(diStage3ConfigStore, transportConfigStore, transportDiConfig)
 	if err != nil {
 		return nil, err
 	}
-	v, err := ProvideMicroOpts(options, parsedCli, diStage3ConfigStore, brokerBroker, registryRegistry, transportTransport)
+	v, err := ProvideMicroOpts(options, parsedCli, diStage3ConfigStore, brokerBroker, registryRegistry, storeStore, transportTransport)
 	if err != nil {
 		return nil, err
 	}
@@ -156,8 +173,16 @@ func NewServiceWithConfigStore(config ConfigStore, opts ...Option) (micro.Servic
 	if err != nil {
 		return nil, err
 	}
+	storeConfigStore, err := ProvideStoreConfigStore(diStage1ConfigStore, config)
+	if err != nil {
+		return nil, err
+	}
+	storeDiFlags, err := store.ProvideFlags(storeConfigStore, cliConfigStore, cliCLI)
+	if err != nil {
+		return nil, err
+	}
 	cliArgs := ProvideCliArgs()
-	parsedCli, err := ProvideInitializedCLI(diFlags, registryDiFlags, transportDiFlags, cliDiFlags, options, cliCLI, cliArgs)
+	parsedCli, err := ProvideInitializedCLI(diFlags, registryDiFlags, transportDiFlags, cliDiFlags, storeDiFlags, options, cliCLI, cliArgs)
 	if err != nil {
 		return nil, err
 	}
@@ -193,11 +218,19 @@ func NewServiceWithConfigStore(config ConfigStore, opts ...Option) (micro.Servic
 	if err != nil {
 		return nil, err
 	}
+	storeDiConfig, err := store.ProvideDiConfig(diStage2ConfigStore, storeDiFlags, cliConfigStore, storeConfigStore)
+	if err != nil {
+		return nil, err
+	}
+	storeStore, err := store.Provide(diStage3ConfigStore, storeConfigStore, storeDiConfig)
+	if err != nil {
+		return nil, err
+	}
 	transportTransport, err := transport.Provide(diStage3ConfigStore, transportConfigStore, transportDiConfig)
 	if err != nil {
 		return nil, err
 	}
-	v, err := ProvideMicroOpts(options, parsedCli, diStage3ConfigStore, brokerBroker, registryRegistry, transportTransport)
+	v, err := ProvideMicroOpts(options, parsedCli, diStage3ConfigStore, brokerBroker, registryRegistry, storeStore, transportTransport)
 	if err != nil {
 		return nil, err
 	}

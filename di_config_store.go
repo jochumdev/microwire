@@ -8,6 +8,7 @@ import (
 	mBroker "github.com/go-micro/microwire/broker"
 	mCli "github.com/go-micro/microwire/cli"
 	mRegistry "github.com/go-micro/microwire/registry"
+	mStore "github.com/go-micro/microwire/store"
 	mTransport "github.com/go-micro/microwire/transport"
 	mWire "github.com/go-micro/microwire/wire"
 	"github.com/go-micro/plugins/v4/config/encoder/toml"
@@ -98,11 +99,12 @@ func ProvideStage2ConfigStore(
 	if err = cfg.GetBroker().Merge(defConfig.GetBroker()); err != nil {
 		return mWire.DiStage2ConfigStore{}, err
 	}
-
 	if err = cfg.GetRegistry().Merge(defConfig.GetRegistry()); err != nil {
 		return mWire.DiStage2ConfigStore{}, err
 	}
-
+	if err = cfg.GetStore().Merge(defConfig.GetStore()); err != nil {
+		return mWire.DiStage2ConfigStore{}, err
+	}
 	if err = cfg.GetTransport().Merge(defConfig.GetTransport()); err != nil {
 		return mWire.DiStage2ConfigStore{}, err
 	}
@@ -144,6 +146,13 @@ func ProvideRegistryConfigStore(
 	config ConfigStore,
 ) (*mRegistry.ConfigStore, error) {
 	return config.GetRegistry(), nil
+}
+
+func ProvideStoreConfigStore(
+	_ mWire.DiStage1ConfigStore,
+	config ConfigStore,
+) (*mStore.ConfigStore, error) {
+	return config.GetStore(), nil
 }
 
 func ProvideTransportConfigStore(
