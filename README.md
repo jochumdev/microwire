@@ -23,7 +23,7 @@ microwire intends to extends go-micro with wire generated code, its intended to 
 - Cli is a component now, its easy to replace it with other flag+env plugins
 - ArgPrefix("myapp") for micro flags and environment vars
 - NoFlags() option, this will disable all micro flags
-- 3 stages of building the internal ConfigStore
+- 3 stages of building the ConfigStore
   - 1: Load the compiled in config
   - 2: Overwrite it with config from sources, for example "file" (given by flags/env)
     - Auto detects the file extension, if you give "config" it will look for both "config.yaml" and "config.toml"
