@@ -7,7 +7,7 @@ import (
 )
 
 type HookFunc func() error
-type ActionFunc func(ConfigStore, micro.Service) error
+type ActionFunc func(micro.Service) error
 
 type Options struct {
 	ArgPrefix   string
@@ -16,6 +16,7 @@ type Options struct {
 	Version     string
 	Usage       string
 	NoFlags     bool
+	Config      string
 	Flags       []cli.Flag
 
 	// Livecycle
@@ -91,6 +92,12 @@ func NoFlags() Option {
 func Flags(n []cli.Flag) Option {
 	return func(o *Options) {
 		o.Flags = n
+	}
+}
+
+func Config(n string) Option {
+	return func(o *Options) {
+		o.Config = n
 	}
 }
 

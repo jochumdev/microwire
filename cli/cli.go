@@ -1,6 +1,6 @@
 package cli
 
-type CLI interface {
+type Cli interface {
 	// Add adds a Flag to CLI
 	Add(opts ...FlagOption) error
 

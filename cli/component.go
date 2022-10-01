@@ -6,4 +6,4 @@ import (
 
 const ComponentName = "cli"
 
-var Plugins = generic.NewContainer(func(opts ...Option) CLI { return nil })
+var Plugins = generic.NewContainer(func(opts ...Option) Cli { return nil })

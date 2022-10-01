@@ -5,30 +5,24 @@
 package microwire
 
 import (
+	mBroker "github.com/go-micro/microwire/broker"
+	mCli "github.com/go-micro/microwire/cli"
+	mRegistry "github.com/go-micro/microwire/registry"
+	mTransport "github.com/go-micro/microwire/transport"
 	"github.com/google/wire"
 	"go-micro.dev/v4"
 )
 
-func NewService(opts ...Option) (micro.Service, error) {
-	panic(wire.Build(
-		NewOptions,
-		ProvideConfigStore,
-		DiCliSet,
-		DiConfigStagesSet,
-		DiAllComponentsSuperSet,
-		DiMicroServiceSet,
-	))
-}
-
-func NewServiceWithConfigStore(
-	config ConfigStore,
-	opts ...Option,
+func newService(
+	options *Options,
+	cliConfig *mCli.Config,
+	brokerConfig *mBroker.Config,
+	registryConfig *mRegistry.Config,
+	transportConfig *mTransport.Config,
 ) (micro.Service, error) {
 	panic(wire.Build(
-		NewOptions,
 		DiCliSet,
-		DiConfigStagesSet,
-		DiAllComponentsSuperSet,
-		DiMicroServiceSet,
+		DiAllComponentsSet,
+		DiNoDiSet,
 	))
 }

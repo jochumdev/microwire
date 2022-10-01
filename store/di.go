@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	mCli "github.com/go-micro/microwire/cli"
-	mWire "github.com/go-micro/microwire/wire"
 	"github.com/google/wire"
 	"go-micro.dev/v4/store"
 	"go-micro.dev/v4/util/cmd"
@@ -29,9 +28,9 @@ const (
 )
 
 func ProvideFlags(
-	config *ConfigStore,
-	cliConfig *mCli.ConfigStore,
-	c mCli.CLI,
+	config *Config,
+	cliConfig *mCli.Config,
+	c mCli.Cli,
 ) (*DiFlags, error) {
 	if cliConfig.NoFlags {
 		// Defined silently ignore that
@@ -43,7 +42,7 @@ func ProvideFlags(
 	if err := c.Add(
 		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)),
 		mCli.Usage("Store for pub/sub. http, nats, rabbitmq"),
-		mCli.Default(config.Plugin),
+		mCli.Default(config.Store.Plugin),
 		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgPlugin)),
 		mCli.Destination(&result.Plugin),
 	); err != nil {
@@ -53,7 +52,7 @@ func ProvideFlags(
 	if err := c.Add(
 		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
 		mCli.Usage("Comma-separated list of store addresses"),
-		mCli.Default(strings.Join(config.Addresses, ",")),
+		mCli.Default(strings.Join(config.Store.Addresses, ",")),
 		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
 		mCli.Destination(&result.Addresses),
 	); err != nil {
@@ -63,7 +62,7 @@ func ProvideFlags(
 	if err := c.Add(
 		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgDatabase)),
 		mCli.Usage("Database option for the underlying store"),
-		mCli.Default(config.Database),
+		mCli.Default(config.Store.Database),
 		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgDatabase)),
 		mCli.Destination(&result.Database),
 	); err != nil {
@@ -73,7 +72,7 @@ func ProvideFlags(
 	if err := c.Add(
 		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgTable)),
 		mCli.Usage("Table option for the underlying store"),
-		mCli.Default(config.Table),
+		mCli.Default(config.Store.Table),
 		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgTable)),
 		mCli.Destination(&result.Table),
 	); err != nil {
@@ -83,25 +82,28 @@ func ProvideFlags(
 	return result, nil
 }
 
-func ProvideDiConfig(
-	// Stage2Config must have been populated before
-	_ mWire.DiStage2ConfigStore,
-
-	diFlags *DiFlags,
-	cliConfig *mCli.ConfigStore,
-	config *ConfigStore,
+func ProvideConfig(
+	flags *DiFlags,
+	config *Config,
+	configor mCli.DiConfigor,
 ) (DiConfig, error) {
-	if cliConfig.NoFlags {
-		// Defined silently ignore that
-		return DiConfig{}, nil
+	defConfig := NewConfig()
+
+	if configor != nil {
+		if err := configor.Scan(defConfig); err != nil {
+			return DiConfig{}, err
+		}
+	}
+	if err := config.Merge(defConfig); err != nil {
+		return DiConfig{}, err
 	}
 
-	defCfg := NewConfigStore()
-	defCfg.Plugin = diFlags.Plugin
-	defCfg.Addresses = strings.Split(diFlags.Addresses, ",")
-	defCfg.Database = diFlags.Database
-	defCfg.Table = diFlags.Table
-	if err := config.Merge(&defCfg); err != nil {
+	defConfig = NewConfig()
+	defConfig.Store.Plugin = flags.Plugin
+	defConfig.Store.Addresses = strings.Split(flags.Addresses, ",")
+	defConfig.Store.Database = flags.Database
+	defConfig.Store.Table = flags.Table
+	if err := config.Merge(defConfig); err != nil {
 		return DiConfig{}, err
 	}
 
@@ -109,39 +111,36 @@ func ProvideDiConfig(
 }
 
 func Provide(
-	// We want config at Stage3 (compile->files->flags|env)
-	_ mWire.DiStage3ConfigStore,
-
-	config *ConfigStore,
-
 	// Marker so cli has been merged into Config
 	_ DiConfig,
+
+	config *Config,
 ) (store.Store, error) {
-	if !config.Enabled {
+	if !config.Store.Enabled {
 		// Not enabled silently ignore that
 		return nil, nil
 	}
 
-	b, err := Plugins.Get(config.Plugin)
+	b, err := Plugins.Get(config.Store.Plugin)
 	if err != nil {
 		var ok bool
-		if b, ok = cmd.DefaultStores[config.Plugin]; !ok {
+		if b, ok = cmd.DefaultStores[config.Store.Plugin]; !ok {
 			return nil, fmt.Errorf("unknown store: %v", err)
 		}
 	}
 
 	opts := []store.Option{}
-	if len(config.Addresses) > 0 {
-		opts = append(opts, store.Nodes(config.Addresses...))
+	if len(config.Store.Addresses) > 0 {
+		opts = append(opts, store.Nodes(config.Store.Addresses...))
 	}
-	if len(config.Database) > 0 {
-		opts = append(opts, store.Database(config.Database))
+	if len(config.Store.Database) > 0 {
+		opts = append(opts, store.Database(config.Store.Database))
 	}
-	if len(config.Table) > 0 {
-		opts = append(opts, store.Table(config.Table))
+	if len(config.Store.Table) > 0 {
+		opts = append(opts, store.Table(config.Store.Table))
 	}
 
 	return b(opts...), nil
 }
 
-var DiSet = wire.NewSet(ProvideFlags, ProvideDiConfig, Provide)
+var DiSet = wire.NewSet(ProvideFlags, ProvideConfig, Provide)

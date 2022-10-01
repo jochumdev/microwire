@@ -1,7 +1,7 @@
 ---
-Name: transport
-CapsName: Transport
-PluralCapsName: Transports
+Name: registry
+CapsName: Registry
+PluralCapsName: Registries
 
 di_go:
   Imports: |-
@@ -10,45 +10,45 @@ di_go:
     Fields: |-
       Addresses string
   Consts: |-
-    cliArgAddresses = "transport_address"
+    cliArgAddresses = "registry_address"
 
   ProvideFlags:
     Plugin:
-      Usage: "Transport mechanism used; http"
+      Usage: "Registry for discovery. etcd, mdns"
 
     Body: |-
       if err := c.Add(
         mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
-        mCli.Usage("Comma-separated list of transport addresses"),
-        mCli.Default(strings.Join(config.Addresses, ",")),
+        mCli.Usage("Comma-separated list of registry addresses"),
+        mCli.Default(strings.Join(config.Registry.Addresses, ",")),
         mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
         mCli.Destination(&result.Addresses),
       ); err != nil {
         return nil, err
       }
 
-  ProvideDiConfig:
+  ProvideConfig:
     Body: |-
-      defCfg.Addresses = strings.Split(diFlags.Addresses, ",")
+      defConfig.Registry.Addresses = strings.Split(flags.Addresses, ",")
 
   Provide:
     Body: |-
-      opts := []transport.Option{}
-      if len(config.Addresses) > 0 {
-        opts = append(opts, transport.Addrs(config.Addresses...))
+      opts := []registry.Option{}
+      if len(config.Registry.Addresses) > 0 {
+        opts = append(opts, registry.Addrs(config.Registry.Addresses...))
       }
 
 config_store_go:
-  NewConfigStore:
+  NewConfig:
     Enabled: "true"
     Plugin: "http"
     Fields: |-
       Addresses: []string{},
 
-  ConfigStore:
+  Config:
     Fields: |-
       Addresses []string `json:"addresses,omitempty" yaml:"Addresses,omitempty"`
 
-  ConfigStoreMerge:
+  ConfigMerge:
     Fields: |-
-      d.Addresses = src.Addresses
+      d.Registry.Addresses = src.Registry.Addresses

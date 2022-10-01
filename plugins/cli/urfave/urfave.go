@@ -17,7 +17,7 @@ type FlagCLI struct {
 	ctx         *cli.Context
 }
 
-func NewCLI(opts ...mCli.Option) mCli.CLI {
+func NewCLI(opts ...mCli.Option) mCli.Cli {
 	return &FlagCLI{
 		stringFlags: make(map[string]*cli.StringFlag),
 		intFlags:    make(map[string]*cli.IntFlag),

@@ -5,7 +5,6 @@ import (
 	{{di_go.Imports}}
 
 	mCli "github.com/go-micro/microwire/cli"
-	mWire "github.com/go-micro/microwire/wire"
 	"github.com/google/wire"
 	"go-micro.dev/v4/{{Name}}"
 	"go-micro.dev/v4/util/cmd"
@@ -20,14 +19,14 @@ type DiFlags struct {
 type DiConfig struct{}
 
 const (
-	cliArgPlugin  = "{{Name}}"
+	cliArgPlugin    = "{{Name}}"
 	{{di_go.Consts}}
 )
 
 func ProvideFlags(
-	config *ConfigStore,
-	cliConfig *mCli.ConfigStore,
-	c mCli.CLI,
+	config *Config,
+	cliConfig *mCli.Config,
+	c mCli.Cli,
 ) (*DiFlags, error) {
 	if cliConfig.NoFlags {
 		// Defined silently ignore that
@@ -39,7 +38,7 @@ func ProvideFlags(
 	if err := c.Add(
 		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)),
 		mCli.Usage("{{di_go.ProvideFlags.Plugin.Usage}}"),
-		mCli.Default(config.Plugin),
+		mCli.Default(config.{{CapsName}}.Plugin),
 		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgPlugin)),
 		mCli.Destination(&result.Plugin),
 	); err != nil {
@@ -51,23 +50,26 @@ func ProvideFlags(
 	return result, nil
 }
 
-func ProvideDiConfig(
-	// Stage2Config must have been populated before
-	_ mWire.DiStage2ConfigStore,
-
-	diFlags *DiFlags,
-	cliConfig *mCli.ConfigStore,
-	config *ConfigStore,
+func ProvideConfig(
+	flags *DiFlags,
+	config *Config,
+	configor mCli.DiConfigor,
 ) (DiConfig, error) {
-	if cliConfig.NoFlags {
-		// Defined silently ignore that
-		return DiConfig{}, nil
+	defConfig := NewConfig()
+
+	if configor != nil {
+		if err := configor.Scan(defConfig); err != nil {
+			return DiConfig{}, err
+		}
+	}
+	if err := config.Merge(defConfig); err != nil {
+		return DiConfig{}, err
 	}
 
-	defCfg := NewConfigStore()
-	defCfg.Plugin = diFlags.Plugin
-	{{di_go.ProvideDiConfig.Body}}
-	if err := config.Merge(&defCfg); err != nil {
+	defConfig = NewConfig()
+	defConfig.{{CapsName}}.Plugin = flags.Plugin
+	{{di_go.ProvideConfig.Body}}
+	if err := config.Merge(defConfig); err != nil {
 		return DiConfig{}, err
 	}
 
@@ -75,23 +77,20 @@ func ProvideDiConfig(
 }
 
 func Provide(
-	// We want config at Stage3 (compile->files->flags|env)
-	_ mWire.DiStage3ConfigStore,
-
-	config *ConfigStore,
-
 	// Marker so cli has been merged into Config
 	_ DiConfig,
+
+	config *Config,
 ) ({{Name}}.{{CapsName}}, error) {
-	if !config.Enabled {
+	if !config.{{CapsName}}.Enabled {
 		// Not enabled silently ignore that
 		return nil, nil
 	}
 
-	b, err := Plugins.Get(config.Plugin)
+	b, err := Plugins.Get(config.{{CapsName}}.Plugin)
 	if err != nil {
 		var ok bool
-		if b, ok = cmd.Default{{PluralCapsName}}[config.Plugin]; !ok {
+		if b, ok = cmd.Default{{PluralCapsName}}[config.{{CapsName}}.Plugin]; !ok {
 			return nil, fmt.Errorf("unknown {{Name}}: %v", err)
 		}
 	}
@@ -101,4 +100,4 @@ func Provide(
 	return b(opts...), nil
 }
 
-var DiSet = wire.NewSet(ProvideFlags, ProvideDiConfig, Provide)
+var DiSet = wire.NewSet(ProvideFlags, ProvideConfig, Provide)

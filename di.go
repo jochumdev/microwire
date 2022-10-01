@@ -1,127 +1,76 @@
 package microwire
 
 import (
-	"fmt"
-	"os"
-
 	mBroker "github.com/go-micro/microwire/broker"
 	mCli "github.com/go-micro/microwire/cli"
-
+	"github.com/go-micro/microwire/di"
 	mRegistry "github.com/go-micro/microwire/registry"
-	mStore "github.com/go-micro/microwire/store"
 	mTransport "github.com/go-micro/microwire/transport"
-	mWire "github.com/go-micro/microwire/wire"
+
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/broker"
-	"go-micro.dev/v4/registry"
-	"go-micro.dev/v4/store"
-	"go-micro.dev/v4/transport"
 )
 
 type CliArgs []string
 
-func ProvideCLI(
-	_ mWire.DiStage1ConfigStore,
-	config *mCli.ConfigStore,
-) (mCli.CLI, error) {
-	c, err := mCli.Plugins.Get(config.Plugin)
-	if err != nil {
-		return nil, fmt.Errorf("unknown cli given: %v", err)
-	}
+func NewService(opts ...Option) (micro.Service, error) {
+	options := NewOptions(opts)
 
-	return c(), nil
+	// Setup cli
+	cliConfig := mCli.NewConfig()
+	cliConfig.Name = options.Name
+	cliConfig.Version = options.Version
+	cliConfig.Description = options.Description
+	cliConfig.Usage = options.Usage
+	cliConfig.Flags = options.Flags
+	cliConfig.ConfigFile = options.Config
+
+	// Setup Components
+	brokerConfig := mBroker.NewConfig()
+	registryConfig := mRegistry.NewConfig()
+	transportConfig := mTransport.NewConfig()
+
+	return newService(options, cliConfig, brokerConfig, registryConfig, transportConfig)
 }
 
-func ProvideCliArgs() CliArgs {
-	return os.Args
-}
-
-func ProvideInitializedCLI(
-	// These are here because theier flags needs to be added before Parsing the CLI
+func ProvideFlags(
 	_ *mBroker.DiFlags,
-	_ *mRegistry.DiFlags,
-	_ *mTransport.DiFlags,
-	_ *mCli.DiFlags,
-	_ *mStore.DiFlags,
-
-	opts *Options,
-	c mCli.CLI,
-	args CliArgs,
-) (mCli.ParsedCli, error) {
-	// User flags
-	for _, f := range opts.Flags {
-		if err := c.Add(f.AsOptions()...); err != nil {
-			return nil, err
-		}
-	}
-
-	// Initialize the CLI / parse flags
-	if err := c.Parse(
-		args,
-		mCli.CliName(opts.Name),
-		mCli.CliVersion(opts.Version),
-		mCli.CliDescription(opts.Description),
-		mCli.CliUsage(opts.Usage),
-	); err != nil {
-		return nil, err
-	}
-
-	return c, nil
+) (di.DiFlags, error) {
+	return di.DiFlags{}, nil
 }
 
-func ProvideMicroOpts(
+func ProvideService(
 	opts *Options,
-	c mCli.ParsedCli,
-
-	// Just to be save and clear, all components require stage3
-	_ mWire.DiStage3ConfigStore,
-
 	broker broker.Broker,
-	registry registry.Registry,
-	store store.Store,
-	transport transport.Transport,
-) ([]micro.Option, error) {
-	result := []micro.Option{
+) (micro.Service, error) {
+	mOpts := []micro.Option{
 		micro.Name(opts.Name),
 		micro.Version(opts.Version),
 	}
 
 	if broker != nil {
-		result = append(result, micro.Broker(broker))
-	}
-	if registry != nil {
-		result = append(result, micro.Registry(registry))
-	}
-	if store != nil {
-		result = append(result, micro.Store(store))
-	}
-	if transport != nil {
-		result = append(result, micro.Transport(transport))
+		mOpts = append(mOpts, micro.Broker(broker))
 	}
 
 	for _, fn := range opts.BeforeStart {
-		result = append(result, micro.BeforeStart(fn))
+		mOpts = append(mOpts, micro.BeforeStart(fn))
 	}
 	for _, fn := range opts.BeforeStop {
-		result = append(result, micro.BeforeStop(fn))
+		mOpts = append(mOpts, micro.BeforeStop(fn))
 	}
 	for _, fn := range opts.AfterStart {
-		result = append(result, micro.AfterStart(fn))
+		mOpts = append(mOpts, micro.AfterStart(fn))
 	}
 	for _, fn := range opts.AfterStop {
-		result = append(result, micro.AfterStop(fn))
+		mOpts = append(mOpts, micro.AfterStop(fn))
 	}
 
-	return result, nil
-}
-
-func ProvideMicroService(config ConfigStore, opts *Options, mOpts []micro.Option) (micro.Service, error) {
 	service := micro.NewService(
 		mOpts...,
 	)
 
 	for _, fn := range opts.Actions {
-		if err := fn(config, service); err != nil {
+		if err := fn(service); err != nil {
 			return nil, err
 		}
 	}

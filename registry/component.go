@@ -5,8 +5,4 @@ import (
 	"go-micro.dev/v4/registry"
 )
 
-const (
-	ComponentName = "registry"
-)
-
 var Plugins = generic.NewContainer(func(opts ...registry.Option) registry.Registry { return nil })

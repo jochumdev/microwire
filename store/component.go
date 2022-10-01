@@ -5,8 +5,4 @@ import (
 	"go-micro.dev/v4/store"
 )
 
-const (
-	ComponentName = "store"
-)
-
 var Plugins = generic.NewContainer(func(opts ...store.Option) store.Store { return nil })
