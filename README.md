@@ -2,6 +2,8 @@
 
 Go Micro is a framework for distributed systems development.
 
+Have a look at [examples](https://github.com/go-micro/microwire-examples) for examples.
+
 ## v5 is a proof of concept - DO NOT USE
 
 v5 intodruces wire generated code.
