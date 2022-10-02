@@ -12,6 +12,8 @@ See this Diagram for an overview:
 
 ### Goals
 
+- Add backward incompatible lint fixes
+- Remove all globals
 - Backward compatiblity is not required at all places but a nice to have
 - Replace [util/cmd](https://github.com/go-micro/go-micro/tree/master/util/cmd)
 - Choose what features you want from go-micro:
@@ -25,7 +27,8 @@ See this Diagram for an overview:
 
 ### Implemented features
 
-- 4 components without util/cmd (will have all)
+- util/cmd is gone
+- 6 components, component generator so easy to add them all
 - Cli is a component now, its easy to replace it with other flag+env plugins
 - ArgPrefix("myapp") for micro flags and environment vars
 - NoFlags() option, this will disable all micro flags
