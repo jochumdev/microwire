@@ -113,8 +113,8 @@ func ProvideConfigFile(
 	return di.DiConfig(options.Config), nil
 }
 
-// DiAllSet is a set of all things components need, except the components themself.
-var DiAllSet = wire.NewSet(
+// DiSet is a set of all things components need, except the components themself.
+var DiSet = wire.NewSet(
 	di.ProvideConfigor,
 	mBroker.DiSet,
 	mRegistry.DiSet,

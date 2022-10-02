@@ -24,7 +24,7 @@ func newService(
 ) (micro.Service, error) {
 	panic(wire.Build(
 		DiCliSet,
-		DiAllSet,
+		DiSet,
 		DiNoDiSet,
 	))
 }
