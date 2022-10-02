@@ -123,4 +123,4 @@ func Provide(
 }
 
 var DiSet = wire.NewSet(ProvideFlags, ProvideConfig, Provide)
-var DiNoFlagsSet  = wire.NewSet(ProvideConfigNoFlags, Provide)
+var DiNoCliSet  = wire.NewSet(ProvideConfigNoFlags, Provide)

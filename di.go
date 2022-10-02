@@ -117,12 +117,12 @@ var DiSet = wire.NewSet(
 	mTransport.DiSet,
 )
 
-var DiNoFlagsSet = wire.NewSet(
+var DiNoCliSet = wire.NewSet(
 	configdi.ProvideConfigor,
-	mBroker.DiNoFlagsSet,
-	mRegistry.DiNoFlagsSet,
-	mStore.DiNoFlagsSet,
-	mTransport.DiNoFlagsSet,
+	mBroker.DiNoCliSet,
+	mRegistry.DiNoCliSet,
+	mStore.DiNoCliSet,
+	mTransport.DiNoCliSet,
 )
 
 var DiCliSet = wire.NewSet(
