@@ -113,19 +113,34 @@ Go Micro abstracts away the details of distributed systems. Here are the main fe
 
 To make use of Go Micro
 
-```golang
-import "github.com/go-micro/microwire/v5"
+```go
+package main
 
-// create a new service
-service := micro.NewService(
-    micro.Name("helloworld"),
+import (
+    _ "github.com/go-micro/microwire-plugins/broker/http/v5"
+    _ "github.com/go-micro/microwire-plugins/cli/urfave/v5"
+    _ "github.com/go-micro/microwire-plugins/registry/mdns/v5"
+    _ "github.com/go-micro/microwire-plugins/transport/http/v5"
+    micro "github.com/go-micro/microwire/v5"
+    "github.com/go-micro/microwire/v5/logger"
 )
 
-// initialise flags
-service.Init()
+func main() {
+    service, err := micro.NewService(
+        micro.Name("helloworld"),
+        micro.Usage("go-micro.dev/v5 hello world"),
+        micro.Version("v0.0.1"),
+        micro.ArgPrefix("micro"),
+    )
+    if err != nil {
+        logger.Fatal(err)
+    }
 
-// start the service
-service.Run()
+    if err := service.Run(); err != nil {
+        logger.Fatal(err)
+    }
+}
+
 ```
 
 See the [examples](https://github.com/go-micro/examples) for detailed information on usage.
