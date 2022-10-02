@@ -24,11 +24,7 @@ microwire intends to extends go-micro with wire generated code, its intended to 
 - ArgPrefix("myapp") for micro flags and environment vars
 - NoFlags() option, this will disable all micro flags
 - Config() option, to provide a config file
-- 3 stages of building the ConfigStore
-  - 1: Load the compiled in config
-  - 2: Overwrite it with config from sources, for example "file" (given by flags/env)
-    - Auto detects the file extension, if you give "config" it will look for both "config.yaml" and "config.toml"
-  - 3: Overwrite it with env/flags.
+- Each component reads the configuration by its own, config is tightly coupled
 
 ## Example yaml config
 
