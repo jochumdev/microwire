@@ -23,30 +23,30 @@ di_go:
 
     Body: |-
       if err := c.Add(
-        mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
+        mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
         mCli.Usage("Comma-separated list of store addresses"),
         mCli.Default(strings.Join(config.Store.Addresses, ",")),
-        mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
+        mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
         mCli.Destination(&result.Addresses),
       ); err != nil {
         return nil, err
       }
 
       if err := c.Add(
-        mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgDatabase)),
+        mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgDatabase)),
         mCli.Usage("Database option for the underlying store"),
         mCli.Default(config.Store.Database),
-        mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgDatabase)),
+        mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgDatabase)),
         mCli.Destination(&result.Database),
       ); err != nil {
         return nil, err
       }
 
       if err := c.Add(
-        mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgTable)),
+        mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgTable)),
         mCli.Usage("Table option for the underlying store"),
         mCli.Default(config.Store.Table),
-        mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgTable)),
+        mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgTable)),
         mCli.Destination(&result.Table),
       ); err != nil {
         return nil, err

@@ -1,6 +1,10 @@
 package cli
 
 type Config struct {
+	Cli CliConfig `json:"cli" yaml:"Cli"`
+}
+
+type CliConfig struct {
 	Name        string `json:"name" yaml:"Name"`
 	Version     string `json:"version" yaml:"Version"`
 	Description string `json:"description" yaml:"Description"`
@@ -14,27 +18,27 @@ type Config struct {
 
 func NewConfig() *Config {
 	return &Config{
-		NoFlags:    false,
-		ArgPrefix:  "",
-		Plugin:     "urfave",
-		ConfigFile: "",
+		Cli: CliConfig{
+			NoFlags:    false,
+			ArgPrefix:  "",
+			Plugin:     "",
+			ConfigFile: "",
+		},
 	}
 }
 
 func (d *Config) Merge(src *Config) error {
 	def := NewConfig()
 
-	if src.NoFlags != def.NoFlags {
-		d.NoFlags = src.NoFlags
+	d.Cli.NoFlags = src.Cli.NoFlags
+	if src.Cli.ArgPrefix != def.Cli.ArgPrefix {
+		d.Cli.ArgPrefix = src.Cli.ArgPrefix
 	}
-	if src.ArgPrefix != def.ArgPrefix {
-		d.ArgPrefix = src.ArgPrefix
+	if src.Cli.Plugin != def.Cli.Plugin {
+		d.Cli.Plugin = src.Cli.Plugin
 	}
-	if src.Plugin != def.Plugin {
-		d.Plugin = src.Plugin
-	}
-	if src.ConfigFile != def.ConfigFile {
-		d.ConfigFile = src.ConfigFile
+	if src.Cli.ConfigFile != def.Cli.ConfigFile {
+		d.Cli.ConfigFile = src.Cli.ConfigFile
 	}
 
 	return nil

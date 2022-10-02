@@ -3,6 +3,7 @@ version: "3"
 tasks:
   generate:
     cmds:
+      - /bin/bash -c "pushd .component_generator; ./generate_overwrite.sh; popd"
       - go generate ./...
       - git add wire_gen.go
   check:

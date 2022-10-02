@@ -26,7 +26,6 @@ require (
 	github.com/gobwas/ws v1.1.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/google/wire v0.5.0 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/kr/pretty v0.3.0 // indirect

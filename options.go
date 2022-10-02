@@ -27,7 +27,7 @@ type Options struct {
 	AfterStop   []HookFunc
 }
 
-func NewOptions(opts []Option) *Options {
+func NewOptions(opts ...Option) *Options {
 	options := &Options{
 		ArgPrefix:   "",
 		Name:        "",

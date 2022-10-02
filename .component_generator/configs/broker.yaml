@@ -18,10 +18,10 @@ di_go:
 
     Body: |-
       if err := c.Add(
-        mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
+        mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
         mCli.Usage("Comma-separated list of broker addresses"),
         mCli.Default(strings.Join(config.Broker.Addresses, ",")),
-        mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
+        mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
         mCli.Destination(&result.Addresses),
       ); err != nil {
         return nil, err

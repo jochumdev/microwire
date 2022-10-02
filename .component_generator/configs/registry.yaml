@@ -18,10 +18,10 @@ di_go:
 
     Body: |-
       if err := c.Add(
-        mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
+        mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
         mCli.Usage("Comma-separated list of registry addresses"),
         mCli.Default(strings.Join(config.Registry.Addresses, ",")),
-        mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
+        mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
         mCli.Destination(&result.Addresses),
       ); err != nil {
         return nil, err
@@ -41,7 +41,7 @@ di_go:
 config_store_go:
   NewConfig:
     Enabled: "true"
-    Plugin: "http"
+    Plugin: "mdns"
     Fields: |-
       Addresses: []string{},
 

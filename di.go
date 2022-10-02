@@ -6,24 +6,29 @@ import (
 	"github.com/go-micro/microwire/di"
 	mRegistry "github.com/go-micro/microwire/registry"
 	mTransport "github.com/go-micro/microwire/transport"
+	"github.com/google/wire"
 
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/broker"
+	"go-micro.dev/v4/registry"
+	"go-micro.dev/v4/transport"
 )
 
 type CliArgs []string
 
 func NewService(opts ...Option) (micro.Service, error) {
-	options := NewOptions(opts)
+	options := NewOptions(opts...)
 
 	// Setup cli
 	cliConfig := mCli.NewConfig()
-	cliConfig.Name = options.Name
-	cliConfig.Version = options.Version
-	cliConfig.Description = options.Description
-	cliConfig.Usage = options.Usage
-	cliConfig.Flags = options.Flags
-	cliConfig.ConfigFile = options.Config
+	cliConfig.Cli.Plugin = "urfave"
+	cliConfig.Cli.Name = options.Name
+	cliConfig.Cli.Version = options.Version
+	cliConfig.Cli.Description = options.Description
+	cliConfig.Cli.Usage = options.Usage
+	cliConfig.Cli.NoFlags = options.NoFlags
+	cliConfig.Cli.Flags = options.Flags
+	cliConfig.Cli.ConfigFile = options.Config
 
 	// Setup Components
 	brokerConfig := mBroker.NewConfig()
@@ -35,13 +40,17 @@ func NewService(opts ...Option) (micro.Service, error) {
 
 func ProvideFlags(
 	_ *mBroker.DiFlags,
+	_ *mRegistry.DiFlags,
+	_ *mTransport.DiFlags,
 ) (di.DiFlags, error) {
 	return di.DiFlags{}, nil
 }
 
-func ProvideService(
+func ProvideAllService(
 	opts *Options,
 	broker broker.Broker,
+	registry registry.Registry,
+	transport transport.Transport,
 ) (micro.Service, error) {
 	mOpts := []micro.Option{
 		micro.Name(opts.Name),
@@ -50,6 +59,12 @@ func ProvideService(
 
 	if broker != nil {
 		mOpts = append(mOpts, micro.Broker(broker))
+	}
+	if registry != nil {
+		mOpts = append(mOpts, micro.Registry(registry))
+	}
+	if transport != nil {
+		mOpts = append(mOpts, micro.Transport(transport))
 	}
 
 	for _, fn := range opts.BeforeStart {
@@ -77,3 +92,28 @@ func ProvideService(
 
 	return service, nil
 }
+
+func ProvideConfigFile(
+	options *Options,
+) (di.DiConfig, error) {
+	return di.DiConfig(options.Config), nil
+}
+
+// DiAllSet is a set of all things components need, except the components themself.
+var DiAllSet = wire.NewSet(
+	di.ProvideConfigor,
+	mBroker.DiSet,
+	mRegistry.DiSet,
+	mTransport.DiSet,
+)
+
+var DiCliSet = wire.NewSet(
+	mCli.ProvideCli,
+	mCli.ProvideParsed,
+	mCli.ProvideConfig,
+)
+
+var DiNoDiSet = wire.NewSet(
+	ProvideFlags,
+	ProvideAllService,
+)

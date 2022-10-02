@@ -14,7 +14,7 @@ func NewConfig() *Config {
 	return &Config{
 		Registry: RegistryConfig{
 			Enabled:   true,
-			Plugin:    "http",
+			Plugin:    "mdns",
 			Addresses: []string{},
 		},
 	}

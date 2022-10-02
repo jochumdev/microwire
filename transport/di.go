@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	mCli "github.com/go-micro/microwire/cli"
+	"github.com/go-micro/microwire/di"
 	"github.com/google/wire"
 	"go-micro.dev/v4/transport"
 	"go-micro.dev/v4/util/cmd"
@@ -28,7 +29,7 @@ func ProvideFlags(
 	cliConfig *mCli.Config,
 	c mCli.Cli,
 ) (*DiFlags, error) {
-	if cliConfig.NoFlags {
+	if cliConfig.Cli.NoFlags {
 		// Defined silently ignore that
 		return &DiFlags{}, nil
 	}
@@ -36,20 +37,20 @@ func ProvideFlags(
 	result := &DiFlags{}
 
 	if err := c.Add(
-		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)),
+		mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
 		mCli.Usage("Transport mechanism used; http"),
 		mCli.Default(config.Transport.Plugin),
-		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgPlugin)),
+		mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
 		mCli.Destination(&result.Plugin),
 	); err != nil {
 		return nil, err
 	}
 
 	if err := c.Add(
-		mCli.Name(mCli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
+		mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
 		mCli.Usage("Comma-separated list of transport addresses"),
 		mCli.Default(strings.Join(config.Transport.Addresses, ",")),
-		mCli.EnvVars(mCli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
+		mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
 		mCli.Destination(&result.Addresses),
 	); err != nil {
 		return nil, err
@@ -61,7 +62,7 @@ func ProvideFlags(
 func ProvideConfig(
 	flags *DiFlags,
 	config *Config,
-	configor mCli.DiConfigor,
+	configor di.DiConfigor,
 ) (DiConfig, error) {
 	defConfig := NewConfig()
 
@@ -86,7 +87,7 @@ func ProvideConfig(
 
 func Provide(
 	// Marker so cli has been merged into Config
-	_ DiConfig,
+	_ di.DiConfig,
 
 	config *Config,
 ) (transport.Transport, error) {

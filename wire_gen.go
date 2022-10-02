@@ -25,7 +25,15 @@ func newService(options *Options, cliConfig *cli.Config, brokerConfig *broker.Co
 	if err != nil {
 		return nil, err
 	}
-	diDiFlags, err := ProvideFlags(diFlags)
+	registryDiFlags, err := registry.ProvideFlags(registryConfig, cliConfig, cliCli)
+	if err != nil {
+		return nil, err
+	}
+	transportDiFlags, err := transport.ProvideFlags(transportConfig, cliConfig, cliCli)
+	if err != nil {
+		return nil, err
+	}
+	diDiFlags, err := ProvideFlags(diFlags, registryDiFlags, transportDiFlags)
 	if err != nil {
 		return nil, err
 	}
@@ -37,19 +45,19 @@ func newService(options *Options, cliConfig *cli.Config, brokerConfig *broker.Co
 	if err != nil {
 		return nil, err
 	}
-	diConfigor, err := cli.ProvideConfigor(diConfig)
+	brokerBroker, err := broker.Provide(diConfig, brokerConfig)
 	if err != nil {
 		return nil, err
 	}
-	brokerDiConfig, err := broker.ProvideConfig(diFlags, brokerConfig, diConfigor)
+	registryRegistry, err := registry.Provide(diConfig, registryConfig)
 	if err != nil {
 		return nil, err
 	}
-	brokerBroker, err := broker.Provide(brokerDiConfig, brokerConfig)
+	transportTransport, err := transport.Provide(diConfig, transportConfig)
 	if err != nil {
 		return nil, err
 	}
-	service, err := ProvideService(options, brokerBroker)
+	service, err := ProvideAllService(options, brokerBroker, registryRegistry, transportTransport)
 	if err != nil {
 		return nil, err
 	}
