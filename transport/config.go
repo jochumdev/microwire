@@ -23,7 +23,9 @@ func NewConfig() *Config {
 func (d *Config) Merge(src *Config) error {
 	def := NewConfig()
 
-	d.Transport.Enabled = src.Transport.Enabled
+	if src.Transport.Enabled != def.Transport.Enabled {
+		d.Transport.Enabled = src.Transport.Enabled
+	}
 
 	if src.Transport.Plugin != def.Transport.Plugin {
 		d.Transport.Plugin = src.Transport.Plugin

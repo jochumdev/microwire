@@ -1,7 +1,6 @@
-package ndi
+package micro
 
 import (
-	micro "github.com/go-micro/microwire/v5"
 	mBroker "github.com/go-micro/microwire/v5/broker"
 	mCli "github.com/go-micro/microwire/v5/cli"
 	"github.com/go-micro/microwire/v5/config/configdi"
@@ -19,8 +18,8 @@ import (
 
 type CliArgs []string
 
-func NewService(opts ...micro.MwOption) (micro.Service, error) {
-	options := micro.NewMwOptions(opts...)
+func NewService(opts ...Option) (Service, error) {
+	options := NewOptions(opts...)
 
 	// Setup cli
 	cliConfig := mCli.NewConfig()
@@ -31,7 +30,7 @@ func NewService(opts ...micro.MwOption) (micro.Service, error) {
 	cliConfig.Cli.Usage = options.Usage
 	cliConfig.Cli.NoFlags = options.NoFlags
 	cliConfig.Cli.Flags = options.Flags
-	cliConfig.Cli.ConfigFile = options.Config
+	cliConfig.Cli.ConfigFile = options.ConfigFile
 
 	// Setup Components
 	brokerConfig := mBroker.NewConfig()
@@ -52,66 +51,61 @@ func NewService(opts ...micro.MwOption) (micro.Service, error) {
 func ProvideFlags(
 	_ *mBroker.DiFlags,
 	_ *mRegistry.DiFlags,
+	_ *mStore.DiFlags,
 	_ *mTransport.DiFlags,
 ) (di.DiFlags, error) {
 	return di.DiFlags{}, nil
 }
 
 func ProvideAllService(
-	opts *micro.MwOptions,
+	opts *Options,
 	broker broker.Broker,
 	registry registry.Registry,
 	store store.Store,
 	transport transport.Transport,
-) (micro.Service, error) {
-	mOpts := []micro.Option{
-		micro.Name(opts.Name),
-		micro.Version(opts.Version),
+) (Service, error) {
+	mOpts := []Option{
+		Name(opts.Name),
+		Version(opts.Version),
 	}
 
 	if broker != nil {
-		mOpts = append(mOpts, micro.Broker(broker))
+		mOpts = append(mOpts, Broker(broker))
 	}
 	if registry != nil {
-		mOpts = append(mOpts, micro.Registry(registry))
+		mOpts = append(mOpts, Registry(registry))
 	}
 	if store != nil {
-		mOpts = append(mOpts, micro.Store(store))
+		mOpts = append(mOpts, Store(store))
 	}
 	if transport != nil {
-		mOpts = append(mOpts, micro.Transport(transport))
+		mOpts = append(mOpts, Transport(transport))
 	}
 
 	for _, fn := range opts.BeforeStart {
-		mOpts = append(mOpts, micro.BeforeStart(fn))
+		mOpts = append(mOpts, BeforeStart(fn))
 	}
 	for _, fn := range opts.BeforeStop {
-		mOpts = append(mOpts, micro.BeforeStop(fn))
+		mOpts = append(mOpts, BeforeStop(fn))
 	}
 	for _, fn := range opts.AfterStart {
-		mOpts = append(mOpts, micro.AfterStart(fn))
+		mOpts = append(mOpts, AfterStart(fn))
 	}
 	for _, fn := range opts.AfterStop {
-		mOpts = append(mOpts, micro.AfterStop(fn))
+		mOpts = append(mOpts, AfterStop(fn))
 	}
 
-	service := micro.NewService(
+	service := NewMicroService(
 		mOpts...,
 	)
-
-	for _, fn := range opts.Actions {
-		if err := fn(service); err != nil {
-			return nil, err
-		}
-	}
 
 	return service, nil
 }
 
 func ProvideConfigFile(
-	options *micro.MwOptions,
+	options *Options,
 ) (di.DiConfig, error) {
-	return di.DiConfig(options.Config), nil
+	return di.DiConfig(options.ConfigFile), nil
 }
 
 // DiSet is a set of all things components need, except the components themself.
@@ -121,6 +115,14 @@ var DiSet = wire.NewSet(
 	mRegistry.DiSet,
 	mStore.DiSet,
 	mTransport.DiSet,
+)
+
+var DiNoFlagsSet = wire.NewSet(
+	configdi.ProvideConfigor,
+	mBroker.DiNoFlagsSet,
+	mRegistry.DiNoFlagsSet,
+	mStore.DiNoFlagsSet,
+	mTransport.DiNoFlagsSet,
 )
 
 var DiCliSet = wire.NewSet(

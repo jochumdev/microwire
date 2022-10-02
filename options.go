@@ -7,6 +7,7 @@ import (
 	"github.com/go-micro/microwire/v5/auth"
 	"github.com/go-micro/microwire/v5/broker"
 	"github.com/go-micro/microwire/v5/cache"
+	mCli "github.com/go-micro/microwire/v5/cli"
 	"github.com/go-micro/microwire/v5/client"
 	"github.com/go-micro/microwire/v5/config"
 	"github.com/go-micro/microwire/v5/debug/profile"
@@ -20,8 +21,20 @@ import (
 	"github.com/go-micro/microwire/v5/transport"
 )
 
+type HookFunc func(Service) error
+
 // Options for micro service.
 type Options struct {
+	ArgPrefix   string
+	Name        string
+	Description string
+	Version     string
+	Usage       string
+	NoFlags     bool
+	ConfigFile  string
+	Flags       []mCli.Flag
+
+	// TODO: Remove me
 	Auth      auth.Auth
 	Broker    broker.Broker
 	Cache     cache.Cache
@@ -34,11 +47,13 @@ type Options struct {
 	Transport transport.Transport
 	Profile   profile.Profile
 	Logger    logger.Logger
+
 	// Before and After funcs
-	BeforeStart []func() error
-	BeforeStop  []func() error
-	AfterStart  []func() error
-	AfterStop   []func() error
+	Actions     []HookFunc
+	BeforeStart []HookFunc
+	BeforeStop  []HookFunc
+	AfterStart  []HookFunc
+	AfterStop   []HookFunc
 
 	// Other options for implementations of the interface
 	// can be stored in a context
@@ -47,8 +62,22 @@ type Options struct {
 	Signal bool
 }
 
-func newOptions(opts ...Option) Options {
-	opt := Options{
+func NewOptions(opts ...Option) *Options {
+	opt := &Options{
+		ArgPrefix:   "",
+		Name:        "",
+		Description: "",
+		Version:     "",
+		Usage:       "",
+		NoFlags:     false,
+		Flags:       []mCli.Flag{},
+
+		Actions:     []HookFunc{},
+		BeforeStart: []HookFunc{},
+		BeforeStop:  []HookFunc{},
+		AfterStart:  []HookFunc{},
+		AfterStop:   []HookFunc{},
+
 		Auth:      auth.DefaultAuth,
 		Broker:    broker.DefaultBroker,
 		Cache:     cache.DefaultCache,
@@ -65,7 +94,7 @@ func newOptions(opts ...Option) Options {
 	}
 
 	for _, o := range opts {
-		o(&opt)
+		o(opt)
 	}
 
 	return opt
@@ -203,6 +232,7 @@ func Address(addr string) Option {
 // Name of the service.
 func Name(n string) Option {
 	return func(o *Options) {
+		o.Name = n
 		o.Server.Init(server.Name(n))
 	}
 }
@@ -210,7 +240,50 @@ func Name(n string) Option {
 // Version of the service.
 func Version(v string) Option {
 	return func(o *Options) {
+		o.Version = v
 		o.Server.Init(server.Version(v))
+	}
+}
+
+// ArgPrefix is the cli prefix for args.
+func ArgPrefix(n string) Option {
+	return func(o *Options) {
+		o.ArgPrefix = n
+	}
+}
+
+// Description is the Description in cli usage.
+func Description(n string) Option {
+	return func(o *Options) {
+		o.Description = n
+	}
+}
+
+// Usage is the Usage in cli.
+func Usage(n string) Option {
+	return func(o *Options) {
+		o.Usage = n
+	}
+}
+
+// NoFlags is a marker that no micro flags should be there.
+func NoFlags() Option {
+	return func(o *Options) {
+		o.NoFlags = true
+	}
+}
+
+// Flags is a list of additional flags to add you can parse them in Hooks.
+func Flags(n []mCli.Flag) Option {
+	return func(o *Options) {
+		o.Flags = n
+	}
+}
+
+// ConfigFile is the config file to read in.
+func ConfigFile(n string) Option {
+	return func(o *Options) {
+		o.ConfigFile = n
 	}
 }
 
@@ -292,28 +365,35 @@ func AddListenOption(option server.Option) Option {
 // Before and Afters
 
 // BeforeStart run funcs before service starts.
-func BeforeStart(fn func() error) Option {
+func BeforeStart(fn HookFunc) Option {
 	return func(o *Options) {
 		o.BeforeStart = append(o.BeforeStart, fn)
 	}
 }
 
 // BeforeStop run funcs before service stops.
-func BeforeStop(fn func() error) Option {
+func BeforeStop(fn HookFunc) Option {
 	return func(o *Options) {
 		o.BeforeStop = append(o.BeforeStop, fn)
 	}
 }
 
 // AfterStart run funcs after service starts.
-func AfterStart(fn func() error) Option {
+func AfterStart(fn HookFunc) Option {
 	return func(o *Options) {
 		o.AfterStart = append(o.AfterStart, fn)
 	}
 }
 
+// Action is an alias for AfterStart.
+func Action(fn HookFunc) Option {
+	return func(o *Options) {
+		o.AfterStart = append(o.Actions, fn)
+	}
+}
+
 // AfterStop run funcs after service stops.
-func AfterStop(fn func() error) Option {
+func AfterStop(fn HookFunc) Option {
 	return func(o *Options) {
 		o.AfterStop = append(o.AfterStop, fn)
 	}

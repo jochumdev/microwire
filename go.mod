@@ -59,8 +59,10 @@ require (
 	github.com/go-git/go-billy/v5 v5.3.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/google/subcommands v1.2.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
+	github.com/kr/pretty v0.3.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/moby/sys/mount v0.3.3 // indirect
 	github.com/moby/sys/mountinfo v0.6.2 // indirect
@@ -70,6 +72,7 @@ require (
 	github.com/opencontainers/image-spec v1.1.0-rc1 // indirect
 	github.com/opencontainers/runc v1.1.4 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect

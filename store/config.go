@@ -27,7 +27,9 @@ func NewConfig() *Config {
 func (d *Config) Merge(src *Config) error {
 	def := NewConfig()
 
-	d.Store.Enabled = src.Store.Enabled
+	if src.Store.Enabled != def.Store.Enabled {
+		d.Store.Enabled = src.Store.Enabled
+	}
 
 	if src.Store.Plugin != def.Store.Plugin {
 		d.Store.Plugin = src.Store.Plugin

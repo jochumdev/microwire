@@ -23,7 +23,9 @@ func NewConfig() *Config {
 func (d *Config) Merge(src *Config) error {
 	def := NewConfig()
 
-	d.Broker.Enabled = src.Broker.Enabled
+	if src.Broker.Enabled != def.Broker.Enabled {
+		d.Broker.Enabled = src.Broker.Enabled
+	}
 
 	if src.Broker.Plugin != def.Broker.Plugin {
 		d.Broker.Plugin = src.Broker.Plugin

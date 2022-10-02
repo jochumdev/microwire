@@ -5,7 +5,7 @@ tasks:
     cmds:
       - /bin/bash -c "pushd .component_generator; ./generate_overwrite.sh; popd"
       - go generate ./...
-      - git add ndi/wire_gen.go
+      - git add wire_gen.go
   check:
     cmds:
       - trunk check --sample 10

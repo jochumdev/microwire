@@ -23,7 +23,9 @@ func NewConfig() *Config {
 func (d *Config) Merge(src *Config) error {
 	def := NewConfig()
 
-	d.Registry.Enabled = src.Registry.Enabled
+	if src.Registry.Enabled != def.Registry.Enabled {
+		d.Registry.Enabled = src.Registry.Enabled
+	}
 
 	if src.Registry.Plugin != def.Registry.Plugin {
 		d.Registry.Plugin = src.Registry.Plugin

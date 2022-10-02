@@ -30,7 +30,9 @@ func NewConfig() *Config {
 func (d *Config) Merge(src *Config) error {
 	def := NewConfig()
 
-	d.Cli.NoFlags = src.Cli.NoFlags
+	if src.Cli.NoFlags != def.Cli.NoFlags {
+		d.Cli.NoFlags = src.Cli.NoFlags
+	}
 	if src.Cli.ArgPrefix != def.Cli.ArgPrefix {
 		d.Cli.ArgPrefix = src.Cli.ArgPrefix
 	}

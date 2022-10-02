@@ -4,7 +4,6 @@ import (
 	"os"
 	"os/signal"
 	rtime "runtime"
-	"sync"
 
 	"github.com/go-micro/microwire/v5/client"
 	log "github.com/go-micro/microwire/v5/logger"
@@ -14,13 +13,12 @@ import (
 
 type service struct {
 	opts Options
-
-	once sync.Once
 }
 
-func newService(opts ...Option) Service {
+func newMicroService(opts ...Option) Service {
+	options := NewOptions(opts...)
 	return &service{
-		opts: newOptions(opts...),
+		opts: *options,
 	}
 }
 
@@ -54,7 +52,7 @@ func (s *service) String() string {
 
 func (s *service) Start() error {
 	for _, fn := range s.opts.BeforeStart {
-		if err := fn(); err != nil {
+		if err := fn(s); err != nil {
 			return err
 		}
 	}
@@ -64,7 +62,7 @@ func (s *service) Start() error {
 	}
 
 	for _, fn := range s.opts.AfterStart {
-		if err := fn(); err != nil {
+		if err := fn(s); err != nil {
 			return err
 		}
 	}
@@ -76,7 +74,9 @@ func (s *service) Stop() error {
 	var err error
 
 	for _, fn := range s.opts.BeforeStop {
-		err = fn()
+		if err = fn(s); err != nil {
+			return err
+		}
 	}
 
 	if err = s.opts.Server.Stop(); err != nil {
@@ -84,7 +84,9 @@ func (s *service) Stop() error {
 	}
 
 	for _, fn := range s.opts.AfterStop {
-		err = fn()
+		if err = fn(s); err != nil {
+			return err
+		}
 	}
 
 	return err

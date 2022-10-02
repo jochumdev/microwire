@@ -41,9 +41,9 @@ type Publisher = Event
 
 type Option func(*Options)
 
-// NewService creates and returns a new Service based on the packages within.
-func NewService(opts ...Option) Service {
-	return newService(opts...)
+// NewMicroService creates and returns a new Service based on the packages within.
+func NewMicroService(opts ...Option) Service {
+	return newMicroService(opts...)
 }
 
 // FromContext retrieves a Service from the Context.

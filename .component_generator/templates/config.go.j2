@@ -23,7 +23,9 @@ func NewConfig() *Config {
 func (d *Config) Merge(src *Config) error {
 	def := NewConfig()
 
-	d.{{CapsName}}.Enabled = src.{{CapsName}}.Enabled
+	if src.{{CapsName}}.Enabled != def.{{CapsName}}.Enabled {
+		d.{{CapsName}}.Enabled = src.{{CapsName}}.Enabled
+	}
 
 	if src.{{CapsName}}.Plugin != def.{{CapsName}}.Plugin {
 		d.{{CapsName}}.Plugin = src.{{CapsName}}.Plugin

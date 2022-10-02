@@ -32,16 +32,16 @@ func testService(t testing.TB, ctx context.Context, wg *sync.WaitGroup, name str
 	r := registry.NewMemoryRegistry(registry.Services(test.Data))
 
 	// create service
-	srv := NewService(
+	srv := NewMicroService(
 		Name(name),
 		Context(ctx),
 		Registry(r),
-		AfterStart(func() error {
+		AfterStart(func(s Service) error {
 			wg.Done()
 
 			return nil
 		}),
-		AfterStop(func() error {
+		AfterStop(func(s Service) error {
 			wg.Done()
 
 			return nil
@@ -62,17 +62,17 @@ func testCustomListenService(ctx context.Context, customListener net.Listener, w
 	r := registry.NewMemoryRegistry(registry.Services(test.Data))
 
 	// create service
-	srv := NewService(
+	srv := NewMicroService(
 		Name(name),
 		Context(ctx),
 		Registry(r),
 		// injection customListener
 		AddListenOption(server.ListenOption(transport.NetListener(customListener))),
-		AfterStart(func() error {
+		AfterStart(func(s Service) error {
 			wg.Done()
 			return nil
 		}),
-		AfterStop(func() error {
+		AfterStop(func(s Service) error {
 			wg.Done()
 			return nil
 		}),

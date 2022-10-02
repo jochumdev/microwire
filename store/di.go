@@ -83,8 +83,10 @@ func ProvideFlags(
 }
 
 func ProvideConfig(
+	_ di.DiConfig,
 	flags *DiFlags,
 	config *Config,
+	cliConfig *mCli.Config,
 	configor config.Config,
 ) (DiConfig, error) {
 	defConfig := NewConfig()
@@ -96,6 +98,11 @@ func ProvideConfig(
 	}
 	if err := config.Merge(defConfig); err != nil {
 		return DiConfig{}, err
+	}
+
+	if cliConfig.Cli.NoFlags {
+		// Dont parse flags if NoFlags has been given
+		return DiConfig{}, nil
 	}
 
 	defConfig = NewConfig()
@@ -110,9 +117,27 @@ func ProvideConfig(
 	return DiConfig{}, nil
 }
 
+func ProvideConfigNoFlags(
+	config *Config,
+	configor config.Config,
+) (DiConfig, error) {
+	defConfig := NewConfig()
+
+	if configor != nil {
+		if err := configor.Scan(defConfig); err != nil {
+			return DiConfig{}, err
+		}
+	}
+	if err := config.Merge(defConfig); err != nil {
+		return DiConfig{}, err
+	}
+
+	return DiConfig{}, nil
+}
+
 func Provide(
 	// Marker so cli has been merged into Config
-	_ di.DiConfig,
+	_ DiConfig,
 
 	config *Config,
 ) (Store, error) {
@@ -141,3 +166,4 @@ func Provide(
 }
 
 var DiSet = wire.NewSet(ProvideFlags, ProvideConfig, Provide)
+var DiNoFlagsSet = wire.NewSet(ProvideConfigNoFlags, Provide)
