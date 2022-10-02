@@ -27,7 +27,9 @@ See this Diagram for an overview:
 
 ### Implemented features
 
-- util/cmd is gone
+- util/cmd/ is gone
+- web/ is gone
+- config/source/(env|file) is gone
 - 6 components, component generator so easy to add them all
 - Cli is a component now, its easy to replace it with other flag+env plugins
 - ArgPrefix("myapp") for micro flags and environment vars
