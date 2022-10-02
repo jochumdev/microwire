@@ -3,19 +3,19 @@ package cmd
 import (
 	"context"
 
-	"go-micro.dev/v4/auth"
-	"go-micro.dev/v4/broker"
-	"go-micro.dev/v4/cache"
-	"go-micro.dev/v4/client"
-	"go-micro.dev/v4/config"
-	"go-micro.dev/v4/debug/profile"
-	"go-micro.dev/v4/debug/trace"
-	"go-micro.dev/v4/registry"
-	"go-micro.dev/v4/runtime"
-	"go-micro.dev/v4/selector"
-	"go-micro.dev/v4/server"
-	"go-micro.dev/v4/store"
-	"go-micro.dev/v4/transport"
+	"github.com/go-micro/microwire/v5/auth"
+	"github.com/go-micro/microwire/v5/broker"
+	"github.com/go-micro/microwire/v5/cache"
+	"github.com/go-micro/microwire/v5/client"
+	"github.com/go-micro/microwire/v5/config"
+	"github.com/go-micro/microwire/v5/debug/profile"
+	"github.com/go-micro/microwire/v5/debug/trace"
+	"github.com/go-micro/microwire/v5/registry"
+	"github.com/go-micro/microwire/v5/runtime"
+	"github.com/go-micro/microwire/v5/selector"
+	"github.com/go-micro/microwire/v5/server"
+	"github.com/go-micro/microwire/v5/store"
+	"github.com/go-micro/microwire/v5/transport"
 )
 
 type Options struct {

@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"go-micro.dev/v4/runtime/local/build"
+	"github.com/go-micro/microwire/v5/runtime/local/build"
 )
 
 type Builder struct {

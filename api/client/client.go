@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-micro/microwire/v5/logger"
 	"github.com/gorilla/websocket"
-	"go-micro.dev/v4/logger"
 )
 
 const (

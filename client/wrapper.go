@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 
-	"go-micro.dev/v4/registry"
+	"github.com/go-micro/microwire/v5/registry"
 )
 
 // CallFunc represents the individual call func.

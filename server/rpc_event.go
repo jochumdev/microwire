@@ -1,8 +1,8 @@
 package server
 
 import (
-	"go-micro.dev/v4/broker"
-	"go-micro.dev/v4/transport"
+	"github.com/go-micro/microwire/v5/broker"
+	"github.com/go-micro/microwire/v5/transport"
 )
 
 // event is a broker event we handle on the server transport.

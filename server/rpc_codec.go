@@ -4,16 +4,16 @@ import (
 	"bytes"
 	"sync"
 
+	"github.com/go-micro/microwire/v5/codec"
+	raw "github.com/go-micro/microwire/v5/codec/bytes"
+	"github.com/go-micro/microwire/v5/codec/grpc"
+	"github.com/go-micro/microwire/v5/codec/json"
+	"github.com/go-micro/microwire/v5/codec/jsonrpc"
+	"github.com/go-micro/microwire/v5/codec/proto"
+	"github.com/go-micro/microwire/v5/codec/protorpc"
+	"github.com/go-micro/microwire/v5/transport"
 	"github.com/oxtoacart/bpool"
 	"github.com/pkg/errors"
-	"go-micro.dev/v4/codec"
-	raw "go-micro.dev/v4/codec/bytes"
-	"go-micro.dev/v4/codec/grpc"
-	"go-micro.dev/v4/codec/json"
-	"go-micro.dev/v4/codec/jsonrpc"
-	"go-micro.dev/v4/codec/proto"
-	"go-micro.dev/v4/codec/protorpc"
-	"go-micro.dev/v4/transport"
 )
 
 type rpcCodec struct {

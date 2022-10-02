@@ -10,11 +10,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-micro/microwire/v5/api/handler"
+	proto "github.com/go-micro/microwire/v5/api/proto"
+	"github.com/go-micro/microwire/v5/util/ctx"
 	"github.com/google/uuid"
 	"github.com/oxtoacart/bpool"
-	"go-micro.dev/v4/api/handler"
-	proto "go-micro.dev/v4/api/proto"
-	"go-micro.dev/v4/util/ctx"
 )
 
 var (

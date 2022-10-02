@@ -1,4 +1,4 @@
-module go-micro.dev/v4
+module github.com/go-micro/microwire/v5
 
 go 1.17
 

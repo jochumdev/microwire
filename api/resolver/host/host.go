@@ -4,7 +4,7 @@ package host
 import (
 	"net/http"
 
-	"go-micro.dev/v4/api/resolver"
+	"github.com/go-micro/microwire/v5/api/resolver"
 )
 
 // Resolver is a host resolver.

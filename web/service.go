@@ -12,16 +12,16 @@ import (
 	"sync"
 	"time"
 
+	micro "github.com/go-micro/microwire/v5"
+	log "github.com/go-micro/microwire/v5/logger"
+	"github.com/go-micro/microwire/v5/registry"
+	maddr "github.com/go-micro/microwire/v5/util/addr"
+	"github.com/go-micro/microwire/v5/util/backoff"
+	mhttp "github.com/go-micro/microwire/v5/util/http"
+	mnet "github.com/go-micro/microwire/v5/util/net"
+	signalutil "github.com/go-micro/microwire/v5/util/signal"
+	mls "github.com/go-micro/microwire/v5/util/tls"
 	"github.com/urfave/cli/v2"
-	"go-micro.dev/v4"
-	log "go-micro.dev/v4/logger"
-	"go-micro.dev/v4/registry"
-	maddr "go-micro.dev/v4/util/addr"
-	"go-micro.dev/v4/util/backoff"
-	mhttp "go-micro.dev/v4/util/http"
-	mnet "go-micro.dev/v4/util/net"
-	signalutil "go-micro.dev/v4/util/signal"
-	mls "go-micro.dev/v4/util/tls"
 )
 
 type service struct {

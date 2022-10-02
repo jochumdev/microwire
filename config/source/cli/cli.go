@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-micro/microwire/v5/config/source"
+	"github.com/go-micro/microwire/v5/util/cmd"
 	"github.com/imdario/mergo"
 	"github.com/urfave/cli/v2"
-	"go-micro.dev/v4/config/source"
-	"go-micro.dev/v4/util/cmd"
 )
 
 type cliSource struct {

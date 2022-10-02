@@ -4,8 +4,8 @@ import (
 	"sync"
 	"time"
 
+	log "github.com/go-micro/microwire/v5/logger"
 	"github.com/google/uuid"
-	log "go-micro.dev/v4/logger"
 )
 
 var (

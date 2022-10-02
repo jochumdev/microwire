@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"go-micro.dev/v4/logger"
+	"github.com/go-micro/microwire/v5/logger"
 )
 
 // Request is used to construct a http request for the k8s API.

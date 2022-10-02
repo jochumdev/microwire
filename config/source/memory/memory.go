@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-micro/microwire/v5/config/source"
 	"github.com/google/uuid"
-	"go-micro.dev/v4/config/source"
 )
 
 type memory struct {

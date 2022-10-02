@@ -12,10 +12,10 @@ import (
 	"sync"
 	"time"
 
-	maddr "go-micro.dev/v4/util/addr"
-	"go-micro.dev/v4/util/buf"
-	mnet "go-micro.dev/v4/util/net"
-	mls "go-micro.dev/v4/util/tls"
+	maddr "github.com/go-micro/microwire/v5/util/addr"
+	"github.com/go-micro/microwire/v5/util/buf"
+	mnet "github.com/go-micro/microwire/v5/util/net"
+	mls "github.com/go-micro/microwire/v5/util/tls"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 )

@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-micro/microwire/v5/broker"
+	"github.com/go-micro/microwire/v5/registry"
 	"github.com/google/uuid"
-	"go-micro.dev/v4/broker"
-	"go-micro.dev/v4/registry"
 )
 
 var (

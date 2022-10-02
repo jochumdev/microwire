@@ -7,10 +7,10 @@ import (
 	"sync"
 	"time"
 
+	log "github.com/go-micro/microwire/v5/logger"
+	maddr "github.com/go-micro/microwire/v5/util/addr"
+	mnet "github.com/go-micro/microwire/v5/util/net"
 	"github.com/google/uuid"
-	log "go-micro.dev/v4/logger"
-	maddr "go-micro.dev/v4/util/addr"
-	mnet "go-micro.dev/v4/util/net"
 )
 
 type memoryBroker struct {

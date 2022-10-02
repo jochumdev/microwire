@@ -12,9 +12,9 @@ import (
 	"sync"
 	"time"
 
+	log "github.com/go-micro/microwire/v5/logger"
+	"github.com/go-micro/microwire/v5/runtime/local/git"
 	"github.com/nxadm/tail"
-	log "go-micro.dev/v4/logger"
-	"go-micro.dev/v4/runtime/local/git"
 )
 
 // defaultNamespace to use if not provided as an option.

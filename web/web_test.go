@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
+	micro "github.com/go-micro/microwire/v5"
+	"github.com/go-micro/microwire/v5/logger"
+	"github.com/go-micro/microwire/v5/web"
 	"github.com/urfave/cli/v2"
-	"go-micro.dev/v4"
-	"go-micro.dev/v4/logger"
-	"go-micro.dev/v4/web"
 )
 
 func TestWeb(t *testing.T) {

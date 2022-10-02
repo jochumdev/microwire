@@ -5,7 +5,7 @@ import (
 	"context"
 	"time"
 
-	"go-micro.dev/v4/metadata"
+	"github.com/go-micro/microwire/v5/metadata"
 )
 
 // Tracer is an interface for distributed tracing.

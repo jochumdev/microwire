@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"go-micro.dev/v4/client"
-	"go-micro.dev/v4/logger"
+	"github.com/go-micro/microwire/v5/client"
+	"github.com/go-micro/microwire/v5/logger"
 )
 
 // Options contains configuration for the Store.

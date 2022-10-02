@@ -4,7 +4,7 @@ package process
 import (
 	"io"
 
-	"go-micro.dev/v4/runtime/local/build"
+	"github.com/go-micro/microwire/v5/runtime/local/build"
 )
 
 // Process manages a running process.

@@ -5,11 +5,11 @@ import (
 	"os"
 	"testing"
 
+	micro "github.com/go-micro/microwire/v5"
+	"github.com/go-micro/microwire/v5/config"
+	"github.com/go-micro/microwire/v5/config/source"
+	"github.com/go-micro/microwire/v5/util/cmd"
 	"github.com/urfave/cli/v2"
-	"go-micro.dev/v4"
-	"go-micro.dev/v4/config"
-	"go-micro.dev/v4/config/source"
-	"go-micro.dev/v4/util/cmd"
 )
 
 func TestCliSourceDefault(t *testing.T) {

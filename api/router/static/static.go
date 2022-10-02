@@ -8,12 +8,12 @@ import (
 	"strings"
 	"sync"
 
-	"go-micro.dev/v4/api/router"
-	"go-micro.dev/v4/api/router/util"
-	log "go-micro.dev/v4/logger"
-	"go-micro.dev/v4/metadata"
-	"go-micro.dev/v4/registry"
-	rutil "go-micro.dev/v4/util/registry"
+	"github.com/go-micro/microwire/v5/api/router"
+	"github.com/go-micro/microwire/v5/api/router/util"
+	log "github.com/go-micro/microwire/v5/logger"
+	"github.com/go-micro/microwire/v5/metadata"
+	"github.com/go-micro/microwire/v5/registry"
+	rutil "github.com/go-micro/microwire/v5/util/registry"
 )
 
 type endpoint struct {

@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"testing"
 
+	go_api "github.com/go-micro/microwire/v5/api/proto"
 	"github.com/golang/protobuf/proto"
-	go_api "go-micro.dev/v4/api/proto"
 )
 
 func TestRequestPayloadFromRequest(t *testing.T) {

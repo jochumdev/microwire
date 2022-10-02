@@ -4,8 +4,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-micro/microwire/v5/transport"
 	"github.com/google/uuid"
-	"go-micro.dev/v4/transport"
 )
 
 type pool struct {

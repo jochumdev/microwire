@@ -4,9 +4,9 @@ import (
 	"context"
 	"crypto/tls"
 
-	"go-micro.dev/v4/codec"
-	"go-micro.dev/v4/logger"
-	"go-micro.dev/v4/registry"
+	"github.com/go-micro/microwire/v5/codec"
+	"github.com/go-micro/microwire/v5/logger"
+	"github.com/go-micro/microwire/v5/registry"
 )
 
 type Options struct {

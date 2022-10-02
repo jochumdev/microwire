@@ -12,17 +12,17 @@ import (
 	"sync"
 	"time"
 
-	"go-micro.dev/v4/broker"
-	"go-micro.dev/v4/codec"
-	raw "go-micro.dev/v4/codec/bytes"
-	log "go-micro.dev/v4/logger"
-	"go-micro.dev/v4/metadata"
-	"go-micro.dev/v4/registry"
-	"go-micro.dev/v4/transport"
-	"go-micro.dev/v4/util/addr"
-	"go-micro.dev/v4/util/backoff"
-	mnet "go-micro.dev/v4/util/net"
-	"go-micro.dev/v4/util/socket"
+	"github.com/go-micro/microwire/v5/broker"
+	"github.com/go-micro/microwire/v5/codec"
+	raw "github.com/go-micro/microwire/v5/codec/bytes"
+	log "github.com/go-micro/microwire/v5/logger"
+	"github.com/go-micro/microwire/v5/metadata"
+	"github.com/go-micro/microwire/v5/registry"
+	"github.com/go-micro/microwire/v5/transport"
+	"github.com/go-micro/microwire/v5/util/addr"
+	"github.com/go-micro/microwire/v5/util/backoff"
+	mnet "github.com/go-micro/microwire/v5/util/net"
+	"github.com/go-micro/microwire/v5/util/socket"
 )
 
 type rpcServer struct {

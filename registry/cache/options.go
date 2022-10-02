@@ -3,7 +3,7 @@ package cache
 import (
 	"time"
 
-	"go-micro.dev/v4/logger"
+	"github.com/go-micro/microwire/v5/logger"
 )
 
 // WithTTL sets the cache TTL.

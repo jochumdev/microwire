@@ -1,4 +1,4 @@
-# Go Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/go-micro.dev/v4?tab=doc) [![Go Report Card](https://goreportcard.com/badge/github.com/go-micro/go-micro)](https://goreportcard.com/report/github.com/go-micro/go-micro) [![Discord](https://dcbadge.vercel.app/api/server/qV3HvnEJfB?style=flat-square&theme=default-inverted)](https://discord.gg/qV3HvnEJfB)
+# Go Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/go-micro/microwire/v5?tab=doc) [![Go Report Card](https://goreportcard.com/badge/github.com/go-micro/go-micro)](https://goreportcard.com/report/github.com/go-micro/go-micro) [![Discord](https://dcbadge.vercel.app/api/server/qV3HvnEJfB?style=flat-square&theme=default-inverted)](https://discord.gg/qV3HvnEJfB)
 
 Go Micro is a framework for distributed systems development.
 
@@ -54,7 +54,7 @@ Go Micro abstracts away the details of distributed systems. Here are the main fe
 To make use of Go Micro
 
 ```golang
-import "go-micro.dev/v4"
+import "github.com/go-micro/microwire/v5"
 
 // create a new service
 service := micro.NewService(

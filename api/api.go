@@ -7,9 +7,9 @@ import (
 	"regexp"
 	"strings"
 
-	"go-micro.dev/v4/api/router"
-	"go-micro.dev/v4/registry"
-	"go-micro.dev/v4/server"
+	"github.com/go-micro/microwire/v5/api/router"
+	"github.com/go-micro/microwire/v5/registry"
+	"github.com/go-micro/microwire/v5/server"
 )
 
 // API interface provides a way to

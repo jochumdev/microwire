@@ -2,7 +2,7 @@
 package build
 
 import (
-	"go-micro.dev/v4/runtime/local/source"
+	"github.com/go-micro/microwire/v5/runtime/local/source"
 )
 
 // Builder builds binaries.

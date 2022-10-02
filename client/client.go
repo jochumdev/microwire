@@ -5,7 +5,7 @@ import (
 	"context"
 	"time"
 
-	"go-micro.dev/v4/codec"
+	"github.com/go-micro/microwire/v5/codec"
 )
 
 // Client is the interface used to make requests to services.

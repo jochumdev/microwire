@@ -4,8 +4,8 @@ package box
 import (
 	"crypto/rand"
 
+	"github.com/go-micro/microwire/v5/config/secrets"
 	"github.com/pkg/errors"
-	"go-micro.dev/v4/config/secrets"
 	naclbox "golang.org/x/crypto/nacl/box"
 )
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"go-micro.dev/v4/logger"
+	"github.com/go-micro/microwire/v5/logger"
 )
 
 // Options represents the options for the cache.

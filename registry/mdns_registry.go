@@ -15,9 +15,9 @@ import (
 	"sync"
 	"time"
 
+	log "github.com/go-micro/microwire/v5/logger"
+	"github.com/go-micro/microwire/v5/util/mdns"
 	"github.com/google/uuid"
-	log "go-micro.dev/v4/logger"
-	"go-micro.dev/v4/util/mdns"
 )
 
 var (

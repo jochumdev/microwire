@@ -7,9 +7,9 @@ import (
 	"io"
 	"os"
 
-	"go-micro.dev/v4/client"
-	"go-micro.dev/v4/logger"
-	proto "go-micro.dev/v4/util/file/proto"
+	"github.com/go-micro/microwire/v5/client"
+	"github.com/go-micro/microwire/v5/logger"
+	proto "github.com/go-micro/microwire/v5/util/file/proto"
 )
 
 // Client is the client interface to access files.

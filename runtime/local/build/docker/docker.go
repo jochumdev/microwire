@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 
 	docker "github.com/fsouza/go-dockerclient"
-	"go-micro.dev/v4/logger"
-	"go-micro.dev/v4/runtime/local/build"
+	"github.com/go-micro/microwire/v5/logger"
+	"github.com/go-micro/microwire/v5/runtime/local/build"
 )
 
 type Builder struct {

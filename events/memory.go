@@ -6,10 +6,10 @@ import (
 	"sync"
 	"time"
 
+	log "github.com/go-micro/microwire/v5/logger"
+	"github.com/go-micro/microwire/v5/store"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	log "go-micro.dev/v4/logger"
-	"go-micro.dev/v4/store"
 )
 
 // NewStream returns an initialized memory stream.

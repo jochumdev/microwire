@@ -7,13 +7,13 @@ import (
 	"sync"
 	"testing"
 
-	"go-micro.dev/v4/client"
-	"go-micro.dev/v4/debug/handler"
-	proto "go-micro.dev/v4/debug/proto"
-	"go-micro.dev/v4/registry"
-	"go-micro.dev/v4/server"
-	"go-micro.dev/v4/transport"
-	"go-micro.dev/v4/util/test"
+	"github.com/go-micro/microwire/v5/client"
+	"github.com/go-micro/microwire/v5/debug/handler"
+	proto "github.com/go-micro/microwire/v5/debug/proto"
+	"github.com/go-micro/microwire/v5/registry"
+	"github.com/go-micro/microwire/v5/server"
+	"github.com/go-micro/microwire/v5/transport"
+	"github.com/go-micro/microwire/v5/util/test"
 )
 
 func testShutdown(wg *sync.WaitGroup, cancel func()) {

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"go-micro.dev/v4/runtime/local/source"
+	"github.com/go-micro/microwire/v5/runtime/local/source"
 )
 
 type Source struct {

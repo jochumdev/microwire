@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-micro/microwire/v5/logger"
 	"github.com/miekg/dns"
-	"go-micro.dev/v4/logger"
 	"golang.org/x/net/ipv4"
 	"golang.org/x/net/ipv6"
 )

@@ -3,11 +3,11 @@ package api
 import (
 	"context"
 
-	"go-micro.dev/v4/api/handler"
-	"go-micro.dev/v4/api/handler/rpc"
-	"go-micro.dev/v4/api/router/registry"
-	"go-micro.dev/v4/api/server"
-	"go-micro.dev/v4/api/server/http"
+	"github.com/go-micro/microwire/v5/api/handler"
+	"github.com/go-micro/microwire/v5/api/handler/rpc"
+	"github.com/go-micro/microwire/v5/api/router/registry"
+	"github.com/go-micro/microwire/v5/api/server"
+	"github.com/go-micro/microwire/v5/api/server/http"
 )
 
 type api struct {

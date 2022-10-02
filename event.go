@@ -3,7 +3,7 @@ package micro
 import (
 	"context"
 
-	"go-micro.dev/v4/client"
+	"github.com/go-micro/microwire/v5/client"
 )
 
 type event struct {

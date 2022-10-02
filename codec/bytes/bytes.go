@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"go-micro.dev/v4/codec"
+	"github.com/go-micro/microwire/v5/codec"
 )
 
 type Codec struct {

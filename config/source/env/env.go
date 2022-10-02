@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-micro/microwire/v5/config/source"
 	"github.com/imdario/mergo"
-	"go-micro.dev/v4/config/source"
 )
 
 var (

@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"strings"
 
-	"go-micro.dev/v4/logger"
-	"go-micro.dev/v4/metadata"
-	"go-micro.dev/v4/registry"
-	"go-micro.dev/v4/selector"
+	"github.com/go-micro/microwire/v5/logger"
+	"github.com/go-micro/microwire/v5/metadata"
+	"github.com/go-micro/microwire/v5/registry"
+	"github.com/go-micro/microwire/v5/selector"
 )
 
 // Write sets the status and body on a http ResponseWriter.

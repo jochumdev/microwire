@@ -1,7 +1,7 @@
 package api
 
 import (
-	"go-micro.dev/v4/api/router"
+	"github.com/go-micro/microwire/v5/api/router"
 )
 
 func NewOptions(opts ...Option) Options {

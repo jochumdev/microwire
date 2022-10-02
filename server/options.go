@@ -6,12 +6,12 @@ import (
 	"sync"
 	"time"
 
-	"go-micro.dev/v4/broker"
-	"go-micro.dev/v4/codec"
-	"go-micro.dev/v4/debug/trace"
-	"go-micro.dev/v4/logger"
-	"go-micro.dev/v4/registry"
-	"go-micro.dev/v4/transport"
+	"github.com/go-micro/microwire/v5/broker"
+	"github.com/go-micro/microwire/v5/codec"
+	"github.com/go-micro/microwire/v5/debug/trace"
+	"github.com/go-micro/microwire/v5/logger"
+	"github.com/go-micro/microwire/v5/registry"
+	"github.com/go-micro/microwire/v5/transport"
 )
 
 type RouterOptions struct {

@@ -6,8 +6,8 @@ import (
 	"net"
 	"time"
 
-	"go-micro.dev/v4/codec"
-	"go-micro.dev/v4/logger"
+	"github.com/go-micro/microwire/v5/codec"
+	"github.com/go-micro/microwire/v5/logger"
 )
 
 type Options struct {
