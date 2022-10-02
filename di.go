@@ -5,12 +5,14 @@ import (
 	mCli "github.com/go-micro/microwire/cli"
 	"github.com/go-micro/microwire/di"
 	mRegistry "github.com/go-micro/microwire/registry"
+	mStore "github.com/go-micro/microwire/store"
 	mTransport "github.com/go-micro/microwire/transport"
 	"github.com/google/wire"
 
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/broker"
 	"go-micro.dev/v4/registry"
+	"go-micro.dev/v4/store"
 	"go-micro.dev/v4/transport"
 )
 
@@ -33,9 +35,17 @@ func NewService(opts ...Option) (micro.Service, error) {
 	// Setup Components
 	brokerConfig := mBroker.NewConfig()
 	registryConfig := mRegistry.NewConfig()
+	storeConfig := mStore.NewConfig()
 	transportConfig := mTransport.NewConfig()
 
-	return newService(options, cliConfig, brokerConfig, registryConfig, transportConfig)
+	return newService(
+		options,
+		cliConfig,
+		brokerConfig,
+		registryConfig,
+		storeConfig,
+		transportConfig,
+	)
 }
 
 func ProvideFlags(
@@ -50,6 +60,7 @@ func ProvideAllService(
 	opts *Options,
 	broker broker.Broker,
 	registry registry.Registry,
+	store store.Store,
 	transport transport.Transport,
 ) (micro.Service, error) {
 	mOpts := []micro.Option{
@@ -62,6 +73,9 @@ func ProvideAllService(
 	}
 	if registry != nil {
 		mOpts = append(mOpts, micro.Registry(registry))
+	}
+	if store != nil {
+		mOpts = append(mOpts, micro.Store(store))
 	}
 	if transport != nil {
 		mOpts = append(mOpts, micro.Transport(transport))
@@ -104,6 +118,7 @@ var DiAllSet = wire.NewSet(
 	di.ProvideConfigor,
 	mBroker.DiSet,
 	mRegistry.DiSet,
+	mStore.DiSet,
 	mTransport.DiSet,
 )
 
