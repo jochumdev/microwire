@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	mCli "github.com/go-micro/microwire/v5/cli"
+	"github.com/go-micro/microwire/v5/cli"
 	"github.com/go-micro/microwire/v5/config"
 	"github.com/go-micro/microwire/v5/di"
 	"github.com/google/wire"
@@ -27,8 +27,8 @@ const (
 
 func ProvideFlags(
 	config *Config,
-	cliConfig *mCli.Config,
-	c mCli.Cli,
+	cliConfig *cli.Config,
+	c cli.Cli,
 ) (*DiFlags, error) {
 	if cliConfig.Cli.NoFlags {
 		// Defined silently ignore that
@@ -38,21 +38,21 @@ func ProvideFlags(
 	result := &DiFlags{}
 
 	if err := c.Add(
-		mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
-		mCli.Usage("Transport mechanism used; http"),
-		mCli.Default(config.Transport.Plugin),
-		mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
-		mCli.Destination(&result.Plugin),
+		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
+		cli.Usage("Transport mechanism used; http"),
+		cli.Default(config.Transport.Plugin),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
+		cli.Destination(&result.Plugin),
 	); err != nil {
 		return nil, err
 	}
 
 	if err := c.Add(
-		mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
-		mCli.Usage("Comma-separated list of transport addresses"),
-		mCli.Default(strings.Join(config.Transport.Addresses, ",")),
-		mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
-		mCli.Destination(&result.Addresses),
+		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+		cli.Usage("Comma-separated list of transport addresses"),
+		cli.Default(strings.Join(config.Transport.Addresses, ",")),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+		cli.Destination(&result.Addresses),
 	); err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func ProvideConfig(
 	_ di.DiConfig,
 	flags *DiFlags,
 	config *Config,
-	cliConfig *mCli.Config,
+	cliConfig *cli.Config,
 	configor config.Config,
 ) (DiConfig, error) {
 	defConfig := NewConfig()
@@ -85,6 +85,7 @@ func ProvideConfig(
 
 	defConfig = NewConfig()
 	defConfig.Transport.Plugin = flags.Plugin
+
 	defConfig.Transport.Addresses = strings.Split(flags.Addresses, ",")
 	if err := config.Merge(defConfig); err != nil {
 		return DiConfig{}, err

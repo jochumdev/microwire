@@ -1,7 +1,6 @@
 ---
 Name: store
 CapsName: Store
-PluralCapsName: Stores
 
 di_go:
   Imports: |-
@@ -23,31 +22,31 @@ di_go:
 
     Body: |-
       if err := c.Add(
-        mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
-        mCli.Usage("Comma-separated list of store addresses"),
-        mCli.Default(strings.Join(config.Store.Addresses, ",")),
-        mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
-        mCli.Destination(&result.Addresses),
+        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+        cli.Usage("Comma-separated list of store addresses"),
+        cli.Default(strings.Join(config.Store.Addresses, ",")),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+        cli.Destination(&result.Addresses),
       ); err != nil {
         return nil, err
       }
 
       if err := c.Add(
-        mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgDatabase)),
-        mCli.Usage("Database option for the underlying store"),
-        mCli.Default(config.Store.Database),
-        mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgDatabase)),
-        mCli.Destination(&result.Database),
+        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgDatabase)),
+        cli.Usage("Database option for the underlying store"),
+        cli.Default(config.Store.Database),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgDatabase)),
+        cli.Destination(&result.Database),
       ); err != nil {
         return nil, err
       }
 
       if err := c.Add(
-        mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgTable)),
-        mCli.Usage("Table option for the underlying store"),
-        mCli.Default(config.Store.Table),
-        mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgTable)),
-        mCli.Destination(&result.Table),
+        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgTable)),
+        cli.Usage("Table option for the underlying store"),
+        cli.Default(config.Store.Table),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgTable)),
+        cli.Destination(&result.Table),
       ); err != nil {
         return nil, err
       }
@@ -60,7 +59,6 @@ di_go:
 
   Provide:
     Body: |-
-      opts := []Option{}
       if len(config.Store.Addresses) > 0 {
         opts = append(opts, Nodes(config.Store.Addresses...))
       }

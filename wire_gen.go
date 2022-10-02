@@ -7,7 +7,9 @@
 package micro
 
 import (
+	"github.com/go-micro/microwire/v5/auth"
 	"github.com/go-micro/microwire/v5/broker"
+	"github.com/go-micro/microwire/v5/cache"
 	"github.com/go-micro/microwire/v5/cli"
 	"github.com/go-micro/microwire/v5/config/configdi"
 	"github.com/go-micro/microwire/v5/registry"
@@ -17,12 +19,20 @@ import (
 
 // Injectors from wire.go:
 
-func newService(options *Options, cliConfig *cli.Config, brokerConfig *broker.Config, registryConfig *registry.Config, storeConfig *store.Config, transportConfig *transport.Config) (Service, error) {
+func newService(options *Options, cliConfig *cli.Config, authConfig *auth.Config, brokerConfig *broker.Config, cacheConfig *cache.Config, registryConfig *registry.Config, storeConfig *store.Config, transportConfig *transport.Config) (Service, error) {
 	cliCli, err := cli.ProvideCli(cliConfig)
 	if err != nil {
 		return nil, err
 	}
-	diFlags, err := broker.ProvideFlags(brokerConfig, cliConfig, cliCli)
+	diFlags, err := auth.ProvideFlags(authConfig, cliConfig, cliCli)
+	if err != nil {
+		return nil, err
+	}
+	brokerDiFlags, err := broker.ProvideFlags(brokerConfig, cliConfig, cliCli)
+	if err != nil {
+		return nil, err
+	}
+	cacheDiFlags, err := cache.ProvideFlags(cacheConfig, cliConfig, cliCli)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +48,7 @@ func newService(options *Options, cliConfig *cli.Config, brokerConfig *broker.Co
 	if err != nil {
 		return nil, err
 	}
-	diDiFlags, err := ProvideFlags(diFlags, registryDiFlags, storeDiFlags, transportDiFlags)
+	diDiFlags, err := ProvideFlags(diFlags, brokerDiFlags, cacheDiFlags, registryDiFlags, storeDiFlags, transportDiFlags)
 	if err != nil {
 		return nil, err
 	}
@@ -54,11 +64,27 @@ func newService(options *Options, cliConfig *cli.Config, brokerConfig *broker.Co
 	if err != nil {
 		return nil, err
 	}
-	brokerDiConfig, err := broker.ProvideConfig(diConfig, diFlags, brokerConfig, cliConfig, config)
+	authDiConfig, err := auth.ProvideConfig(diConfig, diFlags, authConfig, cliConfig, config)
+	if err != nil {
+		return nil, err
+	}
+	authAuth, err := auth.Provide(authDiConfig, authConfig)
+	if err != nil {
+		return nil, err
+	}
+	brokerDiConfig, err := broker.ProvideConfig(diConfig, brokerDiFlags, brokerConfig, cliConfig, config)
 	if err != nil {
 		return nil, err
 	}
 	brokerBroker, err := broker.Provide(brokerDiConfig, brokerConfig)
+	if err != nil {
+		return nil, err
+	}
+	cacheDiConfig, err := cache.ProvideConfig(diConfig, cacheDiFlags, cacheConfig, cliConfig, config)
+	if err != nil {
+		return nil, err
+	}
+	cacheCache, err := cache.Provide(cacheDiConfig, cacheConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +112,7 @@ func newService(options *Options, cliConfig *cli.Config, brokerConfig *broker.Co
 	if err != nil {
 		return nil, err
 	}
-	microService, err := ProvideAllService(options, brokerBroker, registryRegistry, storeStore, transportTransport)
+	microService, err := ProvideAllService(options, authAuth, brokerBroker, cacheCache, registryRegistry, storeStore, transportTransport)
 	if err != nil {
 		return nil, err
 	}

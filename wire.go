@@ -5,21 +5,25 @@
 package micro
 
 import (
-	mBroker "github.com/go-micro/microwire/v5/broker"
-	mCli "github.com/go-micro/microwire/v5/cli"
-	mRegistry "github.com/go-micro/microwire/v5/registry"
-	mStore "github.com/go-micro/microwire/v5/store"
-	mTransport "github.com/go-micro/microwire/v5/transport"
+	"github.com/go-micro/microwire/v5/auth"
+	"github.com/go-micro/microwire/v5/broker"
+	"github.com/go-micro/microwire/v5/cache"
+	"github.com/go-micro/microwire/v5/cli"
+	"github.com/go-micro/microwire/v5/registry"
+	"github.com/go-micro/microwire/v5/store"
+	"github.com/go-micro/microwire/v5/transport"
 	"github.com/google/wire"
 )
 
 func newService(
 	options *Options,
-	cliConfig *mCli.Config,
-	brokerConfig *mBroker.Config,
-	registryConfig *mRegistry.Config,
-	storeConfig *mStore.Config,
-	transportConfig *mTransport.Config,
+	cliConfig *cli.Config,
+	authConfig *auth.Config,
+	brokerConfig *broker.Config,
+	cacheConfig *cache.Config,
+	registryConfig *registry.Config,
+	storeConfig *store.Config,
+	transportConfig *transport.Config,
 ) (Service, error) {
 	panic(wire.Build(
 		DiCliSet,

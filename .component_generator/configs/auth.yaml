@@ -1,0 +1,124 @@
+---
+Name: auth
+CapsName: Auth
+
+di_go:
+  Imports: ""
+  DiFlags:
+    Fields: |-
+      ID string
+      Secret string
+      PublicKey string
+      PrivateKey string
+      Namespace string
+  Consts: |-
+    cliArgID = "auth_id"
+    cliArgSecret = "auth_secret"
+    cliArgPublicKey = "auth_public_key"
+    cliArgPrivateKey = "auth_private_key"
+    cliArgNamespace = "auth_namespace"
+
+  ProvideFlags:
+    Plugin:
+      Usage: "Auth for role based access control, e.g. service"
+
+    Body: |-
+      if err := c.Add(
+        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgID)),
+        cli.Usage("Account ID used for client authentication"),
+        cli.Default(config.Auth.ID),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgID)),
+        cli.Destination(&result.ID),
+      ); err != nil {
+        return nil, err
+      }
+
+      if err := c.Add(
+        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgSecret)),
+        cli.Usage("Account secret used for client authentication"),
+        cli.Default(config.Auth.Secret),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgSecret)),
+        cli.Destination(&result.Secret),
+      ); err != nil {
+        return nil, err
+      }
+
+      if err := c.Add(
+        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPublicKey)),
+        cli.Usage("Public key for JWT auth (base64 encoded PEM)"),
+        cli.Default(config.Auth.PublicKey),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPublicKey)),
+        cli.Destination(&result.PublicKey),
+      ); err != nil {
+        return nil, err
+      }
+
+      if err := c.Add(
+        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPrivateKey)),
+        cli.Usage("Private key for JWT auth (base64 encoded PEM)"),
+        cli.Default(config.Auth.PrivateKey),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPrivateKey)),
+        cli.Destination(&result.PrivateKey),
+      ); err != nil {
+        return nil, err
+      }
+
+      if err := c.Add(
+        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgNamespace)),
+        cli.Usage("Namespace for the services auth account"),
+        cli.Default(config.Auth.Namespace),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgNamespace)),
+        cli.Destination(&result.Namespace),
+      ); err != nil {
+        return nil, err
+      }
+
+  ProvideConfig:
+    Body: |-
+      if len(flags.ID) > 0 && len(flags.Secret) > 0 {
+        defConfig.Auth.ID = flags.ID
+        defConfig.Auth.Secret = flags.Secret
+      }
+      if len(flags.PublicKey) > 0 && len(flags.PrivateKey) > 0 {
+        defConfig.Auth.PublicKey = flags.PublicKey
+        defConfig.Auth.PrivateKey = flags.PrivateKey
+      }
+      defConfig.Auth.Namespace = flags.Namespace
+
+  Provide:
+    Body: |-
+      if len(config.Auth.ID) > 0 && len(config.Auth.Secret) > 0 {
+        opts = append(opts, Credentials(
+          config.Auth.ID, config.Auth.Secret,
+        ))
+      }
+      opts = append(opts, PublicKey(config.Auth.PublicKey))
+      opts = append(opts, PrivateKey(config.Auth.PrivateKey))
+      opts = append(opts, Namespace(config.Auth.Namespace))
+
+config_store_go:
+  NewConfig:
+    Enabled: "false"
+    Plugin: ""
+    Fields: |-
+      ID: "",
+      Secret: "",
+      PublicKey: "",
+      PrivateKey: "",
+      Namespace: "",
+
+  Config:
+    Fields: |-
+      ID string `json:"client,omitempty" yaml:"ID,omitempty"`
+      Secret string `json:"secret,omitempty" yaml:"Secret,omitempty"`
+      PublicKey string `json:"public_key,omitempty" yaml:"PublicKey,omitempty"`
+      PrivateKey string `json:"private_key,omitempty" yaml:"PrivateKey,omitempty"`
+      Namespace string `json:"namespace,omitempty" yaml:"Namespace,omitempty"`
+
+  ConfigMerge:
+    Fields: |-
+      d.Auth.ID = src.Auth.ID
+      d.Auth.Secret = src.Auth.Secret
+      d.Auth.PublicKey = src.Auth.PublicKey
+      d.Auth.PrivateKey = src.Auth.PrivateKey
+      d.Auth.Namespace = src.Auth.Namespace

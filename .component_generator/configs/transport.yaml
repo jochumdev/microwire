@@ -1,7 +1,6 @@
 ---
 Name: transport
 CapsName: Transport
-PluralCapsName: Transports
 
 di_go:
   Imports: |-
@@ -18,11 +17,11 @@ di_go:
 
     Body: |-
       if err := c.Add(
-        mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
-        mCli.Usage("Comma-separated list of transport addresses"),
-        mCli.Default(strings.Join(config.Transport.Addresses, ",")),
-        mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
-        mCli.Destination(&result.Addresses),
+        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+        cli.Usage("Comma-separated list of transport addresses"),
+        cli.Default(strings.Join(config.Transport.Addresses, ",")),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+        cli.Destination(&result.Addresses),
       ); err != nil {
         return nil, err
       }
@@ -33,7 +32,6 @@ di_go:
 
   Provide:
     Body: |-
-      opts := []Option{}
       if len(config.Transport.Addresses) > 0 {
         opts = append(opts, Addrs(config.Transport.Addresses...))
       }

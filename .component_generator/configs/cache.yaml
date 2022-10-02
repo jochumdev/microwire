@@ -1,0 +1,33 @@
+---
+Name: cache
+CapsName: Cache
+
+di_go:
+  Imports: ""
+  DiFlags:
+    Fields: ""
+  Consts: ""
+
+  ProvideFlags:
+    Plugin:
+      Usage: "Cache k/v store"
+
+    Body: ""
+
+  ProvideConfig:
+    Body: ""
+
+  Provide:
+    Body: ""
+
+config_store_go:
+  NewConfig:
+    Enabled: "false"
+    Plugin: ""
+    Fields: ""
+
+  Config:
+    Fields: ""
+
+  ConfigMerge:
+    Fields: ""

@@ -1,13 +1,11 @@
 package micro
 
 import (
-	mBroker "github.com/go-micro/microwire/v5/broker"
-	mCli "github.com/go-micro/microwire/v5/cli"
+	"github.com/go-micro/microwire/v5/auth"
+	"github.com/go-micro/microwire/v5/cache"
+	"github.com/go-micro/microwire/v5/cli"
 	"github.com/go-micro/microwire/v5/config/configdi"
 	"github.com/go-micro/microwire/v5/di"
-	mRegistry "github.com/go-micro/microwire/v5/registry"
-	mStore "github.com/go-micro/microwire/v5/store"
-	mTransport "github.com/go-micro/microwire/v5/transport"
 	"github.com/google/wire"
 
 	"github.com/go-micro/microwire/v5/broker"
@@ -22,7 +20,7 @@ func NewService(opts ...Option) (Service, error) {
 	options := NewOptions(opts...)
 
 	// Setup cli
-	cliConfig := mCli.NewConfig()
+	cliConfig := cli.NewConfig()
 	cliConfig.Cli.Plugin = "urfave"
 	cliConfig.Cli.Name = options.Name
 	cliConfig.Cli.Version = options.Version
@@ -32,34 +30,34 @@ func NewService(opts ...Option) (Service, error) {
 	cliConfig.Cli.Flags = options.Flags
 	cliConfig.Cli.ConfigFile = options.ConfigFile
 
-	// Setup Components
-	brokerConfig := mBroker.NewConfig()
-	registryConfig := mRegistry.NewConfig()
-	storeConfig := mStore.NewConfig()
-	transportConfig := mTransport.NewConfig()
-
 	return newService(
 		options,
 		cliConfig,
-		brokerConfig,
-		registryConfig,
-		storeConfig,
-		transportConfig,
+		auth.NewConfig(),
+		broker.NewConfig(),
+		cache.NewConfig(),
+		registry.NewConfig(),
+		store.NewConfig(),
+		transport.NewConfig(),
 	)
 }
 
 func ProvideFlags(
-	_ *mBroker.DiFlags,
-	_ *mRegistry.DiFlags,
-	_ *mStore.DiFlags,
-	_ *mTransport.DiFlags,
+	_ *auth.DiFlags,
+	_ *broker.DiFlags,
+	_ *cache.DiFlags,
+	_ *registry.DiFlags,
+	_ *store.DiFlags,
+	_ *transport.DiFlags,
 ) (di.DiFlags, error) {
 	return di.DiFlags{}, nil
 }
 
 func ProvideAllService(
 	opts *Options,
+	auth auth.Auth,
 	broker broker.Broker,
+	cache cache.Cache,
 	registry registry.Registry,
 	store store.Store,
 	transport transport.Transport,
@@ -69,8 +67,14 @@ func ProvideAllService(
 		Version(opts.Version),
 	}
 
+	if auth != nil {
+		mOpts = append(mOpts, Auth(auth))
+	}
 	if broker != nil {
 		mOpts = append(mOpts, Broker(broker))
+	}
+	if cache != nil {
+		mOpts = append(mOpts, Cache(cache))
 	}
 	if registry != nil {
 		mOpts = append(mOpts, Registry(registry))
@@ -111,24 +115,28 @@ func ProvideConfigFile(
 // DiSet is a set of all things components need, except the components themself.
 var DiSet = wire.NewSet(
 	configdi.ProvideConfigor,
-	mBroker.DiSet,
-	mRegistry.DiSet,
-	mStore.DiSet,
-	mTransport.DiSet,
+	auth.DiSet,
+	broker.DiSet,
+	cache.DiSet,
+	registry.DiSet,
+	store.DiSet,
+	transport.DiSet,
 )
 
 var DiNoCliSet = wire.NewSet(
 	configdi.ProvideConfigor,
-	mBroker.DiNoCliSet,
-	mRegistry.DiNoCliSet,
-	mStore.DiNoCliSet,
-	mTransport.DiNoCliSet,
+	auth.DiNoCliSet,
+	broker.DiNoCliSet,
+	cache.DiNoCliSet,
+	registry.DiNoCliSet,
+	store.DiNoCliSet,
+	transport.DiNoCliSet,
 )
 
 var DiCliSet = wire.NewSet(
-	mCli.ProvideCli,
-	mCli.ProvideParsed,
-	mCli.ProvideConfig,
+	cli.ProvideCli,
+	cli.ProvideParsed,
+	cli.ProvideConfig,
 )
 
 var DiNoDiSet = wire.NewSet(

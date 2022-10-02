@@ -6,7 +6,7 @@ import (
 	"fmt"
 	{{di_go.Imports}}
 
-	mCli "github.com/go-micro/microwire/v5/cli"
+	"github.com/go-micro/microwire/v5/cli"
 	"github.com/go-micro/microwire/v5/di"
 	"github.com/go-micro/microwire/v5/config"
 	"github.com/google/wire"
@@ -27,8 +27,8 @@ const (
 
 func ProvideFlags(
 	config *Config,
-	cliConfig *mCli.Config,
-	c mCli.Cli,
+	cliConfig *cli.Config,
+	c cli.Cli,
 ) (*DiFlags, error) {
 	if cliConfig.Cli.NoFlags {
 		// Defined silently ignore that
@@ -38,11 +38,11 @@ func ProvideFlags(
 	result := &DiFlags{}
 
 	if err := c.Add(
-		mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
-		mCli.Usage("{{di_go.ProvideFlags.Plugin.Usage}}"),
-		mCli.Default(config.{{CapsName}}.Plugin),
-		mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
-		mCli.Destination(&result.Plugin),
+		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
+		cli.Usage("{{di_go.ProvideFlags.Plugin.Usage}}"),
+		cli.Default(config.{{CapsName}}.Plugin),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
+		cli.Destination(&result.Plugin),
 	); err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func ProvideConfig(
 	_ di.DiConfig,
 	flags *DiFlags,
 	config *Config,
-	cliConfig *mCli.Config,
+	cliConfig *cli.Config,
 	configor config.Config,
 ) (DiConfig, error) {
 	defConfig := NewConfig()
@@ -77,6 +77,7 @@ func ProvideConfig(
 
 	defConfig = NewConfig()
 	defConfig.{{CapsName}}.Plugin = flags.Plugin
+
 	{{di_go.ProvideConfig.Body}}
 	if err := config.Merge(defConfig); err != nil {
 		return DiConfig{}, err
@@ -119,6 +120,7 @@ func Provide(
 		return nil, fmt.Errorf("unknown {{Name}}: %v", err)
 	}
 
+	opts := []Option{}
 	{{di_go.Provide.Body}}
 
 	return b(opts...), nil
