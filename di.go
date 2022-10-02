@@ -2,16 +2,15 @@ package micro
 
 import (
 	"github.com/go-micro/microwire/v5/auth"
+	"github.com/go-micro/microwire/v5/broker"
 	"github.com/go-micro/microwire/v5/cache"
 	"github.com/go-micro/microwire/v5/cli"
 	"github.com/go-micro/microwire/v5/config/configdi"
 	"github.com/go-micro/microwire/v5/di"
-	"github.com/google/wire"
-
-	"github.com/go-micro/microwire/v5/broker"
 	"github.com/go-micro/microwire/v5/registry"
 	"github.com/go-micro/microwire/v5/store"
 	"github.com/go-micro/microwire/v5/transport"
+	"github.com/google/wire"
 )
 
 type CliArgs []string

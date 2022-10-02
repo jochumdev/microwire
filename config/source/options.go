@@ -3,8 +3,6 @@ package source
 import (
 	"context"
 
-	// "github.com/go-micro/microwire/v5/client"
-
 	"github.com/go-micro/microwire/v5/config/encoder"
 	"github.com/go-micro/microwire/v5/config/encoder/json"
 )

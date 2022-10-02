@@ -5,16 +5,14 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/go-micro/microwire/v5/di"
-
+	"github.com/go-micro/microwire/v5/config"
+	"github.com/go-micro/microwire/v5/config/reader"
 	uJson "github.com/go-micro/microwire/v5/config/reader/json"
+	"github.com/go-micro/microwire/v5/config/source/file"
+	"github.com/go-micro/microwire/v5/di"
 	uFile "github.com/go-micro/microwire/v5/util/file"
 	"github.com/go-micro/plugins/v4/config/encoder/toml"
 	"github.com/go-micro/plugins/v4/config/encoder/yaml"
-
-	"github.com/go-micro/microwire/v5/config"
-	"github.com/go-micro/microwire/v5/config/reader"
-	"github.com/go-micro/microwire/v5/config/source/file"
 )
 
 func ProvideConfigor(
