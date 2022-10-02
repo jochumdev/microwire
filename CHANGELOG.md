@@ -107,8 +107,8 @@
 
 ### BREAKING CHANGES
 
-- go install go-micro.dev/v4/cmd/micro@v4
-- go install go-micro.dev/v4/cmd/protoc-gen-micro@v4
+- go install github.com/go-micro/microwire/v5/cmd/micro@v4
+- go install github.com/go-micro/microwire/v5/cmd/protoc-gen-micro@v4
 - upgrade go micro to support stream.CloseSend
 
 # 4.2.1 (2021/10/14)
@@ -138,7 +138,7 @@
 
 ### BREAKING CHANGES
 
-- upgrade github.com/asim/go-micro/v3 to go-micro.dev/v4.
+- upgrade github.com/asim/go-micro/v3 to github.com/go-micro/microwire/v5.
 
 # 3.7.0 (2021/10/11)
 

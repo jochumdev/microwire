@@ -18,8 +18,6 @@ import (
 	"github.com/go-micro/microwire/v5/server"
 	"github.com/go-micro/microwire/v5/store"
 	"github.com/go-micro/microwire/v5/transport"
-	"github.com/go-micro/microwire/v5/util/cmd"
-	"github.com/urfave/cli/v2"
 )
 
 // Options for micro service.
@@ -27,7 +25,6 @@ type Options struct {
 	Auth      auth.Auth
 	Broker    broker.Broker
 	Cache     cache.Cache
-	Cmd       cmd.Cmd
 	Config    config.Config
 	Client    client.Client
 	Server    server.Server
@@ -55,7 +52,6 @@ func newOptions(opts ...Option) Options {
 		Auth:      auth.DefaultAuth,
 		Broker:    broker.DefaultBroker,
 		Cache:     cache.DefaultCache,
-		Cmd:       cmd.DefaultCmd,
 		Config:    config.DefaultConfig,
 		Client:    client.DefaultClient,
 		Server:    server.DefaultServer,
@@ -88,12 +84,6 @@ func Broker(b broker.Broker) Option {
 func Cache(c cache.Cache) Option {
 	return func(o *Options) {
 		o.Cache = c
-	}
-}
-
-func Cmd(c cmd.Cmd) Option {
-	return func(o *Options) {
-		o.Cmd = c
 	}
 }
 
@@ -228,20 +218,6 @@ func Version(v string) Option {
 func Metadata(md map[string]string) Option {
 	return func(o *Options) {
 		o.Server.Init(server.Metadata(md))
-	}
-}
-
-// Flags that can be passed to service.
-func Flags(flags ...cli.Flag) Option {
-	return func(o *Options) {
-		o.Cmd.App().Flags = append(o.Cmd.App().Flags, flags...)
-	}
-}
-
-// Action can be used to parse user provided cli options.
-func Action(a func(*cli.Context) error) Option {
-	return func(o *Options) {
-		o.Cmd.App().Action = a
 	}
 }
 

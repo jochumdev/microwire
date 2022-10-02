@@ -1,0 +1,93 @@
+---
+Name: store
+CapsName: Store
+PluralCapsName: Stores
+
+di_go:
+  Imports: |-
+    "strings"
+  DiFlags:
+    Fields: |-
+      Addresses string
+      Database  string
+      Table     string
+
+  Consts: |-
+    cliArgAddresses = "store_address"
+    cliArgDatabase  = "store_database"
+    cliArgTable     = "store_table"
+
+  ProvideFlags:
+    Plugin:
+      Usage: "Store for pub/sub. http, nats, rabbitmq"
+
+    Body: |-
+      if err := c.Add(
+        mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+        mCli.Usage("Comma-separated list of store addresses"),
+        mCli.Default(strings.Join(config.Store.Addresses, ",")),
+        mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+        mCli.Destination(&result.Addresses),
+      ); err != nil {
+        return nil, err
+      }
+
+      if err := c.Add(
+        mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgDatabase)),
+        mCli.Usage("Database option for the underlying store"),
+        mCli.Default(config.Store.Database),
+        mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgDatabase)),
+        mCli.Destination(&result.Database),
+      ); err != nil {
+        return nil, err
+      }
+
+      if err := c.Add(
+        mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgTable)),
+        mCli.Usage("Table option for the underlying store"),
+        mCli.Default(config.Store.Table),
+        mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgTable)),
+        mCli.Destination(&result.Table),
+      ); err != nil {
+        return nil, err
+      }
+
+  ProvideConfig:
+    Body: |-
+      defConfig.Store.Addresses = strings.Split(flags.Addresses, ",")
+      defConfig.Store.Database = flags.Database
+      defConfig.Store.Table = flags.Table
+
+  Provide:
+    Body: |-
+      opts := []Option{}
+      if len(config.Store.Addresses) > 0 {
+        opts = append(opts, Nodes(config.Store.Addresses...))
+      }
+      if len(config.Store.Database) > 0 {
+        opts = append(opts, Database(config.Store.Database))
+      }
+      if len(config.Store.Table) > 0 {
+        opts = append(opts, Table(config.Store.Table))
+      }
+
+config_store_go:
+  NewConfig:
+    Enabled: "false"
+    Plugin: ""
+    Fields: |-
+      Addresses: []string{},
+      Database:  "",
+      Table:     "",
+
+  Config:
+    Fields: |-
+      Addresses []string `json:"addresses,omitempty" yaml:"Addresses,omitempty"`
+      Database  string   `json:"database,omitempty" yaml:"Database,omitempty"`
+      Table     string   `json:"table,omitempty" yaml:"Table,omitempty"`
+
+  ConfigMerge:
+    Fields: |-
+      d.Store.Addresses = src.Store.Addresses
+      d.Store.Database = src.Store.Database
+      d.Store.Table = src.Store.Table

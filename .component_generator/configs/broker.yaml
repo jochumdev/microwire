@@ -1,0 +1,54 @@
+---
+Name: broker
+CapsName: Broker
+PluralCapsName: Brokers
+
+di_go:
+  Imports: |-
+    "strings"
+  DiFlags:
+    Fields: |-
+      Addresses string
+  Consts: |-
+    cliArgAddresses = "broker_address"
+
+  ProvideFlags:
+    Plugin:
+      Usage: "Broker for pub/sub. http, nats, rabbitmq"
+
+    Body: |-
+      if err := c.Add(
+        mCli.Name(mCli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+        mCli.Usage("Comma-separated list of broker addresses"),
+        mCli.Default(strings.Join(config.Broker.Addresses, ",")),
+        mCli.EnvVars(mCli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+        mCli.Destination(&result.Addresses),
+      ); err != nil {
+        return nil, err
+      }
+
+  ProvideConfig:
+    Body: |-
+      defConfig.Broker.Addresses = strings.Split(flags.Addresses, ",")
+
+  Provide:
+    Body: |-
+      opts := []Option{}
+      if len(config.Broker.Addresses) > 0 {
+        opts = append(opts, Addrs(config.Broker.Addresses...))
+      }
+
+config_store_go:
+  NewConfig:
+    Enabled: "true"
+    Plugin: "http"
+    Fields: |-
+      Addresses: []string{},
+
+  Config:
+    Fields: |-
+      Addresses []string `json:"addresses,omitempty" yaml:"Addresses,omitempty"`
+
+  ConfigMerge:
+    Fields: |-
+      d.Broker.Addresses = src.Broker.Addresses

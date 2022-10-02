@@ -3,7 +3,8 @@ package source
 import (
 	"context"
 
-	"github.com/go-micro/microwire/v5/client"
+	// "github.com/go-micro/microwire/v5/client"
+
 	"github.com/go-micro/microwire/v5/config/encoder"
 	"github.com/go-micro/microwire/v5/config/encoder/json"
 )
@@ -16,7 +17,7 @@ type Options struct {
 	Context context.Context
 
 	// Client to use for RPC
-	Client client.Client
+	// Client client.Client
 }
 
 type Option func(o *Options)
@@ -25,7 +26,7 @@ func NewOptions(opts ...Option) Options {
 	options := Options{
 		Encoder: json.NewEncoder(),
 		Context: context.Background(),
-		Client:  client.DefaultClient,
+		// Client:  client.DefaultClient,
 	}
 
 	for _, o := range opts {
@@ -43,8 +44,8 @@ func WithEncoder(e encoder.Encoder) Option {
 }
 
 // WithClient sets the source client.
-func WithClient(c client.Client) Option {
-	return func(o *Options) {
-		o.Client = c
-	}
-}
+// func WithClient(c client.Client) Option {
+// 	return func(o *Options) {
+// 		o.Client = c
+// 	}
+// }

@@ -9,8 +9,6 @@ import (
 	"github.com/go-micro/microwire/v5/client"
 	log "github.com/go-micro/microwire/v5/logger"
 	"github.com/go-micro/microwire/v5/server"
-	"github.com/go-micro/microwire/v5/store"
-	"github.com/go-micro/microwire/v5/util/cmd"
 	signalutil "github.com/go-micro/microwire/v5/util/signal"
 )
 
@@ -30,44 +28,12 @@ func (s *service) Name() string {
 	return s.opts.Server.Options().Name
 }
 
-// Init initializes options. Additionally it calls cmd.Init
-// which parses command line flags. cmd.Init is only called
-// on first Init.
+// Init initializes options.
 func (s *service) Init(opts ...Option) {
 	// process options
 	for _, o := range opts {
 		o(&s.opts)
 	}
-
-	s.once.Do(func() {
-		// set cmd name
-		if len(s.opts.Cmd.App().Name) == 0 {
-			s.opts.Cmd.App().Name = s.Server().Options().Name
-		}
-
-		// Initialize the command flags, overriding new service
-		if err := s.opts.Cmd.Init(
-			cmd.Auth(&s.opts.Auth),
-			cmd.Broker(&s.opts.Broker),
-			cmd.Registry(&s.opts.Registry),
-			cmd.Runtime(&s.opts.Runtime),
-			cmd.Transport(&s.opts.Transport),
-			cmd.Client(&s.opts.Client),
-			cmd.Config(&s.opts.Config),
-			cmd.Server(&s.opts.Server),
-			cmd.Store(&s.opts.Store),
-			cmd.Profile(&s.opts.Profile),
-		); err != nil {
-			s.opts.Logger.Log(log.FatalLevel, err)
-		}
-
-		// Explicitly set the table name to the service name
-		name := s.opts.Cmd.App().Name
-		err := s.opts.Store.Init(store.Table(name))
-		if err != nil {
-			s.opts.Logger.Log(log.FatalLevel, err)
-		}
-	})
 }
 
 func (s *service) Options() Options {

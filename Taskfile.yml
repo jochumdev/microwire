@@ -1,0 +1,28 @@
+version: "3"
+
+tasks:
+  generate:
+    cmds:
+      - /bin/bash -c "pushd .component_generator; ./generate_overwrite.sh; popd"
+      - go generate ./...
+      - git add ndi/wire_gen.go
+  check:
+    cmds:
+      - trunk check --sample 10
+  pre-commit:
+    cmds:
+      - task: generate
+      - task: gosums
+      - task: check
+  tidy:
+    cmds:
+      - find . -name 'go.mod' -print0 | xargs -0 -I {} /bin/bash -c 'pushd `dirname $1`; go mod tidy; popd' '_' '{}' \+
+  update:
+    cmds:
+      - find . -name 'go.mod' -print0 | xargs -0 -I {} /bin/bash -c 'pushd `dirname $1`; go get -u ./...; popd' '_' '{}' \+
+  gosums:
+    cmds:
+      - find . -name 'go.mod' -print0 | xargs -0 -I {} /bin/bash -c 'pushd `dirname $1`; git add go.mod go.sum; popd' '_' '{}' \+
+  workuse:
+    cmds:
+      - find . -name 'go.mod' -print0 | xargs -0 -I {} /bin/bash -c 'go work use `dirname $1`' '_' '{}' \+
