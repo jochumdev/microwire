@@ -1,4 +1,4 @@
-<mxfile host="65bd71144e" modified="2022-10-02T12:39:14.779Z" agent="5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.71.2 Chrome/102.0.5005.167 Electron/19.0.12 Safari/537.36" etag="Q4oIldLY9bQa_k-5AqUL" version="20.4.0" type="embed">
+<mxfile host="65bd71144e" modified="2022-10-02T12:44:39.157Z" agent="5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.71.2 Chrome/102.0.5005.167 Electron/19.0.12 Safari/537.36" etag="kC-pmNIDVP3UxIHc8w9x" version="20.4.0" type="embed">
     <diagram id="vMnfY-2Tbw0DXYRR_aYp" name="Seite-1">
         <mxGraphModel dx="1352" dy="1364" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
             <root>
@@ -42,20 +42,13 @@
                 <mxCell id="31" value="&lt;table border=&quot;1&quot; width=&quot;100%&quot; height=&quot;100%&quot; cellpadding=&quot;4&quot; style=&quot;width: 100%; height: 100%; border-collapse: collapse;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;th align=&quot;center&quot;&gt;ProvideFlags&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&quot;center&quot;&gt;_ broker.DiFlags&lt;br&gt;_ other.DiFlags&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&quot;center&quot;&gt;di.DiFlags&lt;br&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;" style="text;html=1;strokeColor=#82b366;fillColor=#d5e8d4;overflow=fill;" parent="1" vertex="1">
                     <mxGeometry x="445" y="-647" width="190" height="110" as="geometry"/>
                 </mxCell>
-                <mxCell id="109" style="edgeStyle=none;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;endArrow=none;endFill=0;" parent="1" source="42" target="6" edge="1">
-                    <mxGeometry relative="1" as="geometry">
-                        <Array as="points">
-                            <mxPoint x="359" y="-473"/>
-                        </Array>
-                    </mxGeometry>
-                </mxCell>
                 <mxCell id="114" style="edgeStyle=none;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;startArrow=classic;startFill=1;endArrow=none;endFill=0;" parent="1" source="42" target="24" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="127" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="42" target="102">
+                <mxCell id="127" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="42" target="102" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="42" value="&lt;table border=&quot;1&quot; width=&quot;100%&quot; height=&quot;100%&quot; cellpadding=&quot;4&quot; style=&quot;width: 100%; height: 100%; border-collapse: collapse;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;th align=&quot;center&quot;&gt;broker.ProvideConfig&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&quot;center&quot;&gt;_ *cli.Diparsed&lt;br&gt;_ di.DiConfig&lt;br&gt;config broker.Config&lt;br&gt;configor di.Configor&lt;br&gt;flags *broker.DiFlags&lt;br&gt;cli cli.Cli&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&quot;center&quot;&gt;broker.DiConfig&lt;br&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;" style="text;html=1;strokeColor=#d79b00;fillColor=#ffe6cc;overflow=fill;" parent="1" vertex="1">
+                <mxCell id="42" value="&lt;table border=&quot;1&quot; width=&quot;100%&quot; height=&quot;100%&quot; cellpadding=&quot;4&quot; style=&quot;width: 100%; height: 100%; border-collapse: collapse;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;th align=&quot;center&quot;&gt;broker.ProvideConfig&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&quot;center&quot;&gt;_ di.DiConfig&lt;br&gt;config broker.Config&lt;br&gt;configor di.Configor&lt;br&gt;flags *broker.DiFlags&lt;br&gt;cli cli.Cli&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&quot;center&quot;&gt;broker.DiConfig&lt;br&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;" style="text;html=1;strokeColor=#d79b00;fillColor=#ffe6cc;overflow=fill;" parent="1" vertex="1">
                     <mxGeometry x="227.5" y="-434" width="175" height="137" as="geometry"/>
                 </mxCell>
                 <mxCell id="125" style="edgeStyle=none;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="78" target="42" edge="1">
