@@ -60,10 +60,6 @@ Transport:
     - nats://localhost:4222
 ```
 
-### Known bugs
-
-- When you execute an App with "--help" or "--version" it does not exit after that.
-
 ## Overview
 
 Go Micro provides the core requirements for distributed systems development including RPC and Event driven communication.
