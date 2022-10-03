@@ -117,20 +117,17 @@ To make use of Go Micro
 package main
 
 import (
-    _ "github.com/go-micro/microwire-plugins/broker/http/v5"
-    _ "github.com/go-micro/microwire-plugins/cli/urfave/v5"
-    _ "github.com/go-micro/microwire-plugins/registry/mdns/v5"
-    _ "github.com/go-micro/microwire-plugins/transport/http/v5"
+    _ "github.com/go-micro/microwire-plugins/sets/v4compat/v5"
     micro "github.com/go-micro/microwire/v5"
     "github.com/go-micro/microwire/v5/logger"
 )
 
 func main() {
     service, err := micro.NewService(
-        micro.Name("helloworld"),
-        micro.Usage("go-micro.dev/v5 hello world"),
+        micro.Name("livecyclehooks"),
+        micro.Usage("A POC for go-micro.dev/v5"),
         micro.Version("v0.0.1"),
-        micro.ArgPrefix("micro"),
+        micro.ArgPrefix(""),
     )
     if err != nil {
         logger.Fatal(err)
@@ -140,7 +137,6 @@ func main() {
         logger.Fatal(err)
     }
 }
-
 ```
 
 See the [examples](https://github.com/go-micro/examples) for detailed information on usage.
