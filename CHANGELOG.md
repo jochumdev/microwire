@@ -1,4 +1,6 @@
-# 4.7.0 (2022/05/19)
+# Changelog
+
+## 4.7.0 (2022/05/19)
 
 ### Features
 
@@ -27,7 +29,7 @@
 - http transport deadlock (#2441)
 - Support for `-micro_out=module=<module_prefix>` for protoc-gen-micro (#2435)
 
-# 4.6.0 (2022/02/08)
+## 4.6.0 (2022/02/08)
 
 ### Features
 
@@ -51,7 +53,7 @@
 - fix client
 - fix context value nil (#2391)
 
-# 4.5.0 (2021/12/19)
+## 4.5.0 (2021/12/19)
 
 ### Bug Fixes
 
@@ -70,7 +72,7 @@
 - Extend client mock with ability to test publish, and a few useful method like SetResponse and SetSubscriber (#2375)
 - go micro dashboard (#2361)
 
-# 4.4.0 (2021/11/11)
+## 4.4.0 (2021/11/11)
 
 ### Bug Fixes
 
@@ -82,7 +84,7 @@
 - add nats and redis events plugins
 - add events package (#2341)
 
-# 4.3.0 (2021/11/01)
+## 4.3.0 (2021/11/01)
 
 ### Bug Fixes
 
@@ -111,13 +113,13 @@
 - go install github.com/go-micro/microwire/v5/cmd/protoc-gen-micro@v4
 - upgrade go micro to support stream.CloseSend
 
-# 4.2.1 (2021/10/14)
+## 4.2.1 (2021/10/14)
 
 ### Bug Fixes
 
 - fix gomu.
 
-# 4.2.0 (2021/10/13)
+## 4.2.0 (2021/10/13)
 
 ### Bug Fixes
 
@@ -126,11 +128,11 @@
 - move to go-micro.dev.
 - upgrade protoc-gen-micro to v4.
 
-# 4.1.0 (2021/10/12)
+## 4.1.0 (2021/10/12)
 
 - v4.1.0.
 
-# 4.0.0 (2021/10/12)
+## 4.0.0 (2021/10/12)
 
 ### Features
 
@@ -140,31 +142,31 @@
 
 - upgrade github.com/asim/go-micro/v3 to github.com/go-micro/microwire/v5.
 
-# 3.7.0 (2021/10/11)
+## 3.7.0 (2021/10/11)
 
 - Add latest version (#2303).
 
-# 3.6.0 (2021/08/23)
+## 3.6.0 (2021/08/23)
 
 - Minor fixes https://github.com/asim/go-micro/compare/v3.5.2...c7195aae9817db4eaf5483990fcb8706f86d3002.
 
-# 3.5.2 (2021/07/06)
+## 3.5.2 (2021/07/06)
 
 - Tag it and bag it.
 
-# 3.5.1 (2021/04/20)
+## 3.5.1 (2021/04/20)
 
 - Minor bug fixes.
 
-# 3.5.0 (2021/01/29)
+## 3.5.0 (2021/01/29)
 
 - kill the bugs.
 
-# 3.0.1 (2021/01/20)
+## 3.0.1 (2021/01/20)
 
 - Tag with protoc changes.
 
-# 3.0.0 (2021/01/20)
+## 3.0.0 (2021/01/20)
 
 - V3.
 
@@ -173,7 +175,7 @@
 - upgrade github.com/micro/go-micro/v2 to github.com/asim/go-micro/v3.
 - change default transport from gRPC to mucp, using grpc server/client plugins.
 
-# 3.0.0-beta.3 (2020/09/29)
+## 3.0.0-beta.3 (2020/09/29)
 
 - Secret implementation of config. Supporting config merge (#2027)
 - remove transport options
@@ -204,39 +206,39 @@
 - util/kubernetes: fix TCPSocketAction bug (#1987)
 - Fixing the metric tagging issue here (#1986).
 
-# 3.0.0-beta.2 (2020/09/05)
+## 3.0.0-beta.2 (2020/09/05)
 
 - Cut a v3 beta 2.
 
-# 3.0.0-beta (2020/08/12)
+## 3.0.0-beta (2020/08/12)
 
 - write nil when expiry is zero.
 
-# 3.0.0-alpha (2020/07/27)
+## 3.0.0-alpha (2020/07/27)
 
 - v3 refactor (#1868).
 
-# 2.9.1 (2020/07/03)
+## 2.9.1 (2020/07/03)
 
 - push tags to docker hub (#1766).
 
-# 2.9.0 (2020/06/12)
+## 2.9.0 (2020/06/12)
 
 - Fix regex detection. Fixes #1663 (#1696).
 
-# 2.9.0-rc5 (2020/06/11)
+## 2.9.0-rc5 (2020/06/11)
 
 - Merge branch 'master' into release-2.9.0.
 
-# 2.9.0-rc4 (2020/06/11)
+## 2.9.0-rc4 (2020/06/11)
 
 - Merge branch 'master' into release-2.9.0.
 
-# 2.9.0-rc1 (2020/06/11)
+## 2.9.0-rc1 (2020/06/11)
 
 - Merge branch 'master' into release-2.9.0.
 
-# 2.8.0 (2020/05/31)
+## 2.8.0 (2020/05/31)
 
 - Rewrite Auth interface to use Rules
 - Add Cache interface into the Client for request caching
@@ -247,7 +249,7 @@
 - Replace go-git with v5
 - Increase register ttl to 90 seconds.
 
-# 2.7.0 (2020/05/18)
+## 2.7.0 (2020/05/18)
 
 - Fix the rpc handler json rpc body parsing
 - Use caddyserver/certmagic instead of mholt
@@ -262,7 +264,7 @@
 - Generate account on start
 - Check errors in cockroachdb.
 
-# 2.6.0 (2020/05/04)
+## 2.6.0 (2020/05/04)
 
 - Fix discord bot authentication header
 - Improve api rpc regexp matching
@@ -281,19 +283,19 @@
 - Add pki implementation
 - Import qson.
 
-# 2.5.0 (2020/04/15)
+## 2.5.0 (2020/04/15)
 
 - api/router/registry: extract path based parameters from url to req (#1530).
 
-# 2.4.0 (2020/03/31)
+## 2.4.0 (2020/03/31)
 
 - There can be only one! (#1445).
 
-# 2.3.0 (2020/03/17)
+## 2.3.0 (2020/03/17)
 
 - grpc client/server fixes (#1355).
 
-# 2.2.0 (2020/02/28)
+## 2.2.0 (2020/02/28)
 
 - Rename Auth Validate to Verify
 - Replaces noop auth with base32 generated tokens
@@ -303,23 +305,23 @@
 - Add config loading for auth token
 - Move before start to before listening.
 
-# 2.1.2 (2020/02/24)
+## 2.1.2 (2020/02/24)
 
 - fix router panic (#1254).
 
-# 2.1.1 (2020/02/23)
+## 2.1.1 (2020/02/23)
 
 - update go modules (#1240).
 
-# 2.1.0 (2020/02/13)
+## 2.1.0 (2020/02/13)
 
 - Exclude Stats & Trace from Auth (#1192).
 
-# 2.0.0 (2020/01/30)
+## 2.0.0 (2020/01/30)
 
 - v2 release.
 
-# 1.18.0 (2019/12/08)
+## 1.18.0 (2019/12/08)
 
 - Add golang ci linter
 - Add race detection to travis
@@ -339,13 +341,13 @@
 - Add runtime filtering with Type
 - Remove SIGKILL processing.
 
-# 1.17.1 (2019/11/27)
+## 1.17.1 (2019/11/27)
 
 - fix rpc server go routine leak
 - add a psuedo socket pool
 - update debug buffer to return entries.
 
-# 1.17.0 (2019/11/27)
+## 1.17.0 (2019/11/27)
 
 - Add github related issue templates
 - Add Dockerfile for predownloaded go-micro source
@@ -367,7 +369,7 @@
 - Rename runtime packager to builder
 - Add full support for a kubernetes runtime.
 
-# 1.16.0 (2019/11/09)
+## 1.16.0 (2019/11/09)
 
 - Pre-make slices for perf optimisation
 - Add runtime flag and k8s runtime
@@ -375,11 +377,11 @@
 - Reduce go routines in mdns registry and registry cache
 - Optimise the router flap detection.
 
-# 1.15.1 (2019/11/03)
+## 1.15.1 (2019/11/03)
 
 - Router recovery penalty should be below 500.
 
-# 1.15.0 (2019/11/03)
+## 1.15.0 (2019/11/03)
 
 - go fmt -s
 - web generate service on registration
@@ -394,28 +396,28 @@
 - network hash address based on service + node id
 - metadata add mergecontext function.
 
-# 1.14.0 (2019/10/25)
+## 1.14.0 (2019/10/25)
 
 - Remove consul registry
 - Change store Sync endpoint to List
 - Remove cloudflare-go usage in store
 - Add non-backwards compatible link changes.
 
-# 1.13.2 (2019/10/22)
+## 1.13.2 (2019/10/22)
 
 - Fix proxy selection to use round robin strategy.
 
-# 1.13.1 (2019/10/19)
+## 1.13.1 (2019/10/19)
 
 - Fix divide by zero bug in broker.
 
-# 1.13.0 (2019/10/18)
+## 1.13.0 (2019/10/18)
 
 - Fix network recursive read lock bug
 - Add certmagic random pull time
 - Strip http broker topic: prefix.
 
-# 1.12.0 (2019/10/17)
+## 1.12.0 (2019/10/17)
 
 - Add ACME Provider interface
 - Implement certmagic ACME Provider
@@ -432,23 +434,23 @@
 - Add Cloudflare store implementation
 - Add store service implementation.
 
-# 1.11.3 (2019/10/12)
+## 1.11.3 (2019/10/12)
 
 - Fix the quic-go checksum mismatch by updating to 0.12.1.
 
-# 1.11.2 (2019/10/12)
+## 1.11.2 (2019/10/12)
 
 - Fix cache error check.
 
-# 1.11.1 (2019/10/07)
+## 1.11.1 (2019/10/07)
 
 - Fix cache registry deadlocking bug.
 
-# 1.11.0 (2019/10/01)
+## 1.11.0 (2019/10/01)
 
 - This is likely the last release of v1.
 
-# 1.10.0 (2019/09/11)
+## 1.10.0 (2019/09/11)
 
 - Add grpc client code application/grpc content-type
 - Move client to use stream dialer
@@ -460,11 +462,11 @@
 - Support grpc server processing by default
 - Add tunnel broker.
 
-# 1.9.1 (2019/08/19)
+## 1.9.1 (2019/08/19)
 
 - Fix waitgroup race condition.
 
-# 1.9.0 (2019/08/19)
+## 1.9.0 (2019/08/19)
 
 - Fix grpc codec for broker publishing
 - Use the connection pool for streaming
@@ -483,7 +485,7 @@
 - Make log levels accessible for the logger
 - Add proxy muxer for internal calls.
 
-# 1.8.3 (2019/08/12)
+## 1.8.3 (2019/08/12)
 
 - Fix nats draining
 - More verbose selector errors to return service name
@@ -495,7 +497,7 @@
 - Add util log level
 - Add util io package to wrap transport socket.
 
-# 1.8.2 (2019/08/06)
+## 1.8.2 (2019/08/06)
 
 - Point release for micro
 - Adds travis caching
@@ -505,11 +507,11 @@
 - Router handler interface
 - Non host:port fixes.
 
-# 1.8.1 (2019/07/31)
+## 1.8.1 (2019/07/31)
 
 - Use mdns 0.2.0 release tag.
 
-# 1.8.0 (2019/07/29)
+## 1.8.0 (2019/07/29)
 
 - Move the selector into client
 - Change broker.Publication to broker.Event
@@ -526,7 +528,7 @@
 - Proxy router caching
 - Registry util functions.
 
-# 1.7.0 (2019/06/21)
+## 1.7.0 (2019/06/21)
 
 - Update go mod
 - Move mock data out of memory registry
@@ -542,29 +544,29 @@
 - fix node add/del bug
 - add handler wrapper back into core router.
 
-# 1.6.0 (2019/06/07)
+## 1.6.0 (2019/06/07)
 
 - Massive go.mod dependency cleanup _ Moved etcd, memcache, redis sync things to go-plugins _ uuid to google uuid \* blew away go.mod
 - Add better proxy interface and features
 - Add new options interface.
 
-# 1.5.0 (2019/06/05)
+## 1.5.0 (2019/06/05)
 
 - Fix go mod issues.
 
-# 1.4.0 (2019/06/04)
+## 1.4.0 (2019/06/04)
 
 - Final consolidation of all libraries.
 
-# 1.3.1 (2019/06/03)
+## 1.3.1 (2019/06/03)
 
 - Fix broken pipe bug. Don't send message when client closed connection..
 
-# 1.3.0 (2019/05/31)
+## 1.3.0 (2019/05/31)
 
 - The great rewrite.
 
-# 1.2.0 (2019/05/22)
+## 1.2.0 (2019/05/22)
 
 - Update go mod
 - Fix mock client
@@ -574,42 +576,42 @@
 - Fix gossip data races
 - Add registry check function.
 
-# 1.1.0 (2019/03/28)
+## 1.1.0 (2019/03/28)
 
 - Update go mod
 - Fix endpoint extractor generation.
 
-# 1.0.0 (2019/03/05)
+## 1.0.0 (2019/03/05)
 
 - 1.0.0 release.
 
-# 0.27.1 (2019/03/05)
+## 0.27.1 (2019/03/05)
 
 - Fix nil consul client.
 
-# 0.27.0 (2019/02/23)
+## 0.27.0 (2019/02/23)
 
 - Remove buff check in http transport
 - Change default version to latest
 - Add exchange routing
 - Update go modules.
 
-# 0.26.1 (2019/02/13)
+## 0.26.1 (2019/02/13)
 
 - Fix gossip registry
 - Update go modules for rcache.
 
-# 0.26.0 (2019/02/13)
+## 0.26.0 (2019/02/13)
 
 - Update go modules
 - Add gossip registry rejoin
 - Move selector to rcache.
 
-# 0.25.0 (2019/02/04)
+## 0.25.0 (2019/02/04)
 
 - Add server request body.
 
-# 0.24.1 (2019/02/01)
+## 0.24.1 (2019/02/01)
 
 - Various bug fixes
 - Backwards compatible with 0.14 and older
@@ -617,52 +619,52 @@
 - Use official h2c server
 - Enable support for MICRO_PROXY.
 
-# 0.24.0 (2019/01/30)
+## 0.24.0 (2019/01/30)
 
 - Add go mod.
 
-# 0.23.0 (2019/01/29)
+## 0.23.0 (2019/01/29)
 
 - Move headers from X-Micro to Micro
 - Remove Register/Deregister methods from server
 - Move register_interval to be internal
 - Add subscriber context option.
 
-# 0.22.1 (2019/01/22)
+## 0.22.1 (2019/01/22)
 
 - Fix broken error handling
 - now returns error from ServeRequest router.
 
-# 0.22.0 (2019/01/18)
+## 0.22.0 (2019/01/18)
 
 - Address backwards compatibility.
 
-# 0.21.0 (2019/01/17)
+## 0.21.0 (2019/01/17)
 
 - Make MDNS the default registry
 - Move mocks to be memory implementations
 - Add metadata.Copy function.
 
-# 0.20.0 (2019/01/14)
+## 0.20.0 (2019/01/14)
 
 - BREAKING CHANGES.
 
-# 0.17.0 (2019/01/03)
+## 0.17.0 (2019/01/03)
 
 - Offline inbox for http broker
 - JSON/Proto/GRPC codecs
 - HTTP proxy from environment.
 
-# 0.16.0 (2018/12/29)
+## 0.16.0 (2018/12/29)
 
 - Fix cache/gossip data race
 - Rename cache selector to registry.
 
-# 0.15.1 (2018/12/18)
+## 0.15.1 (2018/12/18)
 
 - Selector cache lookup optimization.
 
-# 0.15.0 (2018/12/13)
+## 0.15.0 (2018/12/13)
 
 - Public NewSubscribeOptions
 - http2 broker support
@@ -671,34 +673,34 @@
 - Gossip registry
 - RPC Codec renaming.
 
-# 0.14.1 (2018/11/22)
+## 0.14.1 (2018/11/22)
 
 - bug fix socket headers.
 
-# 0.14.0 (2018/11/21)
+## 0.14.0 (2018/11/21)
 
 - use google uuid
 - add http handler option.
 
-# 0.13.0 (2018/11/15)
+## 0.13.0 (2018/11/15)
 
 - add local/remote ip methods
 - various linting things
 - get checks on 0 ttl
 - accept loop.
 
-# 0.12.0 (2018/10/09)
+## 0.12.0 (2018/10/09)
 
 - reorder server flag
 - atomic increment sequence
 - new error method.
 
-# 0.11.0 (2018/08/24)
+## 0.11.0 (2018/08/24)
 
 - Support Consul Connect registration
 - Add/Use Init for initialisation from cmd.
 
-# 0.10.0 (2018/07/26)
+## 0.10.0 (2018/07/26)
 
 - Fix broker locking
 - Add RetryOnError as default retry policy
@@ -707,7 +709,7 @@
 - Add verbose client errors
 - Allow client retries to be 0.
 
-# 0.9.0 (2018/06/09)
+## 0.9.0 (2018/06/09)
 
 - Reset server address on shutdown
 - Set default pool size to 1
@@ -715,60 +717,60 @@
 - Set retries to 1 by default
 - Return error for subscribers.
 
-# 0.8.0 (2018/04/20)
+## 0.8.0 (2018/04/20)
 
 - Rework of interfaces.
 
-# 0.7.0 (2018/04/10)
+## 0.7.0 (2018/04/10)
 
 - Move misc to util package
 - Add register ttl and interval flags
 - Fix protoc-gen-micro example.
 
-# 0.6.0 (2018/04/05)
+## 0.6.0 (2018/04/05)
 
 - Add consul TCP check
 - Atomic increment rpc stream sequence.
 
-# 0.5.0 (2018/03/04)
+## 0.5.0 (2018/03/04)
 
 - Support consul services without version
 - Switch to stdlib context.
 
-# 0.4.0 (2018/02/19)
+## 0.4.0 (2018/02/19)
 
 - Add WatchOption which allows filtering by service
 - Add Options method to registry
 - Add Conflict error
 - Only watch selected services in cache.
 
-# 0.3.0 (2018/01/02)
+## 0.3.0 (2018/01/02)
 
 - https support for consul
 - subscriber deadlock fix
 - selector top level option.
 
-# 0.2.0 (2017/10/29)
+## 0.2.0 (2017/10/29)
 
 - Performance improvements.
 
-# 0.1.4 (2017/09/04)
+## 0.1.4 (2017/09/04)
 
 - sort handler/subscriber endpoints
 - pass options to new subscriber.
 
-# 0.1.3 (2017/08/15)
+## 0.1.3 (2017/08/15)
 
 - Bug fix nil consul http client.
 
-# 0.1.2 (2017/07/20)
+## 0.1.2 (2017/07/20)
 
 - respond when codec errors out.
 
-# 0.1.1 (2017/06/12)
+## 0.1.1 (2017/06/12)
 
 - Fix potential panic/waitgroup bug.
 
-# 0.1.0 (2017/06/12)
+## 0.1.0 (2017/06/12)
 
 - Initial release.
