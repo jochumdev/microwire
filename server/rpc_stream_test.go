@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-micro/microwire/v5/codec/json"
-	protoCodec "github.com/go-micro/microwire/v5/codec/proto"
+	"github.com/go-micro/microwire-plugins/codec/json/v5"
+	protoCodec "github.com/go-micro/microwire-plugins/codec/proto/v5"
 	"github.com/golang/protobuf/proto"
 )
 

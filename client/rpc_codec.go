@@ -6,11 +6,6 @@ import (
 
 	"github.com/go-micro/microwire/v5/codec"
 	raw "github.com/go-micro/microwire/v5/codec/bytes"
-	"github.com/go-micro/microwire/v5/codec/grpc"
-	"github.com/go-micro/microwire/v5/codec/json"
-	"github.com/go-micro/microwire/v5/codec/jsonrpc"
-	"github.com/go-micro/microwire/v5/codec/proto"
-	"github.com/go-micro/microwire/v5/codec/protorpc"
 	"github.com/go-micro/microwire/v5/errors"
 	"github.com/go-micro/microwire/v5/registry"
 	"github.com/go-micro/microwire/v5/transport"
@@ -51,26 +46,6 @@ type readWriteCloser struct {
 
 var (
 	DefaultContentType = "application/json"
-
-	DefaultCodecs = map[string]codec.NewCodec{
-		"application/grpc":         grpc.NewCodec,
-		"application/grpc+json":    grpc.NewCodec,
-		"application/grpc+proto":   grpc.NewCodec,
-		"application/protobuf":     proto.NewCodec,
-		"application/json":         json.NewCodec,
-		"application/json-rpc":     jsonrpc.NewCodec,
-		"application/proto-rpc":    protorpc.NewCodec,
-		"application/octet-stream": raw.NewCodec,
-	}
-
-	// TODO: remove legacy codec list.
-	defaultCodecs = map[string]codec.NewCodec{
-		"application/json":         jsonrpc.NewCodec,
-		"application/json-rpc":     jsonrpc.NewCodec,
-		"application/protobuf":     protorpc.NewCodec,
-		"application/proto-rpc":    protorpc.NewCodec,
-		"application/octet-stream": protorpc.NewCodec,
-	}
 )
 
 func (rwc *readWriteCloser) Read(p []byte) (n int, err error) {
@@ -128,7 +103,7 @@ func setHeaders(m *codec.Message, stream string) {
 }
 
 // setupProtocol sets up the old protocol.
-func setupProtocol(msg *transport.Message, node *registry.Node) codec.NewCodec {
+func setupProtocol(codecs map[string]codec.NewCodec, msg *transport.Message, node *registry.Node) codec.NewCodec {
 	protocol := node.Metadata["protocol"]
 
 	// got protocol
@@ -150,7 +125,7 @@ func setupProtocol(msg *transport.Message, node *registry.Node) codec.NewCodec {
 	}
 
 	// now return codec
-	return defaultCodecs[msg.Header["Content-Type"]]
+	return codecs[msg.Header["Content-Type"]]
 }
 
 func newRpcCodec(req *transport.Message, client transport.Client, c codec.NewCodec, stream string) codec.Codec {

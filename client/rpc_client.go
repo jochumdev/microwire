@@ -21,10 +21,11 @@ import (
 )
 
 type rpcClient struct {
-	seq  uint64
-	once atomic.Value
-	opts Options
-	pool pool.Pool
+	seq    uint64
+	once   atomic.Value
+	opts   Options
+	pool   pool.Pool
+	codecs map[string]codec.NewCodec
 }
 
 func newRpcClient(opt ...Option) Client {
@@ -37,11 +38,34 @@ func newRpcClient(opt ...Option) Client {
 	)
 
 	rc := &rpcClient{
-		opts: opts,
-		pool: p,
-		seq:  0,
+		opts:   opts,
+		pool:   p,
+		seq:    0,
+		codecs: make(map[string]codec.NewCodec),
 	}
 	rc.once.Store(false)
+
+	// Register codecs
+	if c, err := codec.Plugins.Get("grpc"); err == nil {
+		rc.codecs["application/grpc"] = c
+		rc.codecs["application/grpc+json"] = c
+		rc.codecs["application/grpc+proto"] = c
+	}
+	if c, err := codec.Plugins.Get("json"); err == nil {
+		rc.codecs["application/json"] = c
+	}
+	if c, err := codec.Plugins.Get("jsonrpc"); err == nil {
+		rc.codecs["application/json-rpc"] = c
+	}
+	if c, err := codec.Plugins.Get("proto"); err == nil {
+		rc.codecs["application/protobuf"] = c
+	}
+	if c, err := codec.Plugins.Get("protorpc"); err == nil {
+		rc.codecs["application/proto-rpc"] = c
+	}
+	if c, err := codec.Plugins.Get("raw"); err == nil {
+		rc.codecs["application/octet-stream"] = c
+	}
 
 	c := Client(rc)
 
@@ -57,7 +81,7 @@ func (r *rpcClient) newCodec(contentType string) (codec.NewCodec, error) {
 	if c, ok := r.opts.Codecs[contentType]; ok {
 		return c, nil
 	}
-	if cf, ok := DefaultCodecs[contentType]; ok {
+	if cf, ok := r.codecs[contentType]; ok {
 		return cf, nil
 	}
 	return nil, fmt.Errorf("unsupported Content-Type: %s", contentType)
@@ -90,7 +114,7 @@ func (r *rpcClient) call(ctx context.Context, node *registry.Node, req Request, 
 	msg.Header["Accept"] = req.ContentType()
 
 	// setup old protocol
-	cf := setupProtocol(msg, node)
+	cf := setupProtocol(r.codecs, msg, node)
 
 	// no codec specified
 	if cf == nil {
@@ -206,7 +230,7 @@ func (r *rpcClient) stream(ctx context.Context, node *registry.Node, req Request
 	msg.Header["Accept"] = req.ContentType()
 
 	// set old codecs
-	cf := setupProtocol(msg, node)
+	cf := setupProtocol(r.codecs, msg, node)
 
 	// no codec specified
 	if cf == nil {

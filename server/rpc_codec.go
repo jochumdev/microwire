@@ -6,11 +6,6 @@ import (
 
 	"github.com/go-micro/microwire/v5/codec"
 	raw "github.com/go-micro/microwire/v5/codec/bytes"
-	"github.com/go-micro/microwire/v5/codec/grpc"
-	"github.com/go-micro/microwire/v5/codec/json"
-	"github.com/go-micro/microwire/v5/codec/jsonrpc"
-	"github.com/go-micro/microwire/v5/codec/proto"
-	"github.com/go-micro/microwire/v5/codec/protorpc"
 	"github.com/go-micro/microwire/v5/transport"
 	"github.com/oxtoacart/bpool"
 	"github.com/pkg/errors"
@@ -37,26 +32,6 @@ type readWriteCloser struct {
 
 var (
 	DefaultContentType = "application/protobuf"
-
-	DefaultCodecs = map[string]codec.NewCodec{
-		"application/grpc":         grpc.NewCodec,
-		"application/grpc+json":    grpc.NewCodec,
-		"application/grpc+proto":   grpc.NewCodec,
-		"application/json":         json.NewCodec,
-		"application/json-rpc":     jsonrpc.NewCodec,
-		"application/protobuf":     proto.NewCodec,
-		"application/proto-rpc":    protorpc.NewCodec,
-		"application/octet-stream": raw.NewCodec,
-	}
-
-	// TODO: remove legacy codec list.
-	defaultCodecs = map[string]codec.NewCodec{
-		"application/json":         jsonrpc.NewCodec,
-		"application/json-rpc":     jsonrpc.NewCodec,
-		"application/protobuf":     protorpc.NewCodec,
-		"application/proto-rpc":    protorpc.NewCodec,
-		"application/octet-stream": protorpc.NewCodec,
-	}
 
 	// the local buffer pool.
 	bufferPool = bpool.NewSizedBufferPool(32, 1)
@@ -123,7 +98,7 @@ func setHeaders(m, r *codec.Message) {
 }
 
 // setupProtocol sets up the old protocol.
-func setupProtocol(msg *transport.Message) codec.NewCodec {
+func setupProtocol(codecs map[string]codec.NewCodec, msg *transport.Message) codec.NewCodec {
 	service := getHeader("Micro-Service", msg.Header)
 	method := getHeader("Micro-Method", msg.Header)
 	endpoint := getHeader("Micro-Endpoint", msg.Header)
@@ -143,12 +118,12 @@ func setupProtocol(msg *transport.Message) codec.NewCodec {
 
 	// if no service/method/endpoint then it's the old protocol
 	if len(service) == 0 && len(method) == 0 && len(endpoint) == 0 {
-		return defaultCodecs[msg.Header["Content-Type"]]
+		return codecs[msg.Header["Content-Type"]]
 	}
 
 	// old target method specified
 	if len(target) > 0 {
-		return defaultCodecs[msg.Header["Content-Type"]]
+		return codecs[msg.Header["Content-Type"]]
 	}
 
 	// no method then set to endpoint

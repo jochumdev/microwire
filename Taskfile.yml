@@ -15,14 +15,19 @@ tasks:
       - task: gosums
       - task: check
   tidy:
+    desc: Run "go mod tidy -go=1.8" in all packages
     cmds:
-      - find . -name 'go.mod' -print0 | xargs -0 -I {} /bin/bash -c 'pushd `dirname $1`; go mod tidy; popd' '_' '{}' \+
+      - find . -name 'go.mod' -exec /bin/bash -c 'pushd `dirname $1`; go mod tidy -go=1.18; popd' '_' {} \;
   update:
+    desc: Run "go get -u ./..." in all packages
     cmds:
-      - find . -name 'go.mod' -print0 | xargs -0 -I {} /bin/bash -c 'pushd `dirname $1`; go get -u ./...; popd' '_' '{}' \+
-  gosums:
+      - find . -name 'go.mod' -exec /bin/bash -c 'pushd `dirname $1`; go get -u ./...; popd' '_' {} \;
+  test:
+    desc: Run "go test ./..." in all packages
     cmds:
-      - find . -name 'go.mod' -print0 | xargs -0 -I {} /bin/bash -c 'pushd `dirname $1`; git add go.mod go.sum; popd' '_' '{}' \+
+      - find . -name 'go.mod' -exec /bin/bash -c 'pushd `dirname $1`; go test ./...; popd' '_' {} \;
   workuse:
+    desc: Add all plugins to go.work
     cmds:
-      - find . -name 'go.mod' -print0 | xargs -0 -I {} /bin/bash -c 'go work use `dirname $1`' '_' '{}' \+
+      - go work init . || exit 0
+      - go work use $(find . -name 'go.mod' -printf "%h\n")

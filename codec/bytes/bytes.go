@@ -8,6 +8,10 @@ import (
 	"github.com/go-micro/microwire/v5/codec"
 )
 
+func init() {
+	_ = codec.Plugins.Add("bytes", NewCodec)
+}
+
 type Codec struct {
 	Conn io.ReadWriteCloser
 }

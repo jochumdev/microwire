@@ -29,6 +29,8 @@ type rpcServer struct {
 	router *router
 	exit   chan chan error
 
+	codecs map[string]codec.NewCodec
+
 	sync.RWMutex
 	opts        Options
 	handlers    map[string]Handler
@@ -51,14 +53,39 @@ func newRpcServer(opts ...Option) Server {
 	router.hdlrWrappers = options.HdlrWrappers
 	router.subWrappers = options.SubWrappers
 
-	return &rpcServer{
+	s := &rpcServer{
 		opts:        options,
 		router:      router,
 		handlers:    make(map[string]Handler),
 		subscribers: make(map[Subscriber][]broker.Subscriber),
 		exit:        make(chan chan error),
 		wg:          wait(options.Context),
+		codecs:      make(map[string]codec.NewCodec, 0),
 	}
+
+	// Register codecs
+	if c, err := codec.Plugins.Get("grpc"); err == nil {
+		s.codecs["application/grpc"] = c
+		s.codecs["application/grpc+json"] = c
+		s.codecs["application/grpc+proto"] = c
+	}
+	if c, err := codec.Plugins.Get("json"); err == nil {
+		s.codecs["application/json"] = c
+	}
+	if c, err := codec.Plugins.Get("jsonrpc"); err == nil {
+		s.codecs["application/json-rpc"] = c
+	}
+	if c, err := codec.Plugins.Get("proto"); err == nil {
+		s.codecs["application/protobuf"] = c
+	}
+	if c, err := codec.Plugins.Get("protorpc"); err == nil {
+		s.codecs["application/proto-rpc"] = c
+	}
+	if c, err := codec.Plugins.Get("raw"); err == nil {
+		s.codecs["application/octet-stream"] = c
+	}
+
+	return s
 }
 
 // HandleEvent handles inbound messages to the service directly
@@ -294,7 +321,7 @@ func (s *rpcServer) ServeConn(sock transport.Socket) {
 		}
 
 		// setup old protocol
-		cf := setupProtocol(&msg)
+		cf := setupProtocol(s.codecs, &msg)
 
 		// no legacy codec needed
 		if cf == nil {
@@ -442,7 +469,7 @@ func (s *rpcServer) newCodec(contentType string) (codec.NewCodec, error) {
 	if cf, ok := s.opts.Codecs[contentType]; ok {
 		return cf, nil
 	}
-	if cf, ok := DefaultCodecs[contentType]; ok {
+	if cf, ok := s.codecs[contentType]; ok {
 		return cf, nil
 	}
 	return nil, fmt.Errorf("Unsupported Content-Type: %s", contentType)
