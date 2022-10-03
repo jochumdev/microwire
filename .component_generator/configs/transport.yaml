@@ -31,6 +31,7 @@ di_go:
       defConfig.Transport.Addresses = strings.Split(flags.Addresses, ",")
 
   Provide:
+    Args: ""
     Body: |-
       if len(config.Transport.Addresses) > 0 {
         opts = append(opts, Addrs(config.Transport.Addresses...))

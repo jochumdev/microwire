@@ -58,6 +58,7 @@ di_go:
       defConfig.Store.Table = flags.Table
 
   Provide:
+    Args: ""
     Body: |-
       if len(config.Store.Addresses) > 0 {
         opts = append(opts, Nodes(config.Store.Addresses...))

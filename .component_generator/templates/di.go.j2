@@ -107,7 +107,7 @@ func ProvideConfigNoFlags(
 func Provide(
 	// Marker so cli has been merged into Config
 	_ DiConfig,
-
+	{{di_go.Provide.Args}}
 	config *Config,
 ) ({{CapsName}}, error) {
 	if !config.{{CapsName}}.Enabled {

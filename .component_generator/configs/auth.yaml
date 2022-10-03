@@ -86,6 +86,7 @@ di_go:
       defConfig.Auth.Namespace = flags.Namespace
 
   Provide:
+    Args: ""
     Body: |-
       if len(config.Auth.ID) > 0 && len(config.Auth.Secret) > 0 {
         opts = append(opts, Credentials(

@@ -31,6 +31,7 @@ di_go:
       defConfig.Registry.Addresses = strings.Split(flags.Addresses, ",")
 
   Provide:
+    Args: ""
     Body: |-
       if len(config.Registry.Addresses) > 0 {
         opts = append(opts, Addrs(config.Registry.Addresses...))

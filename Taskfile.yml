@@ -9,6 +9,9 @@ tasks:
   check:
     cmds:
       - trunk check --sample 10
+  gosums:
+    cmds:
+      - find . -name 'go.mod' -exec /bin/bash -c 'pushd `dirname $1`; git add go.mod go.sum; popd' '_' {} \;
   pre-commit:
     cmds:
       - task: generate
