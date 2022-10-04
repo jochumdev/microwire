@@ -4,6 +4,7 @@ package broker
 
 import (
 	"fmt"
+	"github.com/go-micro/microwire/v5/registry"
 
 	"github.com/go-micro/microwire/v5/cli"
 	"github.com/go-micro/microwire/v5/config"
@@ -111,7 +112,7 @@ func ProvideConfigNoFlags(
 func Provide(
 	// Marker so cli has been merged into Config
 	_ DiConfig,
-
+	registry registry.Registry,
 	config *Config,
 ) (Broker, error) {
 	if !config.Broker.Enabled {
@@ -128,6 +129,8 @@ func Provide(
 	if len(config.Broker.Addresses) > 0 {
 		opts = append(opts, Addrs(config.Broker.Addresses...))
 	}
+
+	opts = append(opts, Registry(registry))
 
 	return b(opts...), nil
 }

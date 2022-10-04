@@ -3,12 +3,17 @@
 package server
 
 type ServerConfig struct {
-	Enabled bool   `json:"enabled" yaml:"Enabled"`
-	Plugin  string `json:"plugin,omitempty" yaml:"Plugin,omitempty"`
-	Address string `json:"address,omitempty" yaml:"Address,omitempty"`
-	ID      string `json:"id,omitempty" yaml:"ID,omitempty"`
-	Name    string `json:"name,omitempty" yaml:"Name,omitempty"`
-	Version string `json:"version,omitempty" yaml:"Version,omitempty"`
+	Enabled          bool                `json:"enabled" yaml:"Enabled"`
+	Plugin           string              `json:"plugin,omitempty" yaml:"Plugin,omitempty"`
+	Address          string              `json:"address,omitempty" yaml:"Address,omitempty"`
+	ID               string              `json:"id,omitempty" yaml:"ID,omitempty"`
+	Name             string              `json:"name,omitempty" yaml:"Name,omitempty"`
+	Version          string              `json:"version,omitempty" yaml:"Version,omitempty"`
+	Metadata         map[string]string   `json:"metadata,omitempty" yaml:"Metadata,omitempty"`
+	RegisterTTL      int                 `json:"register_ttl,omitempty" yaml:"RegisterTTL,omitempty"`
+	RegisterInterval int                 `json:"register_interval,omitempty" yaml:"RegisterInterval,omitempty"`
+	WrapSubscriber   []SubscriberWrapper `json:"-" yaml:"-"`
+	WrapHandler      []HandlerWrapper    `json:"-" yaml:"-"`
 }
 
 type Config struct {
@@ -18,12 +23,17 @@ type Config struct {
 func NewConfig() *Config {
 	return &Config{
 		Server: ServerConfig{
-			Enabled: true,
-			Plugin:  "rpc",
-			Address: "",
-			ID:      "",
-			Name:    "",
-			Version: "",
+			Enabled:          true,
+			Plugin:           "rpc",
+			Address:          "",
+			ID:               "",
+			Name:             "",
+			Version:          "",
+			Metadata:         make(map[string]string),
+			RegisterTTL:      60,
+			RegisterInterval: 30,
+			WrapSubscriber:   []SubscriberWrapper{},
+			WrapHandler:      []HandlerWrapper{},
 		},
 	}
 }
@@ -41,6 +51,7 @@ func (d *Config) Merge(src *Config) error {
 		d.Server.ID = src.Server.ID
 		d.Server.Name = src.Server.Name
 		d.Server.Version = src.Server.Version
+		d.Server.Metadata = src.Server.Metadata
 	}
 
 	return nil

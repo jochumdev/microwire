@@ -3,7 +3,9 @@ Name: broker
 CapsName: Broker
 
 di_go:
-  Imports: ""
+  Imports: |-
+    "github.com/go-micro/microwire/v5/registry"
+
   Consts: |-
     cliArgAddresses = "broker_address"
 
@@ -26,12 +28,17 @@ di_go:
       if f, ok := c.Get(cliArgAddresses); ok {
         defConfig.Broker.Addresses = cli.FlagValue(f, []string{})
       }
+
   Provide:
-    Args: ""
+    Args: |-
+      registry registry.Registry,
+
     Body: |-
       if len(config.Broker.Addresses) > 0 {
         opts = append(opts, Addrs(config.Broker.Addresses...))
       }
+
+      opts = append(opts, Registry(registry))
 
 config_store_go:
   NewConfig:

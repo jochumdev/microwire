@@ -27,9 +27,18 @@ func NewService(opts ...Option) (Service, error) {
 	cliConfig.Cli.Version = options.Version
 	cliConfig.Cli.Description = options.Description
 	cliConfig.Cli.Usage = options.Usage
+	cliConfig.Cli.ArgPrefix = options.ArgPrefix
 	cliConfig.Cli.NoFlags = options.NoFlags
 	cliConfig.Cli.Flags = options.Flags
 	cliConfig.Cli.ConfigFile = options.ConfigFile
+
+	serverConfig := server.NewConfig()
+	serverConfig.Server.Address = options.Address
+	serverConfig.Server.RegisterTTL = options.RegisterTTL
+	serverConfig.Server.RegisterInterval = options.RegisterInterval
+	serverConfig.Server.Metadata = options.Metadata
+	serverConfig.Server.WrapSubscriber = options.WrapSubscriber
+	serverConfig.Server.WrapHandler = options.WrapHandler
 
 	return newService(
 		options,
@@ -39,7 +48,7 @@ func NewService(opts ...Option) (Service, error) {
 		cache.NewConfig(),
 		client.NewConfig(),
 		registry.NewConfig(),
-		server.NewConfig(),
+		serverConfig,
 		store.NewConfig(),
 		transport.NewConfig(),
 	)

@@ -177,9 +177,16 @@ func Provide(
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse client_request_timeout: %v", config.Client.PoolRequestTimeout)
 	}
-	opts = append(opts, PoolTTL(d))
 
-	opts = append(opts, Retries(config.Client.PoolRetries))
+	opts = append(
+		opts,
+		PoolTTL(d),
+		Retries(config.Client.PoolRetries),
+		Broker(broker),
+		Registry(registry),
+		Transport(transport),
+		WrapCall(config.Client.WrapCall...),
+	)
 
 	return b(opts...), nil
 }

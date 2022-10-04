@@ -86,7 +86,15 @@ func newService(options *Options, cliConfig *cli.Config, authConfig *auth.Config
 	if err != nil {
 		return nil, err
 	}
-	brokerBroker, err := broker.Provide(brokerDiConfig, brokerConfig)
+	registryDiConfig, err := registry.ProvideConfig(diConfig, registryDiFlags, registryConfig, cliCli, cliConfig, config)
+	if err != nil {
+		return nil, err
+	}
+	registryRegistry, err := registry.Provide(registryDiConfig, registryConfig)
+	if err != nil {
+		return nil, err
+	}
+	brokerBroker, err := broker.Provide(brokerDiConfig, registryRegistry, brokerConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -99,14 +107,6 @@ func newService(options *Options, cliConfig *cli.Config, authConfig *auth.Config
 		return nil, err
 	}
 	clientDiConfig, err := client.ProvideConfig(diConfig, clientDiFlags, clientConfig, cliCli, cliConfig, config)
-	if err != nil {
-		return nil, err
-	}
-	registryDiConfig, err := registry.ProvideConfig(diConfig, registryDiFlags, registryConfig, cliCli, cliConfig, config)
-	if err != nil {
-		return nil, err
-	}
-	registryRegistry, err := registry.Provide(registryDiConfig, registryConfig)
 	if err != nil {
 		return nil, err
 	}

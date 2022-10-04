@@ -2,7 +2,6 @@ package micro
 
 import (
 	"context"
-	"time"
 
 	"github.com/go-micro/microwire/v5/auth"
 	"github.com/go-micro/microwire/v5/broker"
@@ -25,16 +24,20 @@ type HookFunc func(Service) error
 
 // Options for micro service.
 type Options struct {
-	ArgPrefix   string
-	Name        string
-	Description string
-	Version     string
-	Usage       string
-	NoFlags     bool
-	ConfigFile  string
-	Flags       []mCli.Flag
+	ArgPrefix        string
+	Address          string
+	Name             string
+	Description      string
+	Version          string
+	Usage            string
+	NoFlags          bool
+	ConfigFile       string
+	RegisterTTL      int
+	RegisterInterval int
+	Metadata         map[string]string
+	Flags            []mCli.Flag
 
-	// TODO: Remove me
+	// References to get them through service.Xyz
 	Auth      auth.Auth
 	Broker    broker.Broker
 	Cache     cache.Cache
@@ -47,6 +50,13 @@ type Options struct {
 	Transport transport.Transport
 	Profile   profile.Profile
 	Logger    logger.Logger
+
+	// Wrappers
+	WrapSubscriber []server.SubscriberWrapper
+	WrapHandler    []server.HandlerWrapper
+	WrapCall       []client.CallWrapper
+	WrapClient     []client.Wrapper
+	OrigClient     client.Client
 
 	// Before and After funcs
 	Actions     []HookFunc
@@ -64,13 +74,18 @@ type Options struct {
 
 func NewOptions(opts ...Option) *Options {
 	opt := &Options{
-		ArgPrefix:   "",
-		Name:        "",
-		Description: "",
-		Version:     "",
-		Usage:       "",
-		NoFlags:     false,
-		Flags:       []mCli.Flag{},
+		ArgPrefix:        "",
+		Address:          "",
+		Name:             "",
+		Description:      "",
+		Version:          "",
+		Usage:            "",
+		NoFlags:          false,
+		ConfigFile:       "",
+		RegisterTTL:      30,
+		RegisterInterval: 60,
+		Metadata:         make(map[string]string),
+		Flags:            []mCli.Flag{},
 
 		Actions:     []HookFunc{},
 		BeforeStart: []HookFunc{},
@@ -78,19 +93,14 @@ func NewOptions(opts ...Option) *Options {
 		AfterStart:  []HookFunc{},
 		AfterStop:   []HookFunc{},
 
-		Auth:      auth.DefaultAuth,
-		Broker:    broker.DefaultBroker,
-		Cache:     cache.DefaultCache,
-		Config:    config.DefaultConfig,
-		Client:    client.DefaultClient,
-		Server:    server.DefaultServer,
-		Store:     store.DefaultStore,
-		Registry:  registry.DefaultRegistry,
-		Runtime:   runtime.DefaultRuntime,
-		Transport: transport.DefaultTransport,
-		Context:   context.Background(),
-		Signal:    true,
-		Logger:    logger.DefaultLogger,
+		Auth:    auth.DefaultAuth,
+		Cache:   cache.DefaultCache,
+		Config:  config.DefaultConfig,
+		Store:   store.DefaultStore,
+		Runtime: runtime.DefaultRuntime,
+		Context: context.Background(),
+		Signal:  true,
+		Logger:  logger.DefaultLogger,
 	}
 
 	for _, o := range opts {
@@ -104,9 +114,6 @@ func NewOptions(opts ...Option) *Options {
 func Broker(b broker.Broker) Option {
 	return func(o *Options) {
 		o.Broker = b
-		// Update Client and Server
-		o.Client.Init(client.Broker(b))
-		o.Server.Init(server.Broker(b))
 	}
 }
 
@@ -119,7 +126,13 @@ func Cache(c cache.Cache) Option {
 // Client to be used for service.
 func Client(c client.Client) Option {
 	return func(o *Options) {
+		o.OrigClient = c
+
+		// apply in reverse
 		o.Client = c
+		for i := len(o.WrapClient); i > 0; i-- {
+			o.Client = o.WrapClient[i-1](o.Client)
+		}
 	}
 }
 
@@ -166,11 +179,6 @@ func Store(s store.Store) Option {
 func Registry(r registry.Registry) Option {
 	return func(o *Options) {
 		o.Registry = r
-		// Update Client and Server
-		o.Client.Init(client.Registry(r))
-		o.Server.Init(server.Registry(r))
-		// Update Broker
-		o.Broker.Init(broker.Registry(r))
 	}
 }
 
@@ -207,9 +215,6 @@ func Selector(s selector.Selector) Option {
 func Transport(t transport.Transport) Option {
 	return func(o *Options) {
 		o.Transport = t
-		// Update Client and Server
-		o.Client.Init(client.Transport(t))
-		o.Server.Init(server.Transport(t))
 	}
 }
 
@@ -225,7 +230,7 @@ func Runtime(r runtime.Runtime) Option {
 // Address sets the address of the server.
 func Address(addr string) Option {
 	return func(o *Options) {
-		o.Server.Init(server.Address(addr))
+		o.Address = addr
 	}
 }
 
@@ -233,7 +238,6 @@ func Address(addr string) Option {
 func Name(n string) Option {
 	return func(o *Options) {
 		o.Name = n
-		o.Server.Init(server.Name(n))
 	}
 }
 
@@ -241,7 +245,6 @@ func Name(n string) Option {
 func Version(v string) Option {
 	return func(o *Options) {
 		o.Version = v
-		o.Server.Init(server.Version(v))
 	}
 }
 
@@ -290,21 +293,21 @@ func ConfigFile(n string) Option {
 // Metadata associated with the service.
 func Metadata(md map[string]string) Option {
 	return func(o *Options) {
-		o.Server.Init(server.Metadata(md))
+		o.Metadata = md
 	}
 }
 
 // RegisterTTL specifies the TTL to use when registering the service.
-func RegisterTTL(t time.Duration) Option {
+func RegisterTTL(n int) Option {
 	return func(o *Options) {
-		o.Server.Init(server.RegisterTTL(t))
+		o.RegisterTTL = n
 	}
 }
 
 // RegisterInterval specifies the interval on which to re-register.
-func RegisterInterval(t time.Duration) Option {
+func RegisterInterval(n int) Option {
 	return func(o *Options) {
-		o.Server.Init(server.RegisterInterval(t))
+		o.RegisterInterval = n
 	}
 }
 
@@ -313,9 +316,12 @@ func RegisterInterval(t time.Duration) Option {
 // Wrappers are applied in reverse order so the last is executed first.
 func WrapClient(w ...client.Wrapper) Option {
 	return func(o *Options) {
+		o.WrapClient = append(o.WrapClient, w...)
+
 		// apply in reverse
-		for i := len(w); i > 0; i-- {
-			o.Client = w[i-1](o.Client)
+		o.Client = o.OrigClient
+		for i := len(o.WrapClient); i > 0; i-- {
+			o.Client = o.WrapClient[i-1](o.Client)
 		}
 	}
 }
@@ -323,42 +329,21 @@ func WrapClient(w ...client.Wrapper) Option {
 // WrapCall is a convenience method for wrapping a Client CallFunc.
 func WrapCall(w ...client.CallWrapper) Option {
 	return func(o *Options) {
-		o.Client.Init(client.WrapCall(w...))
+		o.WrapCall = append(o.WrapCall, w...)
 	}
 }
 
 // WrapHandler adds a handler Wrapper to a list of options passed into the server.
 func WrapHandler(w ...server.HandlerWrapper) Option {
 	return func(o *Options) {
-		var wrappers []server.Option
-
-		for _, wrap := range w {
-			wrappers = append(wrappers, server.WrapHandler(wrap))
-		}
-
-		// Init once
-		o.Server.Init(wrappers...)
+		o.WrapHandler = append(o.WrapHandler, w...)
 	}
 }
 
 // WrapSubscriber adds a subscriber Wrapper to a list of options passed into the server.
 func WrapSubscriber(w ...server.SubscriberWrapper) Option {
 	return func(o *Options) {
-		var wrappers []server.Option
-
-		for _, wrap := range w {
-			wrappers = append(wrappers, server.WrapSubscriber(wrap))
-		}
-
-		// Init once
-		o.Server.Init(wrappers...)
-	}
-}
-
-// Add opt to server option.
-func AddListenOption(option server.Option) Option {
-	return func(o *Options) {
-		o.Server.Init(option)
+		o.WrapSubscriber = append(o.WrapSubscriber, w...)
 	}
 }
 

@@ -95,13 +95,6 @@ func (s *service) Stop() error {
 func (s *service) Run() (err error) {
 	logger := s.opts.Logger
 
-	// exit when help flag is provided
-	for _, v := range os.Args[1:] {
-		if v == "-h" || v == "--help" {
-			os.Exit(0)
-		}
-	}
-
 	// start the profiler
 	if s.opts.Profile != nil {
 		// to view mutex contention

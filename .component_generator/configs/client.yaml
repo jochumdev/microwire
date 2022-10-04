@@ -85,9 +85,16 @@ di_go:
       if err != nil {
         return nil, fmt.Errorf("failed to parse client_request_timeout: %v", config.Client.PoolRequestTimeout)
       }
-      opts = append(opts, PoolTTL(d))
 
-      opts = append(opts, Retries(config.Client.PoolRetries))
+      opts = append(
+        opts,
+        PoolTTL(d),
+        Retries(config.Client.PoolRetries),
+        Broker(broker),
+        Registry(registry),
+        Transport(transport),
+        WrapCall(config.Client.WrapCall...),
+      )
 
 config_store_go:
   NewConfig:
@@ -98,6 +105,7 @@ config_store_go:
       PoolTTL: "1m",
       PoolRequestTimeout: "5s",
       PoolRetries: 1,
+      WrapCall: []CallWrapper{},
 
   Config:
     Fields: |-
@@ -105,6 +113,7 @@ config_store_go:
       PoolTTL              string   `json:"pool_ttl,omitempty" yaml:"PoolTTL,omitempty"`
       PoolRequestTimeout   string   `json:"pool_request_timeout,omitempty" yaml:"PoolRequestTimeout,omitempty"`
       PoolRetries          int      `json:"pool_retries,omitempty" yaml:"PoolRetries,omitempty"`
+      WrapCall []CallWrapper `json:"-" yaml:"-"`
 
   ConfigMerge:
     Fields: |-

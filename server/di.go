@@ -7,6 +7,7 @@ import (
 	"github.com/go-micro/microwire/v5/broker"
 	"github.com/go-micro/microwire/v5/registry"
 	"github.com/go-micro/microwire/v5/transport"
+	"time"
 
 	"github.com/go-micro/microwire/v5/cli"
 	"github.com/go-micro/microwire/v5/config"
@@ -20,11 +21,14 @@ type DiFlags struct{}
 type DiConfig struct{}
 
 const (
-	cliArgPlugin  = "server"
-	cliArgAddress = "server_address"
-	cliArgID      = "server_id"
-	cliArgName    = "server_name"
-	cliArgVersion = "server_version"
+	cliArgPlugin           = "server"
+	cliArgAddress          = "server_address"
+	cliArgID               = "server_id"
+	cliArgMetadata         = "server_metadata"
+	cliArgName             = "server_name"
+	cliArgVersion          = "server_version"
+	cliArgRegisterTTL      = "server_register_ttl"
+	cliArgRegisterInterval = "server_register_interval"
 )
 
 func ProvideFlags(
@@ -63,6 +67,14 @@ func ProvideFlags(
 		return DiFlags{}, err
 	}
 	if err := c.Add(
+		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgMetadata)),
+		cli.Usage(" A list of key-value pairs defining metadata, e.g.: version=1.0.0"),
+		cli.Default([]string{}),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgMetadata)),
+	); err != nil {
+		return DiFlags{}, err
+	}
+	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgName)),
 		cli.Usage("Name of the server. go.micro.srv.example"),
 		cli.Default(config.Server.Name),
@@ -75,6 +87,22 @@ func ProvideFlags(
 		cli.Usage("Version of the server. 1.1.0"),
 		cli.Default(config.Server.Version),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgVersion)),
+	); err != nil {
+		return DiFlags{}, err
+	}
+	if err := c.Add(
+		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgRegisterTTL)),
+		cli.Usage("Register TTL in seconds"),
+		cli.Default(config.Server.RegisterTTL),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgRegisterTTL)),
+	); err != nil {
+		return DiFlags{}, err
+	}
+	if err := c.Add(
+		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgRegisterInterval)),
+		cli.Usage("Register interval in seconds"),
+		cli.Default(config.Server.RegisterInterval),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgRegisterInterval)),
 	); err != nil {
 		return DiFlags{}, err
 	}
@@ -121,6 +149,12 @@ func ProvideConfig(
 	}
 	if f, ok := c.Get(cliArgVersion); ok {
 		defConfig.Server.Version = cli.FlagValue(f, "")
+	}
+	if f, ok := c.Get(cliArgRegisterTTL); ok {
+		defConfig.Server.RegisterTTL = cli.FlagValue(f, defConfig.Server.RegisterTTL)
+	}
+	if f, ok := c.Get(cliArgRegisterInterval); ok {
+		defConfig.Server.RegisterInterval = cli.FlagValue(f, defConfig.Server.RegisterInterval)
 	}
 	if err := config.Merge(defConfig); err != nil {
 		return DiConfig{}, err
@@ -179,7 +213,21 @@ func Provide(
 		opts = append(opts, Version(config.Server.Version))
 	}
 
-	opts = append(opts, Broker(broker), Registry(registry), Transport(transport))
+	opts = append(
+		opts,
+		RegisterInterval(time.Duration(config.Server.RegisterInterval)*time.Second),
+		RegisterTTL(time.Duration(config.Server.RegisterTTL)*time.Second),
+		Broker(broker),
+		Registry(registry),
+		Transport(transport),
+	)
+
+	for _, w := range config.Server.WrapSubscriber {
+		opts = append(opts, WrapSubscriber(w))
+	}
+	for _, w := range config.Server.WrapHandler {
+		opts = append(opts, WrapHandler(w))
+	}
 
 	return b(opts...), nil
 }

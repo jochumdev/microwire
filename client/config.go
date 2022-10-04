@@ -3,12 +3,13 @@
 package client
 
 type ClientConfig struct {
-	Enabled            bool   `json:"enabled" yaml:"Enabled"`
-	Plugin             string `json:"plugin,omitempty" yaml:"Plugin,omitempty"`
-	PoolSize           int    `json:"pool_size,omitempty" yaml:"PoolSize,omitempty"`
-	PoolTTL            string `json:"pool_ttl,omitempty" yaml:"PoolTTL,omitempty"`
-	PoolRequestTimeout string `json:"pool_request_timeout,omitempty" yaml:"PoolRequestTimeout,omitempty"`
-	PoolRetries        int    `json:"pool_retries,omitempty" yaml:"PoolRetries,omitempty"`
+	Enabled            bool          `json:"enabled" yaml:"Enabled"`
+	Plugin             string        `json:"plugin,omitempty" yaml:"Plugin,omitempty"`
+	PoolSize           int           `json:"pool_size,omitempty" yaml:"PoolSize,omitempty"`
+	PoolTTL            string        `json:"pool_ttl,omitempty" yaml:"PoolTTL,omitempty"`
+	PoolRequestTimeout string        `json:"pool_request_timeout,omitempty" yaml:"PoolRequestTimeout,omitempty"`
+	PoolRetries        int           `json:"pool_retries,omitempty" yaml:"PoolRetries,omitempty"`
+	WrapCall           []CallWrapper `json:"-" yaml:"-"`
 }
 
 type Config struct {
@@ -24,6 +25,7 @@ func NewConfig() *Config {
 			PoolTTL:            "1m",
 			PoolRequestTimeout: "5s",
 			PoolRetries:        1,
+			WrapCall:           []CallWrapper{},
 		},
 	}
 }
