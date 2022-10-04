@@ -1,10 +1,9 @@
 // Code generated with jinja2 templates. DO NOT EDIT.
 
-package transport
+package logger
 
 import (
 	"fmt"
-	"github.com/go-micro/microwire/v5/logger"
 
 	"github.com/go-micro/microwire/v5/cli"
 	"github.com/go-micro/microwire/v5/config"
@@ -18,8 +17,8 @@ type DiFlags struct{}
 type DiConfig struct{}
 
 const (
-	cliArgPlugin    = "transport"
-	cliArgAddresses = "transport_address"
+	cliArgPlugin      = "logger"
+	cliArgLoggerLevel = "logger_level"
 )
 
 func ProvideFlags(
@@ -34,7 +33,7 @@ func ProvideFlags(
 
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)),
-		cli.Usage("Transport mechanism used; http"),
+		cli.Usage("Logger to use"),
 		cli.Default(config.Plugin),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgPlugin)),
 	); err != nil {
@@ -42,10 +41,10 @@ func ProvideFlags(
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
-		cli.Usage("List of transport addresses"),
-		cli.Default(config.Addresses),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgLoggerLevel)),
+		cli.Usage("Log level, e.g.: trace, debug, info, warn, error, fatal"),
+		cli.Default(config.Level),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgLoggerLevel)),
 	); err != nil {
 		return DiFlags{}, err
 	}
@@ -62,14 +61,14 @@ func ProvideConfig(
 	configor config.Config,
 ) (DiConfig, error) {
 	defConfig := NewConfig()
-	cfg := sourceConfig{Transport: *defConfig}
+	cfg := sourceConfig{Logger: *defConfig}
 
 	if configor != nil {
 		if err := configor.Scan(&cfg); err != nil {
 			return DiConfig{}, err
 		}
 	}
-	if err := config.Merge(&cfg.Transport); err != nil {
+	if err := config.Merge(&cfg.Logger); err != nil {
 		return DiConfig{}, err
 	}
 
@@ -82,8 +81,8 @@ func ProvideConfig(
 	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)); ok {
 		defConfig.Plugin = cli.FlagValue(f, defConfig.Plugin)
 	}
-	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)); ok {
-		defConfig.Addresses = cli.FlagValue(f, []string{})
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgLoggerLevel)); ok {
+		defConfig.Level = cli.FlagValue(f, config.Level)
 	}
 	if err := config.Merge(defConfig); err != nil {
 		return DiConfig{}, err
@@ -97,14 +96,14 @@ func ProvideConfigNoFlags(
 	configor config.Config,
 ) (DiConfig, error) {
 	defConfig := NewConfig()
-	c := sourceConfig{Transport: *defConfig}
+	c := sourceConfig{Logger: *defConfig}
 
 	if configor != nil {
 		if err := configor.Scan(&c); err != nil {
 			return DiConfig{}, err
 		}
 	}
-	if err := config.Merge(&c.Transport); err != nil {
+	if err := config.Merge(&c.Logger); err != nil {
 		return DiConfig{}, err
 	}
 
@@ -114,9 +113,9 @@ func ProvideConfigNoFlags(
 func Provide(
 	// Marker so cli has been merged into Config
 	_ DiConfig,
-	log logger.Logger,
+
 	config *Config,
-) (Transport, error) {
+) (Logger, error) {
 	if !config.Enabled {
 		// Not enabled silently ignore that
 		return nil, nil
@@ -124,23 +123,11 @@ func Provide(
 
 	pluginFunc, err := Plugins.Get(config.Plugin)
 	if err != nil {
-		return nil, fmt.Errorf("unknown plugin transport: %s", config.Plugin)
+		return nil, fmt.Errorf("unknown plugin logger: %s", config.Plugin)
 	}
 
 	opts := []Option{WithConfig(config)}
-	if len(config.Addresses) > 0 {
-		opts = append(opts, Addrs(config.Addresses...))
-	}
-
-	if config.Logger.Enabled {
-		loggerFunc, err := logger.Plugins.Get(config.Logger.Plugin)
-		if err != nil {
-			return nil, fmt.Errorf("{{Name}} unknown logger: %s", config.Logger.Plugin)
-		}
-		log = loggerFunc(logger.ConfigToOpts(config.Logger)...)
-	}
-
-	opts = append(opts, WithLogger(log))
+	opts = ConfigToOpts(config)
 
 	return pluginFunc(opts...), nil
 }

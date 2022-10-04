@@ -2,6 +2,8 @@
 
 package auth
 
+import ()
+
 type Config struct {
 	Enabled    bool   `json:"enabled" yaml:"Enabled"`
 	Plugin     string `json:"plugin,omitempty" yaml:"Plugin,omitempty"`
@@ -13,11 +15,11 @@ type Config struct {
 }
 
 type sourceConfig struct {
-	Auth Config `json:"" yaml:"Auth"`
+	Auth Config `json:"auth" yaml:"Auth"`
 }
 
 func NewConfig() *Config {
-	return &Config{
+	config := &Config{
 		Enabled:    false,
 		Plugin:     "",
 		ID:         "",
@@ -26,13 +28,15 @@ func NewConfig() *Config {
 		PrivateKey: "",
 		Namespace:  "",
 	}
+
+	return config
 }
 
 func (d *Config) Merge(src *Config) error {
 	def := NewConfig()
 
-	if src.Enabled != def.Enabled {
-		d.Enabled = src.Enabled
+	if !d.Enabled && !def.Enabled && src.Enabled {
+		d.Enabled = true
 	}
 
 	if src.Plugin != def.Plugin {

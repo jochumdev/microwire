@@ -8,6 +8,7 @@ import (
 	"github.com/go-micro/microwire/v5/client"
 	"github.com/go-micro/microwire/v5/config/configdi"
 	"github.com/go-micro/microwire/v5/di"
+	"github.com/go-micro/microwire/v5/logger"
 	"github.com/go-micro/microwire/v5/registry"
 	"github.com/go-micro/microwire/v5/server"
 	"github.com/go-micro/microwire/v5/store"
@@ -40,6 +41,10 @@ func NewService(opts ...Option) (Service, error) {
 	serverConfig.WrapSubscriber = options.WrapSubscriber
 	serverConfig.WrapHandler = options.WrapHandler
 
+	// Special hack to enable logger by default but subloggers are disabled by default
+	loggerConfig := logger.NewConfig()
+	loggerConfig.Enabled = true
+
 	return newService(
 		options,
 		cliConfig,
@@ -47,6 +52,7 @@ func NewService(opts ...Option) (Service, error) {
 		broker.NewConfig(),
 		cache.NewConfig(),
 		client.NewConfig(),
+		loggerConfig,
 		registry.NewConfig(),
 		serverConfig,
 		store.NewConfig(),
@@ -59,6 +65,7 @@ func ProvideFlags(
 	_ broker.DiFlags,
 	_ cache.DiFlags,
 	_ client.DiFlags,
+	_ logger.DiFlags,
 	_ registry.DiFlags,
 	_ server.DiFlags,
 	_ store.DiFlags,
@@ -73,6 +80,7 @@ func ProvideAllService(
 	broker broker.Broker,
 	cache cache.Cache,
 	client client.Client,
+	logger logger.Logger,
 	registry registry.Registry,
 	server server.Server,
 	store store.Store,
@@ -94,6 +102,9 @@ func ProvideAllService(
 	}
 	if cache != nil {
 		mOpts = append(mOpts, Cache(cache))
+	}
+	if logger != nil {
+		mOpts = append(mOpts, Logger(logger))
 	}
 	if registry != nil {
 		mOpts = append(mOpts, Registry(registry))
@@ -141,6 +152,7 @@ var DiSet = wire.NewSet(
 	broker.DiSet,
 	cache.DiSet,
 	client.DiSet,
+	logger.DiSet,
 	registry.DiSet,
 	server.DiSet,
 	store.DiSet,
@@ -154,6 +166,7 @@ var DiNoCliSet = wire.NewSet(
 	broker.DiNoCliSet,
 	cache.DiNoCliSet,
 	client.DiNoCliSet,
+	logger.DiNoCliSet,
 	registry.DiNoCliSet,
 	server.DiNoCliSet,
 	store.DiNoCliSet,

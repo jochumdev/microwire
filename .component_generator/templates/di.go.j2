@@ -72,7 +72,7 @@ func ProvideConfig(
 	}
 
 	defConfig = NewConfig()
-	if f, ok := c.Get(cliArgPlugin); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)); ok {
 		defConfig.Plugin = cli.FlagValue(f, defConfig.Plugin)
 	}
 	{{di_go.ProvideConfig.Body}}
@@ -113,15 +113,15 @@ func Provide(
 		return nil, nil
 	}
 
-	b, err := Plugins.Get(config.Plugin)
+	pluginFunc, err := Plugins.Get(config.Plugin)
 	if err != nil {
-		return nil, fmt.Errorf("unknown {{Name}}: %v", err)
+		return nil, fmt.Errorf("unknown plugin {{Name}}: %s", config.Plugin)
 	}
 
 	opts := []Option{WithConfig(config)}
 	{{di_go.Provide.Body}}
 
-	return b(opts...), nil
+	return pluginFunc(opts...), nil
 }
 
 var DiSet = wire.NewSet(ProvideFlags, ProvideConfig, Provide)

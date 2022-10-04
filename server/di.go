@@ -5,6 +5,7 @@ package server
 import (
 	"fmt"
 	"github.com/go-micro/microwire/v5/broker"
+	"github.com/go-micro/microwire/v5/logger"
 	"github.com/go-micro/microwire/v5/registry"
 	"github.com/go-micro/microwire/v5/transport"
 	"time"
@@ -136,25 +137,25 @@ func ProvideConfig(
 	}
 
 	defConfig = NewConfig()
-	if f, ok := c.Get(cliArgPlugin); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)); ok {
 		defConfig.Plugin = cli.FlagValue(f, defConfig.Plugin)
 	}
-	if f, ok := c.Get(cliArgAddress); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgAddress)); ok {
 		defConfig.Address = cli.FlagValue(f, "")
 	}
-	if f, ok := c.Get(cliArgID); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgID)); ok {
 		defConfig.ID = cli.FlagValue(f, "")
 	}
-	if f, ok := c.Get(cliArgName); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgName)); ok {
 		defConfig.Name = cli.FlagValue(f, "")
 	}
-	if f, ok := c.Get(cliArgVersion); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgVersion)); ok {
 		defConfig.Version = cli.FlagValue(f, "")
 	}
-	if f, ok := c.Get(cliArgRegisterTTL); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgRegisterTTL)); ok {
 		defConfig.RegisterTTL = cli.FlagValue(f, defConfig.RegisterTTL)
 	}
-	if f, ok := c.Get(cliArgRegisterInterval); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgRegisterInterval)); ok {
 		defConfig.RegisterInterval = cli.FlagValue(f, defConfig.RegisterInterval)
 	}
 	if err := config.Merge(defConfig); err != nil {
@@ -187,6 +188,7 @@ func Provide(
 	// Marker so cli has been merged into Config
 	_ DiConfig,
 	broker broker.Broker,
+	log logger.Logger,
 	registry registry.Registry,
 	transport transport.Transport,
 	config *Config,
@@ -196,9 +198,9 @@ func Provide(
 		return nil, nil
 	}
 
-	b, err := Plugins.Get(config.Plugin)
+	pluginFunc, err := Plugins.Get(config.Plugin)
 	if err != nil {
-		return nil, fmt.Errorf("unknown server: %v", err)
+		return nil, fmt.Errorf("unknown plugin server: %s", config.Plugin)
 	}
 
 	opts := []Option{WithConfig(config)}
@@ -215,6 +217,14 @@ func Provide(
 		opts = append(opts, Version(config.Version))
 	}
 
+	if config.Logger.Enabled {
+		loggerFunc, err := logger.Plugins.Get(config.Logger.Plugin)
+		if err != nil {
+			return nil, fmt.Errorf("{{Name}} unknown logger: %s", config.Logger.Plugin)
+		}
+		log = loggerFunc(logger.ConfigToOpts(config.Logger)...)
+	}
+
 	opts = append(
 		opts,
 		RegisterInterval(time.Duration(config.RegisterInterval)*time.Second),
@@ -222,6 +232,7 @@ func Provide(
 		Broker(broker),
 		Registry(registry),
 		Transport(transport),
+		WithLogger(log),
 	)
 
 	for _, w := range config.WrapSubscriber {
@@ -231,7 +242,7 @@ func Provide(
 		opts = append(opts, WrapHandler(w))
 	}
 
-	return b(opts...), nil
+	return pluginFunc(opts...), nil
 }
 
 var DiSet = wire.NewSet(ProvideFlags, ProvideConfig, Provide)

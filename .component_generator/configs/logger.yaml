@@ -1,0 +1,56 @@
+---
+Name: logger
+CapsName: Logger
+
+di_go:
+  Imports: ""
+  Consts: |-
+    cliArgLoggerLevel = "logger_level"
+
+  ProvideFlags:
+    Plugin:
+      Usage: "Logger to use"
+
+    Body: |-
+      if err := c.Add(
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgLoggerLevel)),
+        cli.Usage("Log level, e.g.: trace, debug, info, warn, error, fatal"),
+        cli.Default(config.Level),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgLoggerLevel)),
+      ); err != nil {
+        return DiFlags{}, err
+      }
+
+  ProvideConfig:
+    Body: |-
+      if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgLoggerLevel)); ok {
+        defConfig.Level = cli.FlagValue(f, config.Level)
+      }
+
+  Provide:
+    Args: ""
+    Body: |-
+      opts = ConfigToOpts(config)
+
+config_store_go:
+  Imports: ""
+  NewConfig:
+    # Special hack to disable subloggers by default
+    Enabled: "false"
+    Plugin: "default"
+    Fields: |-
+      Fields: make(map[string]interface{}),
+      Level: InfoLevel.String(),
+      CallerSkipCount: 2,
+    Body: ""
+
+  Config:
+    Fields: |-
+      Fields            map[string]interface{}    `json:"fields" yaml:"Fields"`
+      Level             string                    `json:"level" yaml:"Level"`
+      CallerSkipCount   int                       `json:"caller_skip_count" yaml:"CallerSkipCount"`
+  ConfigMerge:
+    Fields: |-
+      d.Fields = src.Fields
+      d.Level = src.Level
+      d.CallerSkipCount = src.CallerSkipCount

@@ -118,26 +118,26 @@ func ProvideConfig(
 	}
 
 	defConfig = NewConfig()
-	if f, ok := c.Get(cliArgPlugin); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)); ok {
 		defConfig.Plugin = cli.FlagValue(f, defConfig.Plugin)
 	}
-	f, ok := c.Get(cliArgID)
-	f2, ok2 := c.Get(cliArgSecret)
+	f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgID))
+	f2, ok2 := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgSecret))
 	if ok && ok2 {
 		if len(cli.FlagValue(f, defConfig.ID)) > 0 && len(cli.FlagValue(f2, defConfig.Secret)) > 0 {
 			defConfig.ID = cli.FlagValue(f, "")
 			defConfig.Secret = cli.FlagValue(f2, "")
 		}
 	}
-	f, ok = c.Get(cliArgPublicKey)
-	f2, ok2 = c.Get(cliArgPrivateKey)
+	f, ok = c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPublicKey))
+	f2, ok2 = c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPrivateKey))
 	if ok && ok2 {
 		if len(cli.FlagValue(f, defConfig.PublicKey)) > 0 && len(cli.FlagValue(f2, defConfig.PrivateKey)) > 0 {
 			defConfig.PublicKey = cli.FlagValue(f, "")
 			defConfig.PrivateKey = cli.FlagValue(f2, "")
 		}
 	}
-	if f, ok := c.Get(cliArgNamespace); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgNamespace)); ok {
 		defConfig.Namespace = cli.FlagValue(f, "")
 	}
 	if err := config.Merge(defConfig); err != nil {
@@ -177,9 +177,9 @@ func Provide(
 		return nil, nil
 	}
 
-	b, err := Plugins.Get(config.Plugin)
+	pluginFunc, err := Plugins.Get(config.Plugin)
 	if err != nil {
-		return nil, fmt.Errorf("unknown auth: %v", err)
+		return nil, fmt.Errorf("unknown plugin auth: %s", config.Plugin)
 	}
 
 	opts := []Option{WithConfig(config)}
@@ -192,7 +192,7 @@ func Provide(
 	opts = append(opts, PrivateKey(config.PrivateKey))
 	opts = append(opts, Namespace(config.Namespace))
 
-	return b(opts...), nil
+	return pluginFunc(opts...), nil
 }
 
 var DiSet = wire.NewSet(ProvideFlags, ProvideConfig, Provide)

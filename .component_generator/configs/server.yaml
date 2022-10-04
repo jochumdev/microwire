@@ -5,6 +5,7 @@ CapsName: Server
 di_go:
   Imports: |-
     "time"
+    "github.com/go-micro/microwire/v5/logger"
     "github.com/go-micro/microwire/v5/broker"
     "github.com/go-micro/microwire/v5/registry"
     "github.com/go-micro/microwire/v5/transport"
@@ -81,27 +82,28 @@ di_go:
       }
   ProvideConfig:
     Body: |-
-      if f, ok := c.Get(cliArgAddress); ok {
+      if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgAddress)); ok {
         defConfig.Address = cli.FlagValue(f, "")
       }
-      if f, ok := c.Get(cliArgID); ok {
+      if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgID)); ok {
         defConfig.ID = cli.FlagValue(f, "")
       }
-      if f, ok := c.Get(cliArgName); ok {
+      if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgName)); ok {
         defConfig.Name = cli.FlagValue(f, "")
       }
-      if f, ok := c.Get(cliArgVersion); ok {
+      if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgVersion)); ok {
         defConfig.Version = cli.FlagValue(f, "")
       }
-      if f, ok := c.Get(cliArgRegisterTTL); ok {
+      if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgRegisterTTL)); ok {
         defConfig.RegisterTTL = cli.FlagValue(f, defConfig.RegisterTTL)
       }
-      if f, ok := c.Get(cliArgRegisterInterval); ok {
+      if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgRegisterInterval)); ok {
         defConfig.RegisterInterval = cli.FlagValue(f, defConfig.RegisterInterval)
       }
   Provide:
     Args: |-
       broker broker.Broker,
+      log logger.Logger,
       registry registry.Registry,
       transport transport.Transport,
     Body: |-
@@ -118,6 +120,14 @@ di_go:
         opts = append(opts, Version(config.Version))
       }
 
+      if config.Logger.Enabled {
+        loggerFunc, err := logger.Plugins.Get(config.Logger.Plugin)
+        if err != nil {
+          return nil, fmt.Errorf("{{Name}} unknown logger: %s", config.Logger.Plugin)
+        }
+        log = loggerFunc(logger.ConfigToOpts(config.Logger)...)
+      }
+
       opts = append(
         opts,
         RegisterInterval(time.Duration(config.RegisterInterval)*time.Second),
@@ -125,6 +135,7 @@ di_go:
         Broker(broker),
         Registry(registry),
         Transport(transport),
+        WithLogger(log),
       )
 
       for _, w := range config.WrapSubscriber {
@@ -135,6 +146,8 @@ di_go:
       }
 
 config_store_go:
+  Imports: |-
+    "github.com/go-micro/microwire/v5/logger"
   NewConfig:
     Enabled: "true"
     Plugin: "rpc"
@@ -148,9 +161,13 @@ config_store_go:
       RegisterInterval: 30,
       WrapSubscriber: []SubscriberWrapper{},
       WrapHandler: []HandlerWrapper{},
+      Logger: logger.NewConfig(),
+
+    Body: ""
 
   Config:
     Fields: |-
+      Logger    *logger.Config `json:"logger,omitempty" yaml:"Logger,omitempty"`
       Address string `json:"address,omitempty" yaml:"Address,omitempty"`
       ID string `json:"id,omitempty" yaml:"ID,omitempty"`
       Name string `json:"name,omitempty" yaml:"Name,omitempty"`
@@ -168,3 +185,5 @@ config_store_go:
       d.Name = src.Name
       d.Version = src.Version
       d.Metadata = src.Metadata
+    Body: |-
+      d.Logger.Merge(src.Logger)

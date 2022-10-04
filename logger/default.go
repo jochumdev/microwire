@@ -20,6 +20,8 @@ func init() {
 	}
 
 	DefaultLogger = NewLogger(WithLevel(lvl))
+
+	_ = Plugins.Add("default", NewLogger)
 }
 
 type defaultLogger struct {

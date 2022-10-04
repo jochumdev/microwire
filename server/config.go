@@ -2,9 +2,14 @@
 
 package server
 
+import (
+	"github.com/go-micro/microwire/v5/logger"
+)
+
 type Config struct {
 	Enabled          bool                `json:"enabled" yaml:"Enabled"`
 	Plugin           string              `json:"plugin,omitempty" yaml:"Plugin,omitempty"`
+	Logger           *logger.Config      `json:"logger,omitempty" yaml:"Logger,omitempty"`
 	Address          string              `json:"address,omitempty" yaml:"Address,omitempty"`
 	ID               string              `json:"id,omitempty" yaml:"ID,omitempty"`
 	Name             string              `json:"name,omitempty" yaml:"Name,omitempty"`
@@ -17,11 +22,11 @@ type Config struct {
 }
 
 type sourceConfig struct {
-	Server Config `json:"" yaml:"Server"`
+	Server Config `json:"server" yaml:"Server"`
 }
 
 func NewConfig() *Config {
-	return &Config{
+	config := &Config{
 		Enabled:          true,
 		Plugin:           "rpc",
 		Address:          "",
@@ -33,14 +38,17 @@ func NewConfig() *Config {
 		RegisterInterval: 30,
 		WrapSubscriber:   []SubscriberWrapper{},
 		WrapHandler:      []HandlerWrapper{},
+		Logger:           logger.NewConfig(),
 	}
+
+	return config
 }
 
 func (d *Config) Merge(src *Config) error {
 	def := NewConfig()
 
-	if src.Enabled != def.Enabled {
-		d.Enabled = src.Enabled
+	if !d.Enabled && !def.Enabled && src.Enabled {
+		d.Enabled = true
 	}
 
 	if src.Plugin != def.Plugin {
@@ -51,6 +59,8 @@ func (d *Config) Merge(src *Config) error {
 		d.Version = src.Version
 		d.Metadata = src.Metadata
 	}
+
+	d.Logger.Merge(src.Logger)
 
 	return nil
 }

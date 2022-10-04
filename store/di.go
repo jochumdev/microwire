@@ -4,6 +4,7 @@ package store
 
 import (
 	"fmt"
+	"github.com/go-micro/microwire/v5/logger"
 
 	"github.com/go-micro/microwire/v5/cli"
 	"github.com/go-micro/microwire/v5/config"
@@ -98,16 +99,16 @@ func ProvideConfig(
 	}
 
 	defConfig = NewConfig()
-	if f, ok := c.Get(cliArgPlugin); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)); ok {
 		defConfig.Plugin = cli.FlagValue(f, defConfig.Plugin)
 	}
-	if f, ok := c.Get(cliArgAddresses); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)); ok {
 		defConfig.Addresses = cli.FlagValue(f, []string{})
 	}
-	if f, ok := c.Get(cliArgDatabase); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgDatabase)); ok {
 		defConfig.Database = cli.FlagValue(f, "")
 	}
-	if f, ok := c.Get(cliArgTable); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgTable)); ok {
 		defConfig.Table = cli.FlagValue(f, "")
 	}
 	if err := config.Merge(defConfig); err != nil {
@@ -139,7 +140,7 @@ func ProvideConfigNoFlags(
 func Provide(
 	// Marker so cli has been merged into Config
 	_ DiConfig,
-
+	logger logger.Logger,
 	config *Config,
 ) (Store, error) {
 	if !config.Enabled {
@@ -147,9 +148,9 @@ func Provide(
 		return nil, nil
 	}
 
-	b, err := Plugins.Get(config.Plugin)
+	pluginFunc, err := Plugins.Get(config.Plugin)
 	if err != nil {
-		return nil, fmt.Errorf("unknown store: %v", err)
+		return nil, fmt.Errorf("unknown plugin store: %s", config.Plugin)
 	}
 
 	opts := []Option{WithConfig(config)}
@@ -162,8 +163,9 @@ func Provide(
 	if len(config.Table) > 0 {
 		opts = append(opts, Table(config.Table))
 	}
+	opts = append(opts, WithLogger(logger))
 
-	return b(opts...), nil
+	return pluginFunc(opts...), nil
 }
 
 var DiSet = wire.NewSet(ProvideFlags, ProvideConfig, Provide)

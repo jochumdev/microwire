@@ -5,6 +5,7 @@ package client
 import (
 	"fmt"
 	"github.com/go-micro/microwire/v5/broker"
+	"github.com/go-micro/microwire/v5/logger"
 	"github.com/go-micro/microwire/v5/registry"
 	"github.com/go-micro/microwire/v5/transport"
 	"time"
@@ -109,19 +110,19 @@ func ProvideConfig(
 	}
 
 	defConfig = NewConfig()
-	if f, ok := c.Get(cliArgPlugin); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)); ok {
 		defConfig.Plugin = cli.FlagValue(f, defConfig.Plugin)
 	}
-	if f, ok := c.Get(cliArgPoolSize); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolSize)); ok {
 		defConfig.PoolSize = cli.FlagValue(f, defConfig.PoolSize)
 	}
-	if f, ok := c.Get(cliArgPoolTTL); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolTTL)); ok {
 		defConfig.PoolTTL = cli.FlagValue(f, defConfig.PoolTTL)
 	}
-	if f, ok := c.Get(cliArgPoolRequestTimeout); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolRequestTimeout)); ok {
 		defConfig.PoolRequestTimeout = cli.FlagValue(f, defConfig.PoolRequestTimeout)
 	}
-	if f, ok := c.Get(cliArgPoolRetries); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolRetries)); ok {
 		defConfig.PoolRetries = cli.FlagValue(f, defConfig.PoolRetries)
 	}
 	if err := config.Merge(defConfig); err != nil {
@@ -154,6 +155,7 @@ func Provide(
 	// Marker so cli has been merged into Config
 	_ DiConfig,
 	broker broker.Broker,
+	log logger.Logger,
 	registry registry.Registry,
 	transport transport.Transport,
 	config *Config,
@@ -163,9 +165,9 @@ func Provide(
 		return nil, nil
 	}
 
-	b, err := Plugins.Get(config.Plugin)
+	pluginFunc, err := Plugins.Get(config.Plugin)
 	if err != nil {
-		return nil, fmt.Errorf("unknown client: %v", err)
+		return nil, fmt.Errorf("unknown plugin client: %s", config.Plugin)
 	}
 
 	opts := []Option{WithConfig(config)}
@@ -180,6 +182,14 @@ func Provide(
 		return nil, fmt.Errorf("failed to parse client_request_timeout: %v", config.PoolRequestTimeout)
 	}
 
+	if config.Logger.Enabled {
+		loggerFunc, err := logger.Plugins.Get(config.Logger.Plugin)
+		if err != nil {
+			return nil, fmt.Errorf("{{Name}} unknown logger: %s", config.Logger.Plugin)
+		}
+		log = loggerFunc(logger.ConfigToOpts(config.Logger)...)
+	}
+
 	opts = append(
 		opts,
 		PoolTTL(d),
@@ -188,9 +198,10 @@ func Provide(
 		Registry(registry),
 		Transport(transport),
 		WrapCall(config.WrapCall...),
+		WithLogger(log),
 	)
 
-	return b(opts...), nil
+	return pluginFunc(opts...), nil
 }
 
 var DiSet = wire.NewSet(ProvideFlags, ProvideConfig, Provide)

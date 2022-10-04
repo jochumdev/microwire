@@ -4,6 +4,7 @@ CapsName: Broker
 
 di_go:
   Imports: |-
+    "github.com/go-micro/microwire/v5/logger"
     "github.com/go-micro/microwire/v5/registry"
 
   Consts: |-
@@ -25,12 +26,13 @@ di_go:
 
   ProvideConfig:
     Body: |-
-      if f, ok := c.Get(cliArgAddresses); ok {
+      if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)); ok {
         defConfig.Addresses = cli.FlagValue(f, []string{})
       }
 
   Provide:
     Args: |-
+      log logger.Logger,
       registry registry.Registry,
 
     Body: |-
@@ -38,19 +40,34 @@ di_go:
         opts = append(opts, Addrs(config.Addresses...))
       }
 
-      opts = append(opts, Registry(registry))
+      if config.Logger.Enabled {
+        loggerFunc, err := logger.Plugins.Get(config.Logger.Plugin)
+        if err != nil {
+          return nil, fmt.Errorf("{{Name}} unknown logger: %s", config.Logger.Plugin)
+        }
+        log = loggerFunc(logger.ConfigToOpts(config.Logger)...)
+      }
+
+      opts = append(opts, Registry(registry), Logger(log))
 
 config_store_go:
+  Imports: |-
+    "github.com/go-micro/microwire/v5/logger"
   NewConfig:
     Enabled: "true"
     Plugin: "http"
     Fields: |-
       Addresses: []string{},
+      Logger: logger.NewConfig(),
+    Body: ""
 
   Config:
     Fields: |-
+      Logger    *logger.Config `json:"logger,omitempty" yaml:"Logger,omitempty"`
       Addresses []string `json:"addresses,omitempty" yaml:"Addresses,omitempty"`
 
   ConfigMerge:
     Fields: |-
       d.Addresses = src.Addresses
+    Body: |-
+      d.Logger.Merge(src.Logger)

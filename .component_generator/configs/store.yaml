@@ -3,7 +3,8 @@ Name: store
 CapsName: Store
 
 di_go:
-  Imports: ""
+  Imports: |-
+    "github.com/go-micro/microwire/v5/logger"
 
   Consts: |-
     cliArgAddresses = "store_address"
@@ -44,18 +45,19 @@ di_go:
 
   ProvideConfig:
     Body: |-
-      if f, ok := c.Get(cliArgAddresses); ok {
+      if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)); ok {
         defConfig.Addresses = cli.FlagValue(f, []string{})
       }
-      if f, ok := c.Get(cliArgDatabase); ok {
+      if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgDatabase)); ok {
         defConfig.Database = cli.FlagValue(f, "")
       }
-      if f, ok := c.Get(cliArgTable); ok {
+      if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgTable)); ok {
         defConfig.Table = cli.FlagValue(f, "")
       }
 
   Provide:
-    Args: ""
+    Args: |-
+      logger logger.Logger,
     Body: |-
       if len(config.Addresses) > 0 {
         opts = append(opts, Nodes(config.Addresses...))
@@ -66,8 +68,10 @@ di_go:
       if len(config.Table) > 0 {
         opts = append(opts, Table(config.Table))
       }
+      opts = append(opts, WithLogger(logger))
 
 config_store_go:
+  Imports: ""
   NewConfig:
     Enabled: "false"
     Plugin: ""
@@ -75,6 +79,8 @@ config_store_go:
       Addresses: []string{},
       Database:  "",
       Table:     "",
+
+    Body: ""
 
   Config:
     Fields: |-
@@ -87,3 +93,4 @@ config_store_go:
       d.Addresses = src.Addresses
       d.Database = src.Database
       d.Table = src.Table
+    Body: ""

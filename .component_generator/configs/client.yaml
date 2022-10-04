@@ -5,6 +5,7 @@ CapsName: Client
 di_go:
   Imports: |-
     "time"
+    "github.com/go-micro/microwire/v5/logger"
     "github.com/go-micro/microwire/v5/broker"
     "github.com/go-micro/microwire/v5/registry"
     "github.com/go-micro/microwire/v5/transport"
@@ -52,29 +53,30 @@ di_go:
       ); err != nil {
         return DiFlags{}, err
       }
-  
+
   ProvideConfig:
     Body: |-
-      if f, ok := c.Get(cliArgPoolSize); ok {
+      if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolSize)); ok {
         defConfig.PoolSize = cli.FlagValue(f, defConfig.PoolSize)
       }
-      if f, ok := c.Get(cliArgPoolTTL); ok {
+      if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolTTL)); ok {
         defConfig.PoolTTL = cli.FlagValue(f, defConfig.PoolTTL)
       }
-      if f, ok := c.Get(cliArgPoolRequestTimeout); ok {
+      if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolRequestTimeout)); ok {
         defConfig.PoolRequestTimeout = cli.FlagValue(f, defConfig.PoolRequestTimeout)
       }
-      if f, ok := c.Get(cliArgPoolRetries); ok {
+      if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolRetries)); ok {
         defConfig.PoolRetries = cli.FlagValue(f, defConfig.PoolRetries)
       }
 
   Provide:
     Args: |-
       broker broker.Broker,
+      log logger.Logger,
       registry registry.Registry,
       transport transport.Transport,
 
-    Body:  |-
+    Body: |-
       opts = append(opts, PoolSize(config.PoolSize))
       d, err := time.ParseDuration(config.PoolTTL)
       if err != nil {
@@ -86,6 +88,14 @@ di_go:
         return nil, fmt.Errorf("failed to parse client_request_timeout: %v", config.PoolRequestTimeout)
       }
 
+      if config.Logger.Enabled {
+        loggerFunc, err := logger.Plugins.Get(config.Logger.Plugin)
+        if err != nil {
+          return nil, fmt.Errorf("{{Name}} unknown logger: %s", config.Logger.Plugin)
+        }
+        log = loggerFunc(logger.ConfigToOpts(config.Logger)...)
+      }
+
       opts = append(
         opts,
         PoolTTL(d),
@@ -94,9 +104,12 @@ di_go:
         Registry(registry),
         Transport(transport),
         WrapCall(config.WrapCall...),
+        WithLogger(log),
       )
 
 config_store_go:
+  Imports: |-
+    "github.com/go-micro/microwire/v5/logger"
   NewConfig:
     Enabled: "true"
     Plugin: "rpc"
@@ -106,9 +119,12 @@ config_store_go:
       PoolRequestTimeout: "5s",
       PoolRetries: 1,
       WrapCall: []CallWrapper{},
+      Logger: logger.NewConfig(),
+    Body: ""
 
   Config:
     Fields: |-
+      Logger    *logger.Config `json:"logger,omitempty" yaml:"Logger,omitempty"`
       PoolSize             int      `json:"pool_size,omitempty" yaml:"PoolSize,omitempty"`
       PoolTTL              string   `json:"pool_ttl,omitempty" yaml:"PoolTTL,omitempty"`
       PoolRequestTimeout   string   `json:"pool_request_timeout,omitempty" yaml:"PoolRequestTimeout,omitempty"`
@@ -121,3 +137,5 @@ config_store_go:
       d.PoolTTL = src.PoolTTL
       d.PoolRequestTimeout = src.PoolRequestTimeout
       d.PoolRetries = src.PoolRetries
+    Body: |-
+      d.Logger.Merge(src.Logger)

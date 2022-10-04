@@ -4,6 +4,7 @@ package broker
 
 import (
 	"fmt"
+	"github.com/go-micro/microwire/v5/logger"
 	"github.com/go-micro/microwire/v5/registry"
 
 	"github.com/go-micro/microwire/v5/cli"
@@ -79,10 +80,10 @@ func ProvideConfig(
 	}
 
 	defConfig = NewConfig()
-	if f, ok := c.Get(cliArgPlugin); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)); ok {
 		defConfig.Plugin = cli.FlagValue(f, defConfig.Plugin)
 	}
-	if f, ok := c.Get(cliArgAddresses); ok {
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)); ok {
 		defConfig.Addresses = cli.FlagValue(f, []string{})
 	}
 	if err := config.Merge(defConfig); err != nil {
@@ -114,6 +115,7 @@ func ProvideConfigNoFlags(
 func Provide(
 	// Marker so cli has been merged into Config
 	_ DiConfig,
+	log logger.Logger,
 	registry registry.Registry,
 	config *Config,
 ) (Broker, error) {
@@ -122,9 +124,9 @@ func Provide(
 		return nil, nil
 	}
 
-	b, err := Plugins.Get(config.Plugin)
+	pluginFunc, err := Plugins.Get(config.Plugin)
 	if err != nil {
-		return nil, fmt.Errorf("unknown broker: %v", err)
+		return nil, fmt.Errorf("unknown plugin broker: %s", config.Plugin)
 	}
 
 	opts := []Option{WithConfig(config)}
@@ -132,9 +134,17 @@ func Provide(
 		opts = append(opts, Addrs(config.Addresses...))
 	}
 
-	opts = append(opts, Registry(registry))
+	if config.Logger.Enabled {
+		loggerFunc, err := logger.Plugins.Get(config.Logger.Plugin)
+		if err != nil {
+			return nil, fmt.Errorf("{{Name}} unknown logger: %s", config.Logger.Plugin)
+		}
+		log = loggerFunc(logger.ConfigToOpts(config.Logger)...)
+	}
 
-	return b(opts...), nil
+	opts = append(opts, Registry(registry), Logger(log))
+
+	return pluginFunc(opts...), nil
 }
 
 var DiSet = wire.NewSet(ProvideFlags, ProvideConfig, Provide)

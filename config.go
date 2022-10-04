@@ -4,6 +4,7 @@ import (
 	"github.com/go-micro/microwire/v5/auth"
 	"github.com/go-micro/microwire/v5/broker"
 	"github.com/go-micro/microwire/v5/client"
+	"github.com/go-micro/microwire/v5/logger"
 	"github.com/go-micro/microwire/v5/registry"
 	"github.com/go-micro/microwire/v5/server"
 	"github.com/go-micro/microwire/v5/store"
@@ -18,11 +19,11 @@ type configStruct struct {
 	Client    *client.Config    `json:"client,omitempty" yaml:"Client,omitempty"`
 	Server    *server.Config    `json:"server,omitempty" yaml:"Server,omitempty"`
 	Store     *store.Config     `json:"store,omitempty" yaml:"Store,omitempty"`
+	Logger    *logger.Config    `json:"logger,omitempty" yaml:"Logger,omitempty"`
 	Registry  *registry.Config  `json:"registry,omitempty" yaml:"Registry,omitempty"`
 	Transport *transport.Config `json:"transport,omitempty" yaml:"Transport,omitempty"`
 	// Runtime   *runtime.Config `json:"runtime,omitempty" yaml:"Runtime,omitempty"`
 	// Profile   *profile.Config `json:"profile,omitempty" yaml:"Profile,omitempty"`
-	// Logger    *logger.Config `json:"logger,omitempty" yaml:"Logger,omitempty"`
 }
 
 // DumpConfig dumps the config of a micro.Service to a yaml byte array.
@@ -34,6 +35,7 @@ func (s *service) DumpConfig() ([]byte, error) {
 	cfg.Client = s.Client().Options().Config
 	cfg.Server = s.Server().Options().Config
 	cfg.Store = s.Options().Store.Options().Config
+	cfg.Logger = s.Options().Logger.Options().Config
 	cfg.Registry = s.Options().Registry.Options().Config
 	cfg.Transport = s.Options().Transport.Options().Config
 

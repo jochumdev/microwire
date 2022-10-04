@@ -8,6 +8,8 @@ import (
 type Option func(*Options)
 
 type Options struct {
+	// Config is the configuration of this component.
+	Config *Config
 	// The logging level the logger should log at. default is `InfoLevel`
 	Level Level
 	// fields to always be logged
@@ -18,6 +20,13 @@ type Options struct {
 	CallerSkipCount int
 	// Alternative options
 	Context context.Context
+}
+
+// WithConfig sets the config to Options.
+func WithConfig(n *Config) Option {
+	return func(o *Options) {
+		o.Config = n
+	}
 }
 
 // WithFields set default fields for the logger.
@@ -55,4 +64,19 @@ func SetOption(k, v interface{}) Option {
 		}
 		o.Context = context.WithValue(o.Context, k, v)
 	}
+}
+
+func ConfigToOpts(c *Config) []Option {
+	lvl, err := GetLevel(c.Level)
+	if err != nil {
+		lvl = InfoLevel
+	}
+
+	opts := make([]Option, 4)
+	opts[0] = WithConfig(c)
+	opts[1] = WithLevel(lvl)
+	opts[2] = WithFields(c.Fields)
+	opts[3] = WithCallerSkipCount(c.CallerSkipCount)
+
+	return opts
 }

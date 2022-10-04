@@ -20,13 +20,16 @@ di_go:
     Body: ""
 
 config_store_go:
+  Imports: ""
   NewConfig:
     Enabled: "false"
     Plugin: ""
     Fields: ""
+    Body: ""
 
   Config:
     Fields: ""
 
   ConfigMerge:
     Fields: ""
+    Body: ""

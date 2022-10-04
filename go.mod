@@ -8,7 +8,7 @@ require (
 	github.com/evanphx/json-patch/v5 v5.6.0
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/fsouza/go-dockerclient v1.8.3
-	github.com/go-acme/lego/v4 v4.8.0
+	github.com/go-acme/lego/v4 v4.9.0
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gobwas/httphead v0.1.0
 	github.com/gobwas/pool v0.2.1 // indirect
@@ -30,14 +30,15 @@ require (
 )
 
 require (
-	github.com/go-micro/microwire-plugins/codec/json/v5 v5.0.0
+	github.com/go-micro/microwire-plugins/codec/json/v5 v5.1.0
 	github.com/go-micro/microwire-plugins/codec/jsonrpc/v5 v5.0.0
-	github.com/go-micro/microwire-plugins/codec/proto/v5 v5.0.0
-	github.com/go-micro/microwire-plugins/codec/protorpc/v5 v5.0.0
+	github.com/go-micro/microwire-plugins/codec/proto/v5 v5.1.0
+	github.com/go-micro/microwire-plugins/codec/protorpc/v5 v5.1.0
 	github.com/go-micro/plugins/v4/config/encoder/toml v1.1.0
 	github.com/go-micro/plugins/v4/config/encoder/yaml v1.1.0
 	github.com/google/wire v0.5.0
 	github.com/gorilla/websocket v1.5.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -61,7 +62,6 @@ require (
 	github.com/go-git/go-billy/v5 v5.3.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/subcommands v1.2.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
@@ -89,5 +89,4 @@ require (
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
