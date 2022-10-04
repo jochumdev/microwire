@@ -47,6 +47,7 @@ func ProvideFlags(
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgID)),
 		cli.Usage("Account ID used for client authentication"),
+		cli.Default(config.Auth.ID),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgID)),
 	); err != nil {
 		return DiFlags{}, err
@@ -55,6 +56,7 @@ func ProvideFlags(
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgSecret)),
 		cli.Usage("Account secret used for client authentication"),
+		cli.Default(config.Auth.Secret),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgSecret)),
 	); err != nil {
 		return DiFlags{}, err
@@ -63,6 +65,7 @@ func ProvideFlags(
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPublicKey)),
 		cli.Usage("Public key for JWT auth (base64 encoded PEM)"),
+		cli.Default(config.Auth.PublicKey),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPublicKey)),
 	); err != nil {
 		return DiFlags{}, err
@@ -71,6 +74,7 @@ func ProvideFlags(
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPrivateKey)),
 		cli.Usage("Private key for JWT auth (base64 encoded PEM)"),
+		cli.Default(config.Auth.PrivateKey),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPrivateKey)),
 	); err != nil {
 		return DiFlags{}, err
@@ -79,6 +83,7 @@ func ProvideFlags(
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgNamespace)),
 		cli.Usage("Namespace for the services auth account"),
+		cli.Default(config.Auth.Namespace),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgNamespace)),
 	); err != nil {
 		return DiFlags{}, err

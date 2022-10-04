@@ -44,7 +44,7 @@ func ProvideFlags(
 
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
-		cli.Usage("Comma-separated list of store addresses"),
+		cli.Usage("List of store addresses"),
 		cli.Default(config.Store.Addresses),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
 	); err != nil {

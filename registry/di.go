@@ -42,7 +42,7 @@ func ProvideFlags(
 
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
-		cli.Usage("Comma-separated list of registry addresses"),
+		cli.Usage("List of registry addresses"),
 		cli.Default(config.Registry.Addresses),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
 	); err != nil {
