@@ -1,0 +1,114 @@
+---
+Name: client
+CapsName: Client
+
+di_go:
+  Imports: |-
+    "time"
+    "github.com/go-micro/microwire/v5/broker"
+    "github.com/go-micro/microwire/v5/registry"
+    "github.com/go-micro/microwire/v5/transport"
+
+  Consts: |-
+    cliArgPoolSize = "client_pool_size"
+    cliArgPoolTTL = "client_pool_ttl"
+    cliArgPoolRequestTimeout = "client_request_timeout"
+    cliArgPoolRetries = "client_retries"
+
+  ProvideFlags:
+    Plugin:
+      Usage: "Client for go-micro, eg: rpc"
+
+    Body: |-
+      if err := c.Add(
+        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPoolSize)),
+        cli.Usage("Sets the client connection pool size"),
+        cli.Default(config.Client.PoolSize),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPoolSize)),
+      ); err != nil {
+        return DiFlags{}, err
+      }
+      if err := c.Add(
+        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPoolTTL)),
+        cli.Usage("Sets the client connection pool ttl, e.g: 500ms, 5s, 1m"),
+        cli.Default(config.Client.PoolTTL),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPoolTTL)),
+      ); err != nil {
+        return DiFlags{}, err
+      }
+      if err := c.Add(
+        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPoolRequestTimeout)),
+        cli.Usage("Sets the client request timeout, e.g: 500ms, 5s, 1m"),
+        cli.Default(config.Client.PoolRequestTimeout),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPoolRequestTimeout)),
+      ); err != nil {
+        return DiFlags{}, err
+      }
+      if err := c.Add(
+        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPoolRetries)),
+        cli.Usage("Sets the client retries"),
+        cli.Default(config.Client.PoolRetries),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPoolRetries)),
+      ); err != nil {
+        return DiFlags{}, err
+      }
+  
+  ProvideConfig:
+    Body: |-
+      if f, ok := c.Get(cliArgPoolSize); ok {
+        defConfig.Client.PoolSize = cli.FlagValue(f, defConfig.Client.PoolSize)
+      }
+      if f, ok := c.Get(cliArgPoolTTL); ok {
+        defConfig.Client.PoolTTL = cli.FlagValue(f, defConfig.Client.PoolTTL)
+      }
+      if f, ok := c.Get(cliArgPoolRequestTimeout); ok {
+        defConfig.Client.PoolRequestTimeout = cli.FlagValue(f, defConfig.Client.PoolRequestTimeout)
+      }
+      if f, ok := c.Get(cliArgPoolRetries); ok {
+        defConfig.Client.PoolRetries = cli.FlagValue(f, defConfig.Client.PoolRetries)
+      }
+
+  Provide:
+    Args: |-
+      broker broker.Broker,
+      registry registry.Registry,
+      transport transport.Transport,
+
+    Body:  |-
+      opts = append(opts, PoolSize(config.Client.PoolSize))
+      d, err := time.ParseDuration(config.Client.PoolTTL)
+      if err != nil {
+        return nil, fmt.Errorf("failed to parse client_pool_ttl: %v", config.Client.PoolTTL)
+      }
+      opts = append(opts, RequestTimeout(d))
+      d, err = time.ParseDuration(config.Client.PoolRequestTimeout)
+      if err != nil {
+        return nil, fmt.Errorf("failed to parse client_request_timeout: %v", config.Client.PoolRequestTimeout)
+      }
+      opts = append(opts, PoolTTL(d))
+
+      opts = append(opts, Retries(config.Client.PoolRetries))
+
+config_store_go:
+  NewConfig:
+    Enabled: "true"
+    Plugin: "rpc"
+    Fields: |-
+      PoolSize: 1,
+      PoolTTL: "1m",
+      PoolRequestTimeout: "5s",
+      PoolRetries: 1,
+
+  Config:
+    Fields: |-
+      PoolSize             int      `json:"pool_size,omitempty" yaml:"PoolSize,omitempty"`
+      PoolTTL              string   `json:"pool_ttl,omitempty" yaml:"PoolTTL,omitempty"`
+      PoolRequestTimeout   string   `json:"pool_request_timeout,omitempty" yaml:"PoolRequestTimeout,omitempty"`
+      PoolRetries          int      `json:"pool_retries,omitempty" yaml:"PoolRetries,omitempty"`
+
+  ConfigMerge:
+    Fields: |-
+      d.Client.PoolSize = src.Client.PoolSize
+      d.Client.PoolTTL = src.Client.PoolTTL
+      d.Client.PoolRequestTimeout = src.Client.PoolRequestTimeout
+      d.Client.PoolRetries = src.Client.PoolRetries

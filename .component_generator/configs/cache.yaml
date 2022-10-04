@@ -4,8 +4,6 @@ CapsName: Cache
 
 di_go:
   Imports: ""
-  DiFlags:
-    Fields: ""
   Consts: ""
 
   ProvideFlags:

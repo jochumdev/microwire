@@ -20,6 +20,10 @@ import (
 	"github.com/google/uuid"
 )
 
+func init() {
+	_ = Plugins.Add("rpc", newRpcClient)
+}
+
 type rpcClient struct {
 	seq    uint64
 	once   atomic.Value

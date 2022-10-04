@@ -11,6 +11,7 @@ import (
 	"github.com/go-micro/microwire/v5/broker"
 	"github.com/go-micro/microwire/v5/cache"
 	"github.com/go-micro/microwire/v5/cli"
+	"github.com/go-micro/microwire/v5/client"
 	"github.com/go-micro/microwire/v5/config/configdi"
 	"github.com/go-micro/microwire/v5/registry"
 	"github.com/go-micro/microwire/v5/server"
@@ -20,7 +21,7 @@ import (
 
 // Injectors from wire.go:
 
-func newService(options *Options, cliConfig *cli.Config, authConfig *auth.Config, brokerConfig *broker.Config, cacheConfig *cache.Config, registryConfig *registry.Config, serverConfig *server.Config, storeConfig *store.Config, transportConfig *transport.Config) (Service, error) {
+func newService(options *Options, cliConfig *cli.Config, authConfig *auth.Config, brokerConfig *broker.Config, cacheConfig *cache.Config, clientConfig *client.Config, registryConfig *registry.Config, serverConfig *server.Config, storeConfig *store.Config, transportConfig *transport.Config) (Service, error) {
 	cliCli, err := cli.ProvideCli(cliConfig)
 	if err != nil {
 		return nil, err
@@ -34,6 +35,10 @@ func newService(options *Options, cliConfig *cli.Config, authConfig *auth.Config
 		return nil, err
 	}
 	cacheDiFlags, err := cache.ProvideFlags(cacheConfig, cliConfig, cliCli)
+	if err != nil {
+		return nil, err
+	}
+	clientDiFlags, err := client.ProvideFlags(clientConfig, cliConfig, cliCli)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +58,7 @@ func newService(options *Options, cliConfig *cli.Config, authConfig *auth.Config
 	if err != nil {
 		return nil, err
 	}
-	diDiFlags, err := ProvideFlags(diFlags, brokerDiFlags, cacheDiFlags, registryDiFlags, serverDiFlags, storeDiFlags, transportDiFlags)
+	diDiFlags, err := ProvideFlags(diFlags, brokerDiFlags, cacheDiFlags, clientDiFlags, registryDiFlags, serverDiFlags, storeDiFlags, transportDiFlags)
 	if err != nil {
 		return nil, err
 	}
@@ -93,6 +98,10 @@ func newService(options *Options, cliConfig *cli.Config, authConfig *auth.Config
 	if err != nil {
 		return nil, err
 	}
+	clientDiConfig, err := client.ProvideConfig(diConfig, clientDiFlags, clientConfig, cliCli, cliConfig, config)
+	if err != nil {
+		return nil, err
+	}
 	registryDiConfig, err := registry.ProvideConfig(diConfig, registryDiFlags, registryConfig, cliCli, cliConfig, config)
 	if err != nil {
 		return nil, err
@@ -101,15 +110,19 @@ func newService(options *Options, cliConfig *cli.Config, authConfig *auth.Config
 	if err != nil {
 		return nil, err
 	}
-	serverDiConfig, err := server.ProvideConfig(diConfig, serverDiFlags, serverConfig, cliCli, cliConfig, config)
-	if err != nil {
-		return nil, err
-	}
 	transportDiConfig, err := transport.ProvideConfig(diConfig, transportDiFlags, transportConfig, cliCli, cliConfig, config)
 	if err != nil {
 		return nil, err
 	}
 	transportTransport, err := transport.Provide(transportDiConfig, transportConfig)
+	if err != nil {
+		return nil, err
+	}
+	clientClient, err := client.Provide(clientDiConfig, brokerBroker, registryRegistry, transportTransport, clientConfig)
+	if err != nil {
+		return nil, err
+	}
+	serverDiConfig, err := server.ProvideConfig(diConfig, serverDiFlags, serverConfig, cliCli, cliConfig, config)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +138,7 @@ func newService(options *Options, cliConfig *cli.Config, authConfig *auth.Config
 	if err != nil {
 		return nil, err
 	}
-	microService, err := ProvideAllService(options, authAuth, brokerBroker, cacheCache, registryRegistry, serverServer, storeStore, transportTransport)
+	microService, err := ProvideAllService(options, authAuth, brokerBroker, cacheCache, clientClient, registryRegistry, serverServer, storeStore, transportTransport)
 	if err != nil {
 		return nil, err
 	}
