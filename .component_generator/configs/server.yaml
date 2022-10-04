@@ -1,0 +1,114 @@
+---
+Name: server
+CapsName: Server
+
+di_go:
+  Imports: |-
+    "github.com/go-micro/microwire/v5/broker"
+    "github.com/go-micro/microwire/v5/registry"
+    "github.com/go-micro/microwire/v5/transport"
+
+  DiFlags:
+    Fields: |-
+      Address string
+      ID string
+      Name string
+      Version string
+  Consts: |-
+    cliArgAddress = "server_address"
+    cliArgID = "server_id"
+    cliArgName = "server_name"
+    cliArgVersion = "server_version"
+
+  ProvideFlags:
+    Plugin:
+      Usage: "Server for go-micro; rpc"
+
+    Body: |-
+      if err := c.Add(
+        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddress)),
+        cli.Usage("Bind address for the server, eg: 127.0.0.1:8080"),
+        cli.Default(config.Server.Address),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddress)),
+        cli.Destination(&result.Address),
+      ); err != nil {
+        return nil, err
+      }
+      if err := c.Add(
+        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgID)),
+        cli.Usage("Id of the server. Auto-generated if not specified"),
+        cli.Default(config.Server.ID),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgID)),
+        cli.Destination(&result.ID),
+      ); err != nil {
+        return nil, err
+      }
+      if err := c.Add(
+        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgName)),
+        cli.Usage("Name of the server. go.micro.srv.example"),
+        cli.Default(config.Server.Name),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgName)),
+        cli.Destination(&result.Name),
+      ); err != nil {
+        return nil, err
+      }
+      if err := c.Add(
+        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgVersion)),
+        cli.Usage("Version of the server. 1.1.0"),
+        cli.Default(config.Server.Version),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgVersion)),
+        cli.Destination(&result.Version),
+      ); err != nil {
+        return nil, err
+      }
+  ProvideConfig:
+    Body: |-
+      defConfig.Server.Address = flags.Address
+      defConfig.Server.ID = flags.ID
+      defConfig.Server.Name = flags.Name
+      defConfig.Server.Version = flags.Version
+
+  Provide:
+    Args: |-
+      broker broker.Broker,
+      registry registry.Registry,
+      transport transport.Transport,
+    Body: |-
+      if len(config.Server.Address) > 0 {
+        opts = append(opts, Address(config.Server.Address))
+      }
+      if len(config.Server.ID) > 0 {
+        opts = append(opts, Id(config.Server.ID))
+      }
+      if len(config.Server.Name) > 0 {
+        opts = append(opts, Name(config.Server.Name))
+      }
+      if len(config.Server.Version) > 0 {
+        opts = append(opts, Version(config.Server.Version))
+      }
+
+      opts = append(opts, Broker(broker), Registry(registry), Transport(transport))
+
+config_store_go:
+  NewConfig:
+    Enabled: "true"
+    Plugin: "rpc"
+    Fields: |-
+      Address: "",
+      ID: "",
+      Name: "",
+      Version: "",
+
+  Config:
+    Fields: |-
+      Address string `json:"address,omitempty" yaml:"Address,omitempty"`
+      ID string `json:"id,omitempty" yaml:"ID,omitempty"`
+      Name string `json:"name,omitempty" yaml:"Name,omitempty"`
+      Version string `json:"version,omitempty" yaml:"Version,omitempty"`
+
+  ConfigMerge:
+    Fields: |-
+      d.Server.Address = src.Server.Address
+      d.Server.ID = src.Server.ID
+      d.Server.Name = src.Server.Name
+      d.Server.Version = src.Server.Version

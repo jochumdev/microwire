@@ -10,6 +10,7 @@ import (
 	"github.com/go-micro/microwire/v5/cache"
 	"github.com/go-micro/microwire/v5/cli"
 	"github.com/go-micro/microwire/v5/registry"
+	"github.com/go-micro/microwire/v5/server"
 	"github.com/go-micro/microwire/v5/store"
 	"github.com/go-micro/microwire/v5/transport"
 	"github.com/google/wire"
@@ -22,6 +23,7 @@ func newService(
 	brokerConfig *broker.Config,
 	cacheConfig *cache.Config,
 	registryConfig *registry.Config,
+	serverConfig *server.Config,
 	storeConfig *store.Config,
 	transportConfig *transport.Config,
 ) (Service, error) {

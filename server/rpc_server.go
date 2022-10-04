@@ -25,6 +25,10 @@ import (
 	"github.com/go-micro/microwire/v5/util/socket"
 )
 
+func init() {
+	_ = Plugins.Add("rpc", newRpcServer)
+}
+
 type rpcServer struct {
 	router *router
 	exit   chan chan error

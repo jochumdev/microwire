@@ -8,6 +8,7 @@ import (
 	"github.com/go-micro/microwire/v5/config/configdi"
 	"github.com/go-micro/microwire/v5/di"
 	"github.com/go-micro/microwire/v5/registry"
+	"github.com/go-micro/microwire/v5/server"
 	"github.com/go-micro/microwire/v5/store"
 	"github.com/go-micro/microwire/v5/transport"
 	"github.com/google/wire"
@@ -36,6 +37,7 @@ func NewService(opts ...Option) (Service, error) {
 		broker.NewConfig(),
 		cache.NewConfig(),
 		registry.NewConfig(),
+		server.NewConfig(),
 		store.NewConfig(),
 		transport.NewConfig(),
 	)
@@ -46,6 +48,7 @@ func ProvideFlags(
 	_ *broker.DiFlags,
 	_ *cache.DiFlags,
 	_ *registry.DiFlags,
+	_ *server.DiFlags,
 	_ *store.DiFlags,
 	_ *transport.DiFlags,
 ) (di.DiFlags, error) {
@@ -58,6 +61,7 @@ func ProvideAllService(
 	broker broker.Broker,
 	cache cache.Cache,
 	registry registry.Registry,
+	server server.Server,
 	store store.Store,
 	transport transport.Transport,
 ) (Service, error) {
@@ -77,6 +81,9 @@ func ProvideAllService(
 	}
 	if registry != nil {
 		mOpts = append(mOpts, Registry(registry))
+	}
+	if server != nil {
+		mOpts = append(mOpts, Server(server))
 	}
 	if store != nil {
 		mOpts = append(mOpts, Store(store))
@@ -118,6 +125,7 @@ var DiSet = wire.NewSet(
 	broker.DiSet,
 	cache.DiSet,
 	registry.DiSet,
+	server.DiSet,
 	store.DiSet,
 	transport.DiSet,
 )
@@ -128,6 +136,7 @@ var DiNoCliSet = wire.NewSet(
 	broker.DiNoCliSet,
 	cache.DiNoCliSet,
 	registry.DiNoCliSet,
+	server.DiNoCliSet,
 	store.DiNoCliSet,
 	transport.DiNoCliSet,
 )
