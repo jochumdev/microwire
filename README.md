@@ -43,58 +43,94 @@ See this Diagram for an overview:
 
 ```yaml
 ---
-Broker:
-    Enabled: true
-    Plugin: http
-Client:
-    Enabled: true
-    Plugin: rpc
-    PoolSize: 1
-    PoolTTL: 1m
-    PoolRequestTimeout: 5s
-    PoolRetries: 1
-Server:
-    Enabled: true
-    Plugin: rpc
-    RegisterTTL: 30
-    RegisterInterval: 60
-Registry:
-    Enabled: true
-    Plugin: mdns
-Transport:
-    Enabled: true
-    Plugin: http
+broker:
+  plugin: http
+client:
+  content_type: application/json
+  plugin: rpc
+  pool_request_timeout: 5s
+  pool_retries: 1
+  pool_size: 1
+  pool_ttl: 1m
+logger:
+  caller_skip_count: 2
+  fields: {}
+  level: info
+  plugin: default
+registry:
+  plugin: mdns
+server:
+  plugin: rpc
+  register_interval: 60
+  register_ttl: 30
+transport:
+  plugin: http
 ```
 
 ### Example yaml config
 
 ```yaml
 ---
-Broker:
-    Enabled: true
-    Plugin: nats
-    Addresses:
-        - nats://localhost:4222
-Client:
-    Enabled: true
-    Plugin: grpc
-    PoolSize: 100
-    PoolTTL: 5m
-    PoolRequestTimeout: 10s
-    PoolRetries: 5
-Server:
-    Enabled: true
-    Plugin: grpc
-    RegisterTTL: 30
-    RegisterInterval: 60
-Registry:
-    Enabled: true
-    Plugin: nats
-    Addresses:
-        - nats://localhost:4222
-Transport:
-    Enabled: true
-    Plugin: quic
+broker:
+  addresses:
+  - nats://localhost:4222
+  plugin: nats
+  logger:
+    enabled: true
+    plugin: zap
+    fields:
+      component: broker
+    level: trace
+client:
+  content_type: application/protobuf
+  enabled: true
+  logger:
+    enabled: true
+    plugin: zap
+    fields:
+      component: client
+    level: trace
+  plugin: grpc
+  pool_request_timeout: 10s
+  pool_retries: 5
+  pool_size: 100
+  pool_ttl: 5m
+server:
+  enabled: true
+  logger:
+    caller_skip_count: 2
+    enabled: true
+    plugin: zap
+    fields: 
+      component: server
+    level: info
+  plugin: grpc
+  register_interval: 60
+  register_ttl: 30
+logger:
+  enabled: true
+  plugin: zap
+  fields:
+    component: default
+  level: trace
+registry:
+  addresses:
+  - nats://localhost:4222
+  plugin: nats
+  logger:
+    enabled: true
+    plugin: zap
+    fields:
+      component: registry
+    level: trace
+transport:
+  logger:
+    enabled: true
+    plugin: zap
+    fields:
+      component: transport
+    level: trace
+  plugin: quic
 ```
 
 ## Overview

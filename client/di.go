@@ -23,6 +23,7 @@ type DiConfig struct{}
 
 const (
 	cliArgPlugin             = "client"
+	cliArgContentType        = "client_content_type"
 	cliArgPoolSize           = "client_pool_size"
 	cliArgPoolTTL            = "client_pool_ttl"
 	cliArgPoolRequestTimeout = "client_request_timeout"
@@ -48,6 +49,14 @@ func ProvideFlags(
 		return DiFlags{}, err
 	}
 
+	if err := c.Add(
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgContentType)),
+		cli.Usage("Sets the client's ContentType"),
+		cli.Default(config.ContentType),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgContentType)),
+	); err != nil {
+		return DiFlags{}, err
+	}
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolSize)),
 		cli.Usage("Sets the client connection pool size"),
@@ -112,6 +121,9 @@ func ProvideConfig(
 	defConfig = NewConfig()
 	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)); ok {
 		defConfig.Plugin = cli.FlagValue(f, defConfig.Plugin)
+	}
+	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgContentType)); ok {
+		defConfig.ContentType = cli.FlagValue(f, defConfig.ContentType)
 	}
 	if f, ok := c.Get(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolSize)); ok {
 		defConfig.PoolSize = cli.FlagValue(f, defConfig.PoolSize)
@@ -193,6 +205,7 @@ func Provide(
 	opts = append(
 		opts,
 		PoolTTL(d),
+		ContentType(config.ContentType),
 		Retries(config.PoolRetries),
 		Broker(broker),
 		Registry(registry),

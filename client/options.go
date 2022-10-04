@@ -105,7 +105,7 @@ func NewOptions(options ...Option) Options {
 	opts := Options{
 		Cache:       NewCache(),
 		Context:     context.Background(),
-		ContentType: DefaultContentType,
+		ContentType: "", // Will be set by DI
 		Codecs:      make(map[string]codec.NewCodec),
 		CallOptions: CallOptions{
 			Backoff:        DefaultBackoff,

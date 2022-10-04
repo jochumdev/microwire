@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Enabled            bool           `json:"enabled" yaml:"Enabled"`
 	Plugin             string         `json:"plugin,omitempty" yaml:"Plugin,omitempty"`
+	ContentType        string         `json:"content_type" yaml:"ContentType"`
 	Logger             *logger.Config `json:"logger,omitempty" yaml:"Logger,omitempty"`
 	PoolSize           int            `json:"pool_size,omitempty" yaml:"PoolSize,omitempty"`
 	PoolTTL            string         `json:"pool_ttl,omitempty" yaml:"PoolTTL,omitempty"`
@@ -25,6 +26,7 @@ func NewConfig() *Config {
 	config := &Config{
 		Enabled:            true,
 		Plugin:             "rpc",
+		ContentType:        "application/json",
 		PoolSize:           1,
 		PoolTTL:            "1m",
 		PoolRequestTimeout: "5s",
@@ -49,6 +51,11 @@ func (d *Config) Merge(src *Config) error {
 		d.PoolTTL = src.PoolTTL
 		d.PoolRequestTimeout = src.PoolRequestTimeout
 		d.PoolRetries = src.PoolRetries
+	}
+
+	// Allow to change the ContentType individualy.
+	if src.ContentType != def.ContentType {
+		d.ContentType = src.ContentType
 	}
 
 	d.Logger.Merge(src.Logger)

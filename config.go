@@ -9,7 +9,7 @@ import (
 	"github.com/go-micro/microwire/v5/server"
 	"github.com/go-micro/microwire/v5/store"
 	"github.com/go-micro/microwire/v5/transport"
-	"gopkg.in/yaml.v3"
+	"github.com/go-micro/plugins/v4/config/encoder/yaml"
 )
 
 type configStruct struct {
@@ -39,5 +39,5 @@ func (s *service) DumpConfig() ([]byte, error) {
 	cfg.Registry = s.Options().Registry.Options().Config
 	cfg.Transport = s.Options().Transport.Options().Config
 
-	return yaml.Marshal(cfg)
+	return yaml.NewEncoder().Encode(cfg)
 }

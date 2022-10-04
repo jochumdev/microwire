@@ -44,10 +44,6 @@ type readWriteCloser struct {
 	rbuf *bytes.Buffer
 }
 
-var (
-	DefaultContentType = "application/json"
-)
-
 func (rwc *readWriteCloser) Read(p []byte) (n int, err error) {
 	return rwc.rbuf.Read(p)
 }
