@@ -28,43 +28,43 @@ func ProvideFlags(
 	cliConfig *cli.Config,
 	c cli.Cli,
 ) (DiFlags, error) {
-	if cliConfig.Cli.NoFlags {
+	if cliConfig.NoFlags {
 		// Defined silently ignore that
 		return DiFlags{}, nil
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)),
 		cli.Usage("Store for pub/sub. http, nats, rabbitmq"),
-		cli.Default(config.Store.Plugin),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
+		cli.Default(config.Plugin),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgPlugin)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
 		cli.Usage("List of store addresses"),
-		cli.Default(config.Store.Addresses),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+		cli.Default(config.Addresses),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgDatabase)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgDatabase)),
 		cli.Usage("Database option for the underlying store"),
-		cli.Default(config.Store.Database),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgDatabase)),
+		cli.Default(config.Database),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgDatabase)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgTable)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgTable)),
 		cli.Usage("Table option for the underlying store"),
-		cli.Default(config.Store.Table),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgTable)),
+		cli.Default(config.Table),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgTable)),
 	); err != nil {
 		return DiFlags{}, err
 	}
@@ -91,23 +91,23 @@ func ProvideConfig(
 		return DiConfig{}, err
 	}
 
-	if cliConfig.Cli.NoFlags {
+	if cliConfig.NoFlags {
 		// Dont parse flags if NoFlags has been given
 		return DiConfig{}, nil
 	}
 
 	defConfig = NewConfig()
 	if f, ok := c.Get(cliArgPlugin); ok {
-		defConfig.Store.Plugin = cli.FlagValue(f, defConfig.Store.Plugin)
+		defConfig.Plugin = cli.FlagValue(f, defConfig.Plugin)
 	}
 	if f, ok := c.Get(cliArgAddresses); ok {
-		defConfig.Store.Addresses = cli.FlagValue(f, []string{})
+		defConfig.Addresses = cli.FlagValue(f, []string{})
 	}
 	if f, ok := c.Get(cliArgDatabase); ok {
-		defConfig.Store.Database = cli.FlagValue(f, "")
+		defConfig.Database = cli.FlagValue(f, "")
 	}
 	if f, ok := c.Get(cliArgTable); ok {
-		defConfig.Store.Table = cli.FlagValue(f, "")
+		defConfig.Table = cli.FlagValue(f, "")
 	}
 	if err := config.Merge(defConfig); err != nil {
 		return DiConfig{}, err
@@ -121,13 +121,14 @@ func ProvideConfigNoFlags(
 	configor config.Config,
 ) (DiConfig, error) {
 	defConfig := NewConfig()
+	c := sourceConfig{Store: *defConfig}
 
 	if configor != nil {
-		if err := configor.Scan(defConfig); err != nil {
+		if err := configor.Scan(&c); err != nil {
 			return DiConfig{}, err
 		}
 	}
-	if err := config.Merge(defConfig); err != nil {
+	if err := config.Merge(&c.Store); err != nil {
 		return DiConfig{}, err
 	}
 
@@ -140,25 +141,25 @@ func Provide(
 
 	config *Config,
 ) (Store, error) {
-	if !config.Store.Enabled {
+	if !config.Enabled {
 		// Not enabled silently ignore that
 		return nil, nil
 	}
 
-	b, err := Plugins.Get(config.Store.Plugin)
+	b, err := Plugins.Get(config.Plugin)
 	if err != nil {
 		return nil, fmt.Errorf("unknown store: %v", err)
 	}
 
-	opts := []Option{}
-	if len(config.Store.Addresses) > 0 {
-		opts = append(opts, Nodes(config.Store.Addresses...))
+	opts := []Option{WithConfig(config)}
+	if len(config.Addresses) > 0 {
+		opts = append(opts, Nodes(config.Addresses...))
 	}
-	if len(config.Store.Database) > 0 {
-		opts = append(opts, Database(config.Store.Database))
+	if len(config.Database) > 0 {
+		opts = append(opts, Database(config.Database))
 	}
-	if len(config.Store.Table) > 0 {
-		opts = append(opts, Table(config.Store.Table))
+	if len(config.Table) > 0 {
+		opts = append(opts, Table(config.Table))
 	}
 
 	return b(opts...), nil

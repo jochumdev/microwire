@@ -20,6 +20,9 @@ func NewOptions(opts ...Option) Options {
 }
 
 type Options struct {
+	// Config is the configuration of this component.
+	Config *Config
+
 	// Namespace the service belongs to
 	Namespace string
 	// ID is the services auth ID
@@ -39,6 +42,13 @@ type Options struct {
 }
 
 type Option func(o *Options)
+
+// WithConfig sets the config to Options.
+func WithConfig(n *Config) Option {
+	return func(o *Options) {
+		o.Config = n
+	}
+}
 
 // Addrs is the auth addresses to use.
 func Addrs(addrs ...string) Option {

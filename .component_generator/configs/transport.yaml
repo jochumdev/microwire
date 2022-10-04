@@ -13,10 +13,10 @@ di_go:
 
     Body: |-
       if err := c.Add(
-        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
         cli.Usage("List of transport addresses"),
-        cli.Default(config.Transport.Addresses),
-        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+        cli.Default(config.Addresses),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
       ); err != nil {
         return DiFlags{}, err
       }
@@ -24,13 +24,13 @@ di_go:
   ProvideConfig:
     Body: |-
       if f, ok := c.Get(cliArgAddresses); ok {
-        defConfig.Transport.Addresses = cli.FlagValue(f, []string{})
+        defConfig.Addresses = cli.FlagValue(f, []string{})
       }
   Provide:
     Args: ""
     Body: |-
-      if len(config.Transport.Addresses) > 0 {
-        opts = append(opts, Addrs(config.Transport.Addresses...))
+      if len(config.Addresses) > 0 {
+        opts = append(opts, Addrs(config.Addresses...))
       }
 
 config_store_go:
@@ -46,4 +46,4 @@ config_store_go:
 
   ConfigMerge:
     Fields: |-
-      d.Transport.Addresses = src.Transport.Addresses
+      d.Addresses = src.Addresses

@@ -12,7 +12,7 @@ type DiParsed struct{}
 func ProvideCli(
 	config *Config,
 ) (Cli, error) {
-	c, err := Plugins.Get(config.Cli.Plugin)
+	c, err := Plugins.Get(config.Plugin)
 	if err != nil {
 		return nil, fmt.Errorf("unknown cli given: %v", err)
 	}
@@ -27,18 +27,18 @@ func ProvideParsed(
 	result := DiParsed{}
 
 	// User flags
-	for _, f := range config.Cli.Flags {
+	for _, f := range config.Flags {
 		if err := c.Add(f.AsOptions()...); err != nil {
 			return result, err
 		}
 	}
 
-	if config.Cli.NoFlags {
+	if config.NoFlags {
 		if err := c.Add(
-			Name(PrefixName(config.Cli.ArgPrefix, "config")),
+			Name(PrefixName(config.ArgPrefix, "config")),
 			Usage("Config file"),
-			Default(config.Cli.ConfigFile),
-			EnvVars(PrefixEnv(config.Cli.ArgPrefix, "config")),
+			Default(config.ConfigFile),
+			EnvVars(PrefixEnv(config.ArgPrefix, "config")),
 		); err != nil {
 			return result, err
 		}
@@ -47,10 +47,10 @@ func ProvideParsed(
 	// Initialize the CLI / parse flags
 	if err := c.Parse(
 		os.Args,
-		CliName(config.Cli.Name),
-		CliVersion(config.Cli.Version),
-		CliDescription(config.Cli.Description),
-		CliUsage(config.Cli.Usage),
+		CliName(config.Name),
+		CliVersion(config.Version),
+		CliDescription(config.Description),
+		CliUsage(config.Usage),
 	); err != nil {
 		return result, err
 	}
@@ -64,16 +64,16 @@ func ProvideConfig(
 	c Cli,
 	cfg *Config,
 ) (di.DiConfig, error) {
-	if cfg.Cli.NoFlags {
+	if cfg.NoFlags {
 		// Defined silently ignore that
 		defConfig := NewConfig()
 		if f, ok := c.Get("config"); ok {
-			defConfig.Cli.ConfigFile = FlagValue(f, "")
+			defConfig.ConfigFile = FlagValue(f, "")
 		}
 		if err := cfg.Merge(defConfig); err != nil {
 			return "", err
 		}
 	}
 
-	return di.DiConfig(cfg.Cli.ConfigFile), nil
+	return di.DiConfig(cfg.ConfigFile), nil
 }

@@ -2,7 +2,7 @@
 
 package client
 
-type ClientConfig struct {
+type Config struct {
 	Enabled            bool          `json:"enabled" yaml:"Enabled"`
 	Plugin             string        `json:"plugin,omitempty" yaml:"Plugin,omitempty"`
 	PoolSize           int           `json:"pool_size,omitempty" yaml:"PoolSize,omitempty"`
@@ -12,37 +12,35 @@ type ClientConfig struct {
 	WrapCall           []CallWrapper `json:"-" yaml:"-"`
 }
 
-type Config struct {
-	Client ClientConfig `json:"broker" yaml:"Client"`
+type sourceConfig struct {
+	Client Config `json:"broker" yaml:"Client"`
 }
 
 func NewConfig() *Config {
 	return &Config{
-		Client: ClientConfig{
-			Enabled:            true,
-			Plugin:             "rpc",
-			PoolSize:           1,
-			PoolTTL:            "1m",
-			PoolRequestTimeout: "5s",
-			PoolRetries:        1,
-			WrapCall:           []CallWrapper{},
-		},
+		Enabled:            true,
+		Plugin:             "rpc",
+		PoolSize:           1,
+		PoolTTL:            "1m",
+		PoolRequestTimeout: "5s",
+		PoolRetries:        1,
+		WrapCall:           []CallWrapper{},
 	}
 }
 
 func (d *Config) Merge(src *Config) error {
 	def := NewConfig()
 
-	if src.Client.Enabled != def.Client.Enabled {
-		d.Client.Enabled = src.Client.Enabled
+	if src.Enabled != def.Enabled {
+		d.Enabled = src.Enabled
 	}
 
-	if src.Client.Plugin != def.Client.Plugin {
-		d.Client.Plugin = src.Client.Plugin
-		d.Client.PoolSize = src.Client.PoolSize
-		d.Client.PoolTTL = src.Client.PoolTTL
-		d.Client.PoolRequestTimeout = src.Client.PoolRequestTimeout
-		d.Client.PoolRetries = src.Client.PoolRetries
+	if src.Plugin != def.Plugin {
+		d.Plugin = src.Plugin
+		d.PoolSize = src.PoolSize
+		d.PoolTTL = src.PoolTTL
+		d.PoolRequestTimeout = src.PoolRequestTimeout
+		d.PoolRetries = src.PoolRetries
 	}
 
 	return nil

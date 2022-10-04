@@ -9,6 +9,8 @@ import (
 
 // Options represents the options for the cache.
 type Options struct {
+	// Config is the configuration of this component.
+	Config     *Config
 	Expiration time.Duration
 	Items      map[string]Item
 	// Address represents the address or other connection information of the cache service.
@@ -21,6 +23,13 @@ type Options struct {
 
 // Option manipulates the Options passed.
 type Option func(o *Options)
+
+// WithConfig sets the config to Options.
+func WithConfig(n *Config) Option {
+	return func(o *Options) {
+		o.Config = n
+	}
+}
 
 // Expiration sets the duration for items stored in the cache to expire.
 func Expiration(d time.Duration) Option {

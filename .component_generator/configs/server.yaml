@@ -24,80 +24,80 @@ di_go:
 
     Body: |-
       if err := c.Add(
-        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddress)),
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgAddress)),
         cli.Usage("Bind address for the server, eg: 127.0.0.1:8080"),
-        cli.Default(config.Server.Address),
-        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddress)),
+        cli.Default(config.Address),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddress)),
       ); err != nil {
         return DiFlags{}, err
       }
       if err := c.Add(
-        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgID)),
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgID)),
         cli.Usage("Id of the server. Auto-generated if not specified"),
-        cli.Default(config.Server.ID),
-        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgID)),
+        cli.Default(config.ID),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgID)),
       ); err != nil {
         return DiFlags{}, err
       }
       if err := c.Add(
-        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgMetadata)),
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgMetadata)),
         cli.Usage(" A list of key-value pairs defining metadata, e.g.: version=1.0.0"),
         cli.Default([]string{}),
-        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgMetadata)),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgMetadata)),
       ); err != nil {
         return DiFlags{}, err
       }
       if err := c.Add(
-        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgName)),
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgName)),
         cli.Usage("Name of the server. go.micro.srv.example"),
-        cli.Default(config.Server.Name),
-        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgName)),
+        cli.Default(config.Name),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgName)),
       ); err != nil {
         return DiFlags{}, err
       }
       if err := c.Add(
-        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgVersion)),
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgVersion)),
         cli.Usage("Version of the server. 1.1.0"),
-        cli.Default(config.Server.Version),
-        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgVersion)),
+        cli.Default(config.Version),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgVersion)),
       ); err != nil {
         return DiFlags{}, err
       }
       if err := c.Add(
-        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgRegisterTTL)),
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgRegisterTTL)),
         cli.Usage("Register TTL in seconds"),
-        cli.Default(config.Server.RegisterTTL),
-        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgRegisterTTL)),
+        cli.Default(config.RegisterTTL),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgRegisterTTL)),
       ); err != nil {
         return DiFlags{}, err
       }
       if err := c.Add(
-        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgRegisterInterval)),
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgRegisterInterval)),
         cli.Usage("Register interval in seconds"),
-        cli.Default(config.Server.RegisterInterval),
-        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgRegisterInterval)),
+        cli.Default(config.RegisterInterval),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgRegisterInterval)),
       ); err != nil {
         return DiFlags{}, err
       }
   ProvideConfig:
     Body: |-
       if f, ok := c.Get(cliArgAddress); ok {
-        defConfig.Server.Address = cli.FlagValue(f, "")
+        defConfig.Address = cli.FlagValue(f, "")
       }
       if f, ok := c.Get(cliArgID); ok {
-        defConfig.Server.ID = cli.FlagValue(f, "")
+        defConfig.ID = cli.FlagValue(f, "")
       }
       if f, ok := c.Get(cliArgName); ok {
-        defConfig.Server.Name = cli.FlagValue(f, "")
+        defConfig.Name = cli.FlagValue(f, "")
       }
       if f, ok := c.Get(cliArgVersion); ok {
-        defConfig.Server.Version = cli.FlagValue(f, "")
+        defConfig.Version = cli.FlagValue(f, "")
       }
       if f, ok := c.Get(cliArgRegisterTTL); ok {
-        defConfig.Server.RegisterTTL = cli.FlagValue(f, defConfig.Server.RegisterTTL)
+        defConfig.RegisterTTL = cli.FlagValue(f, defConfig.RegisterTTL)
       }
       if f, ok := c.Get(cliArgRegisterInterval); ok {
-        defConfig.Server.RegisterInterval = cli.FlagValue(f, defConfig.Server.RegisterInterval)
+        defConfig.RegisterInterval = cli.FlagValue(f, defConfig.RegisterInterval)
       }
   Provide:
     Args: |-
@@ -105,32 +105,32 @@ di_go:
       registry registry.Registry,
       transport transport.Transport,
     Body: |-
-      if len(config.Server.Address) > 0 {
-        opts = append(opts, Address(config.Server.Address))
+      if len(config.Address) > 0 {
+        opts = append(opts, Address(config.Address))
       }
-      if len(config.Server.ID) > 0 {
-        opts = append(opts, Id(config.Server.ID))
+      if len(config.ID) > 0 {
+        opts = append(opts, Id(config.ID))
       }
-      if len(config.Server.Name) > 0 {
-        opts = append(opts, Name(config.Server.Name))
+      if len(config.Name) > 0 {
+        opts = append(opts, Name(config.Name))
       }
-      if len(config.Server.Version) > 0 {
-        opts = append(opts, Version(config.Server.Version))
+      if len(config.Version) > 0 {
+        opts = append(opts, Version(config.Version))
       }
 
       opts = append(
         opts,
-        RegisterInterval(time.Duration(config.Server.RegisterInterval)*time.Second),
-        RegisterTTL(time.Duration(config.Server.RegisterTTL)*time.Second),
+        RegisterInterval(time.Duration(config.RegisterInterval)*time.Second),
+        RegisterTTL(time.Duration(config.RegisterTTL)*time.Second),
         Broker(broker),
         Registry(registry),
         Transport(transport),
       )
 
-      for _, w := range config.Server.WrapSubscriber {
+      for _, w := range config.WrapSubscriber {
         opts = append(opts, WrapSubscriber(w))
       }
-      for _, w := range config.Server.WrapHandler {
+      for _, w := range config.WrapHandler {
         opts = append(opts, WrapHandler(w))
       }
 
@@ -163,8 +163,8 @@ config_store_go:
 
   ConfigMerge:
     Fields: |-
-      d.Server.Address = src.Server.Address
-      d.Server.ID = src.Server.ID
-      d.Server.Name = src.Server.Name
-      d.Server.Version = src.Server.Version
-      d.Server.Metadata = src.Server.Metadata
+      d.Address = src.Address
+      d.ID = src.ID
+      d.Name = src.Name
+      d.Version = src.Version
+      d.Metadata = src.Metadata

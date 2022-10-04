@@ -36,73 +36,73 @@ func ProvideFlags(
 	cliConfig *cli.Config,
 	c cli.Cli,
 ) (DiFlags, error) {
-	if cliConfig.Cli.NoFlags {
+	if cliConfig.NoFlags {
 		// Defined silently ignore that
 		return DiFlags{}, nil
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)),
 		cli.Usage("Server for go-micro; rpc"),
-		cli.Default(config.Server.Plugin),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
+		cli.Default(config.Plugin),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgPlugin)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddress)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgAddress)),
 		cli.Usage("Bind address for the server, eg: 127.0.0.1:8080"),
-		cli.Default(config.Server.Address),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddress)),
+		cli.Default(config.Address),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddress)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgID)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgID)),
 		cli.Usage("Id of the server. Auto-generated if not specified"),
-		cli.Default(config.Server.ID),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgID)),
+		cli.Default(config.ID),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgID)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgMetadata)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgMetadata)),
 		cli.Usage(" A list of key-value pairs defining metadata, e.g.: version=1.0.0"),
 		cli.Default([]string{}),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgMetadata)),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgMetadata)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgName)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgName)),
 		cli.Usage("Name of the server. go.micro.srv.example"),
-		cli.Default(config.Server.Name),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgName)),
+		cli.Default(config.Name),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgName)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgVersion)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgVersion)),
 		cli.Usage("Version of the server. 1.1.0"),
-		cli.Default(config.Server.Version),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgVersion)),
+		cli.Default(config.Version),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgVersion)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgRegisterTTL)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgRegisterTTL)),
 		cli.Usage("Register TTL in seconds"),
-		cli.Default(config.Server.RegisterTTL),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgRegisterTTL)),
+		cli.Default(config.RegisterTTL),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgRegisterTTL)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgRegisterInterval)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgRegisterInterval)),
 		cli.Usage("Register interval in seconds"),
-		cli.Default(config.Server.RegisterInterval),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgRegisterInterval)),
+		cli.Default(config.RegisterInterval),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgRegisterInterval)),
 	); err != nil {
 		return DiFlags{}, err
 	}
@@ -129,32 +129,32 @@ func ProvideConfig(
 		return DiConfig{}, err
 	}
 
-	if cliConfig.Cli.NoFlags {
+	if cliConfig.NoFlags {
 		// Dont parse flags if NoFlags has been given
 		return DiConfig{}, nil
 	}
 
 	defConfig = NewConfig()
 	if f, ok := c.Get(cliArgPlugin); ok {
-		defConfig.Server.Plugin = cli.FlagValue(f, defConfig.Server.Plugin)
+		defConfig.Plugin = cli.FlagValue(f, defConfig.Plugin)
 	}
 	if f, ok := c.Get(cliArgAddress); ok {
-		defConfig.Server.Address = cli.FlagValue(f, "")
+		defConfig.Address = cli.FlagValue(f, "")
 	}
 	if f, ok := c.Get(cliArgID); ok {
-		defConfig.Server.ID = cli.FlagValue(f, "")
+		defConfig.ID = cli.FlagValue(f, "")
 	}
 	if f, ok := c.Get(cliArgName); ok {
-		defConfig.Server.Name = cli.FlagValue(f, "")
+		defConfig.Name = cli.FlagValue(f, "")
 	}
 	if f, ok := c.Get(cliArgVersion); ok {
-		defConfig.Server.Version = cli.FlagValue(f, "")
+		defConfig.Version = cli.FlagValue(f, "")
 	}
 	if f, ok := c.Get(cliArgRegisterTTL); ok {
-		defConfig.Server.RegisterTTL = cli.FlagValue(f, defConfig.Server.RegisterTTL)
+		defConfig.RegisterTTL = cli.FlagValue(f, defConfig.RegisterTTL)
 	}
 	if f, ok := c.Get(cliArgRegisterInterval); ok {
-		defConfig.Server.RegisterInterval = cli.FlagValue(f, defConfig.Server.RegisterInterval)
+		defConfig.RegisterInterval = cli.FlagValue(f, defConfig.RegisterInterval)
 	}
 	if err := config.Merge(defConfig); err != nil {
 		return DiConfig{}, err
@@ -168,13 +168,14 @@ func ProvideConfigNoFlags(
 	configor config.Config,
 ) (DiConfig, error) {
 	defConfig := NewConfig()
+	c := sourceConfig{Server: *defConfig}
 
 	if configor != nil {
-		if err := configor.Scan(defConfig); err != nil {
+		if err := configor.Scan(&c); err != nil {
 			return DiConfig{}, err
 		}
 	}
-	if err := config.Merge(defConfig); err != nil {
+	if err := config.Merge(&c.Server); err != nil {
 		return DiConfig{}, err
 	}
 
@@ -189,43 +190,43 @@ func Provide(
 	transport transport.Transport,
 	config *Config,
 ) (Server, error) {
-	if !config.Server.Enabled {
+	if !config.Enabled {
 		// Not enabled silently ignore that
 		return nil, nil
 	}
 
-	b, err := Plugins.Get(config.Server.Plugin)
+	b, err := Plugins.Get(config.Plugin)
 	if err != nil {
 		return nil, fmt.Errorf("unknown server: %v", err)
 	}
 
-	opts := []Option{}
-	if len(config.Server.Address) > 0 {
-		opts = append(opts, Address(config.Server.Address))
+	opts := []Option{WithConfig(config)}
+	if len(config.Address) > 0 {
+		opts = append(opts, Address(config.Address))
 	}
-	if len(config.Server.ID) > 0 {
-		opts = append(opts, Id(config.Server.ID))
+	if len(config.ID) > 0 {
+		opts = append(opts, Id(config.ID))
 	}
-	if len(config.Server.Name) > 0 {
-		opts = append(opts, Name(config.Server.Name))
+	if len(config.Name) > 0 {
+		opts = append(opts, Name(config.Name))
 	}
-	if len(config.Server.Version) > 0 {
-		opts = append(opts, Version(config.Server.Version))
+	if len(config.Version) > 0 {
+		opts = append(opts, Version(config.Version))
 	}
 
 	opts = append(
 		opts,
-		RegisterInterval(time.Duration(config.Server.RegisterInterval)*time.Second),
-		RegisterTTL(time.Duration(config.Server.RegisterTTL)*time.Second),
+		RegisterInterval(time.Duration(config.RegisterInterval)*time.Second),
+		RegisterTTL(time.Duration(config.RegisterTTL)*time.Second),
 		Broker(broker),
 		Registry(registry),
 		Transport(transport),
 	)
 
-	for _, w := range config.Server.WrapSubscriber {
+	for _, w := range config.WrapSubscriber {
 		opts = append(opts, WrapSubscriber(w))
 	}
-	for _, w := range config.Server.WrapHandler {
+	for _, w := range config.WrapHandler {
 		opts = append(opts, WrapHandler(w))
 	}
 

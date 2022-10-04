@@ -33,49 +33,49 @@ func ProvideFlags(
 	cliConfig *cli.Config,
 	c cli.Cli,
 ) (DiFlags, error) {
-	if cliConfig.Cli.NoFlags {
+	if cliConfig.NoFlags {
 		// Defined silently ignore that
 		return DiFlags{}, nil
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)),
 		cli.Usage("Client for go-micro, eg: rpc"),
-		cli.Default(config.Client.Plugin),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
+		cli.Default(config.Plugin),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgPlugin)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPoolSize)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolSize)),
 		cli.Usage("Sets the client connection pool size"),
-		cli.Default(config.Client.PoolSize),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPoolSize)),
+		cli.Default(config.PoolSize),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgPoolSize)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPoolTTL)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolTTL)),
 		cli.Usage("Sets the client connection pool ttl, e.g: 500ms, 5s, 1m"),
-		cli.Default(config.Client.PoolTTL),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPoolTTL)),
+		cli.Default(config.PoolTTL),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgPoolTTL)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPoolRequestTimeout)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolRequestTimeout)),
 		cli.Usage("Sets the client request timeout, e.g: 500ms, 5s, 1m"),
-		cli.Default(config.Client.PoolRequestTimeout),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPoolRequestTimeout)),
+		cli.Default(config.PoolRequestTimeout),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgPoolRequestTimeout)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPoolRetries)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolRetries)),
 		cli.Usage("Sets the client retries"),
-		cli.Default(config.Client.PoolRetries),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPoolRetries)),
+		cli.Default(config.PoolRetries),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgPoolRetries)),
 	); err != nil {
 		return DiFlags{}, err
 	}
@@ -102,26 +102,26 @@ func ProvideConfig(
 		return DiConfig{}, err
 	}
 
-	if cliConfig.Cli.NoFlags {
+	if cliConfig.NoFlags {
 		// Dont parse flags if NoFlags has been given
 		return DiConfig{}, nil
 	}
 
 	defConfig = NewConfig()
 	if f, ok := c.Get(cliArgPlugin); ok {
-		defConfig.Client.Plugin = cli.FlagValue(f, defConfig.Client.Plugin)
+		defConfig.Plugin = cli.FlagValue(f, defConfig.Plugin)
 	}
 	if f, ok := c.Get(cliArgPoolSize); ok {
-		defConfig.Client.PoolSize = cli.FlagValue(f, defConfig.Client.PoolSize)
+		defConfig.PoolSize = cli.FlagValue(f, defConfig.PoolSize)
 	}
 	if f, ok := c.Get(cliArgPoolTTL); ok {
-		defConfig.Client.PoolTTL = cli.FlagValue(f, defConfig.Client.PoolTTL)
+		defConfig.PoolTTL = cli.FlagValue(f, defConfig.PoolTTL)
 	}
 	if f, ok := c.Get(cliArgPoolRequestTimeout); ok {
-		defConfig.Client.PoolRequestTimeout = cli.FlagValue(f, defConfig.Client.PoolRequestTimeout)
+		defConfig.PoolRequestTimeout = cli.FlagValue(f, defConfig.PoolRequestTimeout)
 	}
 	if f, ok := c.Get(cliArgPoolRetries); ok {
-		defConfig.Client.PoolRetries = cli.FlagValue(f, defConfig.Client.PoolRetries)
+		defConfig.PoolRetries = cli.FlagValue(f, defConfig.PoolRetries)
 	}
 	if err := config.Merge(defConfig); err != nil {
 		return DiConfig{}, err
@@ -135,13 +135,14 @@ func ProvideConfigNoFlags(
 	configor config.Config,
 ) (DiConfig, error) {
 	defConfig := NewConfig()
+	c := sourceConfig{Client: *defConfig}
 
 	if configor != nil {
-		if err := configor.Scan(defConfig); err != nil {
+		if err := configor.Scan(&c); err != nil {
 			return DiConfig{}, err
 		}
 	}
-	if err := config.Merge(defConfig); err != nil {
+	if err := config.Merge(&c.Client); err != nil {
 		return DiConfig{}, err
 	}
 
@@ -156,36 +157,36 @@ func Provide(
 	transport transport.Transport,
 	config *Config,
 ) (Client, error) {
-	if !config.Client.Enabled {
+	if !config.Enabled {
 		// Not enabled silently ignore that
 		return nil, nil
 	}
 
-	b, err := Plugins.Get(config.Client.Plugin)
+	b, err := Plugins.Get(config.Plugin)
 	if err != nil {
 		return nil, fmt.Errorf("unknown client: %v", err)
 	}
 
-	opts := []Option{}
-	opts = append(opts, PoolSize(config.Client.PoolSize))
-	d, err := time.ParseDuration(config.Client.PoolTTL)
+	opts := []Option{WithConfig(config)}
+	opts = append(opts, PoolSize(config.PoolSize))
+	d, err := time.ParseDuration(config.PoolTTL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse client_pool_ttl: %v", config.Client.PoolTTL)
+		return nil, fmt.Errorf("failed to parse client_pool_ttl: %v", config.PoolTTL)
 	}
 	opts = append(opts, RequestTimeout(d))
-	d, err = time.ParseDuration(config.Client.PoolRequestTimeout)
+	d, err = time.ParseDuration(config.PoolRequestTimeout)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse client_request_timeout: %v", config.Client.PoolRequestTimeout)
+		return nil, fmt.Errorf("failed to parse client_request_timeout: %v", config.PoolRequestTimeout)
 	}
 
 	opts = append(
 		opts,
 		PoolTTL(d),
-		Retries(config.Client.PoolRetries),
+		Retries(config.PoolRetries),
 		Broker(broker),
 		Registry(registry),
 		Transport(transport),
-		WrapCall(config.Client.WrapCall...),
+		WrapCall(config.WrapCall...),
 	)
 
 	return b(opts...), nil

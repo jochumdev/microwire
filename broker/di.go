@@ -27,25 +27,25 @@ func ProvideFlags(
 	cliConfig *cli.Config,
 	c cli.Cli,
 ) (DiFlags, error) {
-	if cliConfig.Cli.NoFlags {
+	if cliConfig.NoFlags {
 		// Defined silently ignore that
 		return DiFlags{}, nil
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)),
 		cli.Usage("Broker for pub/sub. http, nats, rabbitmq"),
-		cli.Default(config.Broker.Plugin),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
+		cli.Default(config.Plugin),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgPlugin)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
 		cli.Usage("List of broker addresses"),
-		cli.Default(config.Broker.Addresses),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+		cli.Default(config.Addresses),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
 	); err != nil {
 		return DiFlags{}, err
 	}
@@ -72,17 +72,17 @@ func ProvideConfig(
 		return DiConfig{}, err
 	}
 
-	if cliConfig.Cli.NoFlags {
+	if cliConfig.NoFlags {
 		// Dont parse flags if NoFlags has been given
 		return DiConfig{}, nil
 	}
 
 	defConfig = NewConfig()
 	if f, ok := c.Get(cliArgPlugin); ok {
-		defConfig.Broker.Plugin = cli.FlagValue(f, defConfig.Broker.Plugin)
+		defConfig.Plugin = cli.FlagValue(f, defConfig.Plugin)
 	}
 	if f, ok := c.Get(cliArgAddresses); ok {
-		defConfig.Broker.Addresses = cli.FlagValue(f, []string{})
+		defConfig.Addresses = cli.FlagValue(f, []string{})
 	}
 	if err := config.Merge(defConfig); err != nil {
 		return DiConfig{}, err
@@ -96,13 +96,14 @@ func ProvideConfigNoFlags(
 	configor config.Config,
 ) (DiConfig, error) {
 	defConfig := NewConfig()
+	c := sourceConfig{Broker: *defConfig}
 
 	if configor != nil {
-		if err := configor.Scan(defConfig); err != nil {
+		if err := configor.Scan(&c); err != nil {
 			return DiConfig{}, err
 		}
 	}
-	if err := config.Merge(defConfig); err != nil {
+	if err := config.Merge(&c.Broker); err != nil {
 		return DiConfig{}, err
 	}
 
@@ -115,19 +116,19 @@ func Provide(
 	registry registry.Registry,
 	config *Config,
 ) (Broker, error) {
-	if !config.Broker.Enabled {
+	if !config.Enabled {
 		// Not enabled silently ignore that
 		return nil, nil
 	}
 
-	b, err := Plugins.Get(config.Broker.Plugin)
+	b, err := Plugins.Get(config.Plugin)
 	if err != nil {
 		return nil, fmt.Errorf("unknown broker: %v", err)
 	}
 
-	opts := []Option{}
-	if len(config.Broker.Addresses) > 0 {
-		opts = append(opts, Addrs(config.Broker.Addresses...))
+	opts := []Option{WithConfig(config)}
+	if len(config.Addresses) > 0 {
+		opts = append(opts, Addrs(config.Addresses...))
 	}
 
 	opts = append(opts, Registry(registry))

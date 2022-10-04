@@ -2,36 +2,34 @@
 
 package registry
 
-type RegistryConfig struct {
+type Config struct {
 	Enabled   bool     `json:"enabled" yaml:"Enabled"`
 	Plugin    string   `json:"plugin,omitempty" yaml:"Plugin,omitempty"`
 	Addresses []string `json:"addresses,omitempty" yaml:"Addresses,omitempty"`
 }
 
-type Config struct {
-	Registry RegistryConfig `json:"broker" yaml:"Registry"`
+type sourceConfig struct {
+	Registry Config `json:"broker" yaml:"Registry"`
 }
 
 func NewConfig() *Config {
 	return &Config{
-		Registry: RegistryConfig{
-			Enabled:   true,
-			Plugin:    "mdns",
-			Addresses: []string{},
-		},
+		Enabled:   true,
+		Plugin:    "mdns",
+		Addresses: []string{},
 	}
 }
 
 func (d *Config) Merge(src *Config) error {
 	def := NewConfig()
 
-	if src.Registry.Enabled != def.Registry.Enabled {
-		d.Registry.Enabled = src.Registry.Enabled
+	if src.Enabled != def.Enabled {
+		d.Enabled = src.Enabled
 	}
 
-	if src.Registry.Plugin != def.Registry.Plugin {
-		d.Registry.Plugin = src.Registry.Plugin
-		d.Registry.Addresses = src.Registry.Addresses
+	if src.Plugin != def.Plugin {
+		d.Plugin = src.Plugin
+		d.Addresses = src.Addresses
 	}
 
 	return nil

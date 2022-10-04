@@ -30,61 +30,61 @@ func ProvideFlags(
 	cliConfig *cli.Config,
 	c cli.Cli,
 ) (DiFlags, error) {
-	if cliConfig.Cli.NoFlags {
+	if cliConfig.NoFlags {
 		// Defined silently ignore that
 		return DiFlags{}, nil
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)),
 		cli.Usage("Auth for role based access control, e.g. service"),
-		cli.Default(config.Auth.Plugin),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
+		cli.Default(config.Plugin),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgPlugin)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgID)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgID)),
 		cli.Usage("Account ID used for client authentication"),
-		cli.Default(config.Auth.ID),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgID)),
+		cli.Default(config.ID),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgID)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgSecret)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgSecret)),
 		cli.Usage("Account secret used for client authentication"),
-		cli.Default(config.Auth.Secret),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgSecret)),
+		cli.Default(config.Secret),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgSecret)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPublicKey)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPublicKey)),
 		cli.Usage("Public key for JWT auth (base64 encoded PEM)"),
-		cli.Default(config.Auth.PublicKey),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPublicKey)),
+		cli.Default(config.PublicKey),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgPublicKey)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPrivateKey)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPrivateKey)),
 		cli.Usage("Private key for JWT auth (base64 encoded PEM)"),
-		cli.Default(config.Auth.PrivateKey),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPrivateKey)),
+		cli.Default(config.PrivateKey),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgPrivateKey)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgNamespace)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgNamespace)),
 		cli.Usage("Namespace for the services auth account"),
-		cli.Default(config.Auth.Namespace),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgNamespace)),
+		cli.Default(config.Namespace),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgNamespace)),
 	); err != nil {
 		return DiFlags{}, err
 	}
@@ -111,33 +111,33 @@ func ProvideConfig(
 		return DiConfig{}, err
 	}
 
-	if cliConfig.Cli.NoFlags {
+	if cliConfig.NoFlags {
 		// Dont parse flags if NoFlags has been given
 		return DiConfig{}, nil
 	}
 
 	defConfig = NewConfig()
 	if f, ok := c.Get(cliArgPlugin); ok {
-		defConfig.Auth.Plugin = cli.FlagValue(f, defConfig.Auth.Plugin)
+		defConfig.Plugin = cli.FlagValue(f, defConfig.Plugin)
 	}
 	f, ok := c.Get(cliArgID)
 	f2, ok2 := c.Get(cliArgSecret)
 	if ok && ok2 {
-		if len(cli.FlagValue(f, defConfig.Auth.ID)) > 0 && len(cli.FlagValue(f2, defConfig.Auth.Secret)) > 0 {
-			defConfig.Auth.ID = cli.FlagValue(f, "")
-			defConfig.Auth.Secret = cli.FlagValue(f2, "")
+		if len(cli.FlagValue(f, defConfig.ID)) > 0 && len(cli.FlagValue(f2, defConfig.Secret)) > 0 {
+			defConfig.ID = cli.FlagValue(f, "")
+			defConfig.Secret = cli.FlagValue(f2, "")
 		}
 	}
 	f, ok = c.Get(cliArgPublicKey)
 	f2, ok2 = c.Get(cliArgPrivateKey)
 	if ok && ok2 {
-		if len(cli.FlagValue(f, defConfig.Auth.PublicKey)) > 0 && len(cli.FlagValue(f2, defConfig.Auth.PrivateKey)) > 0 {
-			defConfig.Auth.PublicKey = cli.FlagValue(f, "")
-			defConfig.Auth.PrivateKey = cli.FlagValue(f2, "")
+		if len(cli.FlagValue(f, defConfig.PublicKey)) > 0 && len(cli.FlagValue(f2, defConfig.PrivateKey)) > 0 {
+			defConfig.PublicKey = cli.FlagValue(f, "")
+			defConfig.PrivateKey = cli.FlagValue(f2, "")
 		}
 	}
 	if f, ok := c.Get(cliArgNamespace); ok {
-		defConfig.Auth.Namespace = cli.FlagValue(f, "")
+		defConfig.Namespace = cli.FlagValue(f, "")
 	}
 	if err := config.Merge(defConfig); err != nil {
 		return DiConfig{}, err
@@ -151,13 +151,14 @@ func ProvideConfigNoFlags(
 	configor config.Config,
 ) (DiConfig, error) {
 	defConfig := NewConfig()
+	c := sourceConfig{Auth: *defConfig}
 
 	if configor != nil {
-		if err := configor.Scan(defConfig); err != nil {
+		if err := configor.Scan(&c); err != nil {
 			return DiConfig{}, err
 		}
 	}
-	if err := config.Merge(defConfig); err != nil {
+	if err := config.Merge(&c.Auth); err != nil {
 		return DiConfig{}, err
 	}
 
@@ -170,25 +171,25 @@ func Provide(
 
 	config *Config,
 ) (Auth, error) {
-	if !config.Auth.Enabled {
+	if !config.Enabled {
 		// Not enabled silently ignore that
 		return nil, nil
 	}
 
-	b, err := Plugins.Get(config.Auth.Plugin)
+	b, err := Plugins.Get(config.Plugin)
 	if err != nil {
 		return nil, fmt.Errorf("unknown auth: %v", err)
 	}
 
-	opts := []Option{}
-	if len(config.Auth.ID) > 0 && len(config.Auth.Secret) > 0 {
+	opts := []Option{WithConfig(config)}
+	if len(config.ID) > 0 && len(config.Secret) > 0 {
 		opts = append(opts, Credentials(
-			config.Auth.ID, config.Auth.Secret,
+			config.ID, config.Secret,
 		))
 	}
-	opts = append(opts, PublicKey(config.Auth.PublicKey))
-	opts = append(opts, PrivateKey(config.Auth.PrivateKey))
-	opts = append(opts, Namespace(config.Auth.Namespace))
+	opts = append(opts, PublicKey(config.PublicKey))
+	opts = append(opts, PrivateKey(config.PrivateKey))
+	opts = append(opts, Namespace(config.Namespace))
 
 	return b(opts...), nil
 }

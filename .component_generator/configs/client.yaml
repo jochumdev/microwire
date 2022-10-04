@@ -21,34 +21,34 @@ di_go:
 
     Body: |-
       if err := c.Add(
-        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPoolSize)),
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolSize)),
         cli.Usage("Sets the client connection pool size"),
-        cli.Default(config.Client.PoolSize),
-        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPoolSize)),
+        cli.Default(config.PoolSize),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgPoolSize)),
       ); err != nil {
         return DiFlags{}, err
       }
       if err := c.Add(
-        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPoolTTL)),
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolTTL)),
         cli.Usage("Sets the client connection pool ttl, e.g: 500ms, 5s, 1m"),
-        cli.Default(config.Client.PoolTTL),
-        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPoolTTL)),
+        cli.Default(config.PoolTTL),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgPoolTTL)),
       ); err != nil {
         return DiFlags{}, err
       }
       if err := c.Add(
-        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPoolRequestTimeout)),
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolRequestTimeout)),
         cli.Usage("Sets the client request timeout, e.g: 500ms, 5s, 1m"),
-        cli.Default(config.Client.PoolRequestTimeout),
-        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPoolRequestTimeout)),
+        cli.Default(config.PoolRequestTimeout),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgPoolRequestTimeout)),
       ); err != nil {
         return DiFlags{}, err
       }
       if err := c.Add(
-        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPoolRetries)),
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPoolRetries)),
         cli.Usage("Sets the client retries"),
-        cli.Default(config.Client.PoolRetries),
-        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPoolRetries)),
+        cli.Default(config.PoolRetries),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgPoolRetries)),
       ); err != nil {
         return DiFlags{}, err
       }
@@ -56,16 +56,16 @@ di_go:
   ProvideConfig:
     Body: |-
       if f, ok := c.Get(cliArgPoolSize); ok {
-        defConfig.Client.PoolSize = cli.FlagValue(f, defConfig.Client.PoolSize)
+        defConfig.PoolSize = cli.FlagValue(f, defConfig.PoolSize)
       }
       if f, ok := c.Get(cliArgPoolTTL); ok {
-        defConfig.Client.PoolTTL = cli.FlagValue(f, defConfig.Client.PoolTTL)
+        defConfig.PoolTTL = cli.FlagValue(f, defConfig.PoolTTL)
       }
       if f, ok := c.Get(cliArgPoolRequestTimeout); ok {
-        defConfig.Client.PoolRequestTimeout = cli.FlagValue(f, defConfig.Client.PoolRequestTimeout)
+        defConfig.PoolRequestTimeout = cli.FlagValue(f, defConfig.PoolRequestTimeout)
       }
       if f, ok := c.Get(cliArgPoolRetries); ok {
-        defConfig.Client.PoolRetries = cli.FlagValue(f, defConfig.Client.PoolRetries)
+        defConfig.PoolRetries = cli.FlagValue(f, defConfig.PoolRetries)
       }
 
   Provide:
@@ -75,25 +75,25 @@ di_go:
       transport transport.Transport,
 
     Body:  |-
-      opts = append(opts, PoolSize(config.Client.PoolSize))
-      d, err := time.ParseDuration(config.Client.PoolTTL)
+      opts = append(opts, PoolSize(config.PoolSize))
+      d, err := time.ParseDuration(config.PoolTTL)
       if err != nil {
-        return nil, fmt.Errorf("failed to parse client_pool_ttl: %v", config.Client.PoolTTL)
+        return nil, fmt.Errorf("failed to parse client_pool_ttl: %v", config.PoolTTL)
       }
       opts = append(opts, RequestTimeout(d))
-      d, err = time.ParseDuration(config.Client.PoolRequestTimeout)
+      d, err = time.ParseDuration(config.PoolRequestTimeout)
       if err != nil {
-        return nil, fmt.Errorf("failed to parse client_request_timeout: %v", config.Client.PoolRequestTimeout)
+        return nil, fmt.Errorf("failed to parse client_request_timeout: %v", config.PoolRequestTimeout)
       }
 
       opts = append(
         opts,
         PoolTTL(d),
-        Retries(config.Client.PoolRetries),
+        Retries(config.PoolRetries),
         Broker(broker),
         Registry(registry),
         Transport(transport),
-        WrapCall(config.Client.WrapCall...),
+        WrapCall(config.WrapCall...),
       )
 
 config_store_go:
@@ -117,7 +117,7 @@ config_store_go:
 
   ConfigMerge:
     Fields: |-
-      d.Client.PoolSize = src.Client.PoolSize
-      d.Client.PoolTTL = src.Client.PoolTTL
-      d.Client.PoolRequestTimeout = src.Client.PoolRequestTimeout
-      d.Client.PoolRetries = src.Client.PoolRetries
+      d.PoolSize = src.PoolSize
+      d.PoolTTL = src.PoolTTL
+      d.PoolRequestTimeout = src.PoolRequestTimeout
+      d.PoolRetries = src.PoolRetries

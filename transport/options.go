@@ -11,6 +11,9 @@ import (
 )
 
 type Options struct {
+	// Config is the configuration of this component.
+	Config *Config
+
 	// Addrs is the list of intermediary addresses to connect to
 	Addrs []string
 	// Codec is the codec interface to use where headers are not supported
@@ -54,6 +57,13 @@ type ListenOptions struct {
 	// Other options for implementations of the interface
 	// can be stored in a context
 	Context context.Context
+}
+
+// WithConfig sets the config to Options.
+func WithConfig(n *Config) Option {
+	return func(o *Options) {
+		o.Config = n
+	}
 }
 
 // Addrs to use for transport.

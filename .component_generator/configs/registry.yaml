@@ -13,10 +13,10 @@ di_go:
 
     Body: |-
       if err := c.Add(
-        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
         cli.Usage("List of registry addresses"),
-        cli.Default(config.Registry.Addresses),
-        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+        cli.Default(config.Addresses),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
       ); err != nil {
         return DiFlags{}, err
       }
@@ -24,14 +24,14 @@ di_go:
   ProvideConfig:
     Body: |-
       if f, ok := c.Get(cliArgAddresses); ok {
-        defConfig.Registry.Addresses = cli.FlagValue(f, []string{})
+        defConfig.Addresses = cli.FlagValue(f, []string{})
       }
 
   Provide:
     Args: ""
     Body: |-
-      if len(config.Registry.Addresses) > 0 {
-        opts = append(opts, Addrs(config.Registry.Addresses...))
+      if len(config.Addresses) > 0 {
+        opts = append(opts, Addrs(config.Addresses...))
       }
 
 config_store_go:
@@ -47,4 +47,4 @@ config_store_go:
 
   ConfigMerge:
     Fields: |-
-      d.Registry.Addresses = src.Registry.Addresses
+      d.Addresses = src.Addresses

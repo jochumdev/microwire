@@ -39,6 +39,33 @@ See this Diagram for an overview:
 - Config() option, to provide a config file
 - Each component reads the configuration by its own, config is tightly coupled
 
+### Default yaml config
+
+```yaml
+---
+Broker:
+  enabled: true
+  plugin: http
+Client:
+  enabled: true
+  plugin: rpc
+  pool_request_timeout: 5s
+  pool_retries: 1
+  pool_size: 1
+  pool_ttl: 1m
+Registry:
+  enabled: true
+  plugin: mdns
+Server:
+  enabled: true
+  plugin: rpc
+  register_interval: 60
+  register_ttl: 30
+Transport:
+  enabled: true
+  plugin: http
+```
+
 ### Example yaml config
 
 ```yaml

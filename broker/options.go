@@ -10,6 +10,9 @@ import (
 )
 
 type Options struct {
+	// Config is the configuration of this component.
+	Config *Config
+
 	Addrs  []string
 	Secure bool
 	Codec  codec.Marshaler
@@ -85,6 +88,13 @@ func NewSubscribeOptions(opts ...SubscribeOption) SubscribeOptions {
 	}
 
 	return opt
+}
+
+// WithConfig sets the config to Options.
+func WithConfig(n *Config) Option {
+	return func(o *Options) {
+		o.Config = n
+	}
 }
 
 // Addrs sets the host addresses to be used by the broker.

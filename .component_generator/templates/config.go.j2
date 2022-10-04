@@ -2,35 +2,33 @@
 
 package {{Name}}
 
-type {{CapsName}}Config struct {
+type Config struct {
 	Enabled   bool     `json:"enabled" yaml:"Enabled"`
 	Plugin    string   `json:"plugin,omitempty" yaml:"Plugin,omitempty"`
 	{{config_store_go.Config.Fields}}
 }
 
-type Config struct {
-	{{CapsName}} {{CapsName}}Config `json:"broker" yaml:"{{CapsName}}"`
+type sourceConfig struct {
+	{{CapsName}} Config `json:"broker" yaml:"{{CapsName}}"`
 }
 
 func NewConfig() *Config {
 	return &Config{
-		{{CapsName}}: {{CapsName}}Config{
-			Enabled:   {{config_store_go.NewConfig.Enabled}},
-			Plugin:    "{{config_store_go.NewConfig.Plugin}}",
-			{{config_store_go.NewConfig.Fields}}
-		},
+		Enabled:   {{config_store_go.NewConfig.Enabled}},
+		Plugin:    "{{config_store_go.NewConfig.Plugin}}",
+		{{config_store_go.NewConfig.Fields}}
 	}
 }
 
 func (d *Config) Merge(src *Config) error {
 	def := NewConfig()
 
-	if src.{{CapsName}}.Enabled != def.{{CapsName}}.Enabled {
-		d.{{CapsName}}.Enabled = src.{{CapsName}}.Enabled
+	if src.Enabled != def.Enabled {
+		d.Enabled = src.Enabled
 	}
 
-	if src.{{CapsName}}.Plugin != def.{{CapsName}}.Plugin {
-		d.{{CapsName}}.Plugin = src.{{CapsName}}.Plugin
+	if src.Plugin != def.Plugin {
+		d.Plugin = src.Plugin
 		{{config_store_go.ConfigMerge.Fields}}
 	}
 

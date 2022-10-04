@@ -2,7 +2,7 @@
 
 package store
 
-type StoreConfig struct {
+type Config struct {
 	Enabled   bool     `json:"enabled" yaml:"Enabled"`
 	Plugin    string   `json:"plugin,omitempty" yaml:"Plugin,omitempty"`
 	Addresses []string `json:"addresses,omitempty" yaml:"Addresses,omitempty"`
@@ -10,34 +10,32 @@ type StoreConfig struct {
 	Table     string   `json:"table,omitempty" yaml:"Table,omitempty"`
 }
 
-type Config struct {
-	Store StoreConfig `json:"broker" yaml:"Store"`
+type sourceConfig struct {
+	Store Config `json:"broker" yaml:"Store"`
 }
 
 func NewConfig() *Config {
 	return &Config{
-		Store: StoreConfig{
-			Enabled:   false,
-			Plugin:    "",
-			Addresses: []string{},
-			Database:  "",
-			Table:     "",
-		},
+		Enabled:   false,
+		Plugin:    "",
+		Addresses: []string{},
+		Database:  "",
+		Table:     "",
 	}
 }
 
 func (d *Config) Merge(src *Config) error {
 	def := NewConfig()
 
-	if src.Store.Enabled != def.Store.Enabled {
-		d.Store.Enabled = src.Store.Enabled
+	if src.Enabled != def.Enabled {
+		d.Enabled = src.Enabled
 	}
 
-	if src.Store.Plugin != def.Store.Plugin {
-		d.Store.Plugin = src.Store.Plugin
-		d.Store.Addresses = src.Store.Addresses
-		d.Store.Database = src.Store.Database
-		d.Store.Table = src.Store.Table
+	if src.Plugin != def.Plugin {
+		d.Plugin = src.Plugin
+		d.Addresses = src.Addresses
+		d.Database = src.Database
+		d.Table = src.Table
 	}
 
 	return nil

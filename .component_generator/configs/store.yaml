@@ -16,28 +16,28 @@ di_go:
 
     Body: |-
       if err := c.Add(
-        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
         cli.Usage("List of store addresses"),
-        cli.Default(config.Store.Addresses),
-        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+        cli.Default(config.Addresses),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
       ); err != nil {
         return DiFlags{}, err
       }
 
       if err := c.Add(
-        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgDatabase)),
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgDatabase)),
         cli.Usage("Database option for the underlying store"),
-        cli.Default(config.Store.Database),
-        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgDatabase)),
+        cli.Default(config.Database),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgDatabase)),
       ); err != nil {
         return DiFlags{}, err
       }
 
       if err := c.Add(
-        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgTable)),
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgTable)),
         cli.Usage("Table option for the underlying store"),
-        cli.Default(config.Store.Table),
-        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgTable)),
+        cli.Default(config.Table),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgTable)),
       ); err != nil {
         return DiFlags{}, err
       }
@@ -45,26 +45,26 @@ di_go:
   ProvideConfig:
     Body: |-
       if f, ok := c.Get(cliArgAddresses); ok {
-        defConfig.Store.Addresses = cli.FlagValue(f, []string{})
+        defConfig.Addresses = cli.FlagValue(f, []string{})
       }
       if f, ok := c.Get(cliArgDatabase); ok {
-        defConfig.Store.Database = cli.FlagValue(f, "")
+        defConfig.Database = cli.FlagValue(f, "")
       }
       if f, ok := c.Get(cliArgTable); ok {
-        defConfig.Store.Table = cli.FlagValue(f, "")
+        defConfig.Table = cli.FlagValue(f, "")
       }
 
   Provide:
     Args: ""
     Body: |-
-      if len(config.Store.Addresses) > 0 {
-        opts = append(opts, Nodes(config.Store.Addresses...))
+      if len(config.Addresses) > 0 {
+        opts = append(opts, Nodes(config.Addresses...))
       }
-      if len(config.Store.Database) > 0 {
-        opts = append(opts, Database(config.Store.Database))
+      if len(config.Database) > 0 {
+        opts = append(opts, Database(config.Database))
       }
-      if len(config.Store.Table) > 0 {
-        opts = append(opts, Table(config.Store.Table))
+      if len(config.Table) > 0 {
+        opts = append(opts, Table(config.Table))
       }
 
 config_store_go:
@@ -84,6 +84,6 @@ config_store_go:
 
   ConfigMerge:
     Fields: |-
-      d.Store.Addresses = src.Store.Addresses
-      d.Store.Database = src.Store.Database
-      d.Store.Table = src.Store.Table
+      d.Addresses = src.Addresses
+      d.Database = src.Database
+      d.Table = src.Table

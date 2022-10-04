@@ -28,6 +28,9 @@ type Service interface {
 	Run() error
 	// The service implementation
 	String() string
+
+	// DumpConfig dumps the config of a micro.Service to a yaml byte array.
+	DumpConfig() ([]byte, error)
 }
 
 // Event is used to publish messages to a topic.

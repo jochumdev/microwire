@@ -15,10 +15,10 @@ di_go:
 
     Body: |-
       if err := c.Add(
-        cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+        cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
         cli.Usage("List of broker addresses"),
-        cli.Default(config.Broker.Addresses),
-        cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+        cli.Default(config.Addresses),
+        cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
       ); err != nil {
         return DiFlags{}, err
       }
@@ -26,7 +26,7 @@ di_go:
   ProvideConfig:
     Body: |-
       if f, ok := c.Get(cliArgAddresses); ok {
-        defConfig.Broker.Addresses = cli.FlagValue(f, []string{})
+        defConfig.Addresses = cli.FlagValue(f, []string{})
       }
 
   Provide:
@@ -34,8 +34,8 @@ di_go:
       registry registry.Registry,
 
     Body: |-
-      if len(config.Broker.Addresses) > 0 {
-        opts = append(opts, Addrs(config.Broker.Addresses...))
+      if len(config.Addresses) > 0 {
+        opts = append(opts, Addrs(config.Addresses...))
       }
 
       opts = append(opts, Registry(registry))
@@ -53,4 +53,4 @@ config_store_go:
 
   ConfigMerge:
     Fields: |-
-      d.Broker.Addresses = src.Broker.Addresses
+      d.Addresses = src.Addresses

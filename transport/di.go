@@ -26,25 +26,25 @@ func ProvideFlags(
 	cliConfig *cli.Config,
 	c cli.Cli,
 ) (DiFlags, error) {
-	if cliConfig.Cli.NoFlags {
+	if cliConfig.NoFlags {
 		// Defined silently ignore that
 		return DiFlags{}, nil
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgPlugin)),
 		cli.Usage("Transport mechanism used; http"),
-		cli.Default(config.Transport.Plugin),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
+		cli.Default(config.Plugin),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgPlugin)),
 	); err != nil {
 		return DiFlags{}, err
 	}
 
 	if err := c.Add(
-		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+		cli.Name(cli.PrefixName(cliConfig.ArgPrefix, cliArgAddresses)),
 		cli.Usage("List of transport addresses"),
-		cli.Default(config.Transport.Addresses),
-		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
+		cli.Default(config.Addresses),
+		cli.EnvVars(cli.PrefixEnv(cliConfig.ArgPrefix, cliArgAddresses)),
 	); err != nil {
 		return DiFlags{}, err
 	}
@@ -71,17 +71,17 @@ func ProvideConfig(
 		return DiConfig{}, err
 	}
 
-	if cliConfig.Cli.NoFlags {
+	if cliConfig.NoFlags {
 		// Dont parse flags if NoFlags has been given
 		return DiConfig{}, nil
 	}
 
 	defConfig = NewConfig()
 	if f, ok := c.Get(cliArgPlugin); ok {
-		defConfig.Transport.Plugin = cli.FlagValue(f, defConfig.Transport.Plugin)
+		defConfig.Plugin = cli.FlagValue(f, defConfig.Plugin)
 	}
 	if f, ok := c.Get(cliArgAddresses); ok {
-		defConfig.Transport.Addresses = cli.FlagValue(f, []string{})
+		defConfig.Addresses = cli.FlagValue(f, []string{})
 	}
 	if err := config.Merge(defConfig); err != nil {
 		return DiConfig{}, err
@@ -95,13 +95,14 @@ func ProvideConfigNoFlags(
 	configor config.Config,
 ) (DiConfig, error) {
 	defConfig := NewConfig()
+	c := sourceConfig{Transport: *defConfig}
 
 	if configor != nil {
-		if err := configor.Scan(defConfig); err != nil {
+		if err := configor.Scan(&c); err != nil {
 			return DiConfig{}, err
 		}
 	}
-	if err := config.Merge(defConfig); err != nil {
+	if err := config.Merge(&c.Transport); err != nil {
 		return DiConfig{}, err
 	}
 
@@ -114,19 +115,19 @@ func Provide(
 
 	config *Config,
 ) (Transport, error) {
-	if !config.Transport.Enabled {
+	if !config.Enabled {
 		// Not enabled silently ignore that
 		return nil, nil
 	}
 
-	b, err := Plugins.Get(config.Transport.Plugin)
+	b, err := Plugins.Get(config.Plugin)
 	if err != nil {
 		return nil, fmt.Errorf("unknown transport: %v", err)
 	}
 
-	opts := []Option{}
-	if len(config.Transport.Addresses) > 0 {
-		opts = append(opts, Addrs(config.Transport.Addresses...))
+	opts := []Option{WithConfig(config)}
+	if len(config.Addresses) > 0 {
+		opts = append(opts, Addrs(config.Addresses...))
 	}
 
 	return b(opts...), nil

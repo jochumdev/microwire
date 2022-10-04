@@ -2,7 +2,7 @@
 
 package auth
 
-type AuthConfig struct {
+type Config struct {
 	Enabled    bool   `json:"enabled" yaml:"Enabled"`
 	Plugin     string `json:"plugin,omitempty" yaml:"Plugin,omitempty"`
 	ID         string `json:"client,omitempty" yaml:"ID,omitempty"`
@@ -12,38 +12,36 @@ type AuthConfig struct {
 	Namespace  string `json:"namespace,omitempty" yaml:"Namespace,omitempty"`
 }
 
-type Config struct {
-	Auth AuthConfig `json:"broker" yaml:"Auth"`
+type sourceConfig struct {
+	Auth Config `json:"broker" yaml:"Auth"`
 }
 
 func NewConfig() *Config {
 	return &Config{
-		Auth: AuthConfig{
-			Enabled:    false,
-			Plugin:     "",
-			ID:         "",
-			Secret:     "",
-			PublicKey:  "",
-			PrivateKey: "",
-			Namespace:  "",
-		},
+		Enabled:    false,
+		Plugin:     "",
+		ID:         "",
+		Secret:     "",
+		PublicKey:  "",
+		PrivateKey: "",
+		Namespace:  "",
 	}
 }
 
 func (d *Config) Merge(src *Config) error {
 	def := NewConfig()
 
-	if src.Auth.Enabled != def.Auth.Enabled {
-		d.Auth.Enabled = src.Auth.Enabled
+	if src.Enabled != def.Enabled {
+		d.Enabled = src.Enabled
 	}
 
-	if src.Auth.Plugin != def.Auth.Plugin {
-		d.Auth.Plugin = src.Auth.Plugin
-		d.Auth.ID = src.Auth.ID
-		d.Auth.Secret = src.Auth.Secret
-		d.Auth.PublicKey = src.Auth.PublicKey
-		d.Auth.PrivateKey = src.Auth.PrivateKey
-		d.Auth.Namespace = src.Auth.Namespace
+	if src.Plugin != def.Plugin {
+		d.Plugin = src.Plugin
+		d.ID = src.ID
+		d.Secret = src.Secret
+		d.PublicKey = src.PublicKey
+		d.PrivateKey = src.PrivateKey
+		d.Namespace = src.Namespace
 	}
 
 	return nil

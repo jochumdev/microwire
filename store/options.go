@@ -10,6 +10,9 @@ import (
 
 // Options contains configuration for the Store.
 type Options struct {
+	// Config is the configuration of this component.
+	Config *Config
+
 	// Nodes contains the addresses or other connection information of the backing storage.
 	// For example, an etcd implementation would contain the nodes of the cluster.
 	// A SQL implementation could contain one or more connection strings.
@@ -28,6 +31,13 @@ type Options struct {
 
 // Option sets values in Options.
 type Option func(o *Options)
+
+// WithConfig sets the config to Options.
+func WithConfig(n *Config) Option {
+	return func(o *Options) {
+		o.Config = n
+	}
+}
 
 // Nodes contains the addresses or other connection information of the backing storage.
 // For example, an etcd implementation would contain the nodes of the cluster.

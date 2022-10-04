@@ -2,7 +2,7 @@
 
 package server
 
-type ServerConfig struct {
+type Config struct {
 	Enabled          bool                `json:"enabled" yaml:"Enabled"`
 	Plugin           string              `json:"plugin,omitempty" yaml:"Plugin,omitempty"`
 	Address          string              `json:"address,omitempty" yaml:"Address,omitempty"`
@@ -16,42 +16,40 @@ type ServerConfig struct {
 	WrapHandler      []HandlerWrapper    `json:"-" yaml:"-"`
 }
 
-type Config struct {
-	Server ServerConfig `json:"broker" yaml:"Server"`
+type sourceConfig struct {
+	Server Config `json:"broker" yaml:"Server"`
 }
 
 func NewConfig() *Config {
 	return &Config{
-		Server: ServerConfig{
-			Enabled:          true,
-			Plugin:           "rpc",
-			Address:          "",
-			ID:               "",
-			Name:             "",
-			Version:          "",
-			Metadata:         make(map[string]string),
-			RegisterTTL:      60,
-			RegisterInterval: 30,
-			WrapSubscriber:   []SubscriberWrapper{},
-			WrapHandler:      []HandlerWrapper{},
-		},
+		Enabled:          true,
+		Plugin:           "rpc",
+		Address:          "",
+		ID:               "",
+		Name:             "",
+		Version:          "",
+		Metadata:         make(map[string]string),
+		RegisterTTL:      60,
+		RegisterInterval: 30,
+		WrapSubscriber:   []SubscriberWrapper{},
+		WrapHandler:      []HandlerWrapper{},
 	}
 }
 
 func (d *Config) Merge(src *Config) error {
 	def := NewConfig()
 
-	if src.Server.Enabled != def.Server.Enabled {
-		d.Server.Enabled = src.Server.Enabled
+	if src.Enabled != def.Enabled {
+		d.Enabled = src.Enabled
 	}
 
-	if src.Server.Plugin != def.Server.Plugin {
-		d.Server.Plugin = src.Server.Plugin
-		d.Server.Address = src.Server.Address
-		d.Server.ID = src.Server.ID
-		d.Server.Name = src.Server.Name
-		d.Server.Version = src.Server.Version
-		d.Server.Metadata = src.Server.Metadata
+	if src.Plugin != def.Plugin {
+		d.Plugin = src.Plugin
+		d.Address = src.Address
+		d.ID = src.ID
+		d.Name = src.Name
+		d.Version = src.Version
+		d.Metadata = src.Metadata
 	}
 
 	return nil

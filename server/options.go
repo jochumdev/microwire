@@ -40,6 +40,8 @@ func WithRouterLogger(l logger.Logger) RouterOption {
 }
 
 type Options struct {
+	// Config is the configuration of this component.
+	Config        *Config
 	Codecs        map[string]codec.NewCodec
 	Broker        broker.Broker
 	Registry      registry.Registry
@@ -120,6 +122,13 @@ func newOptions(opt ...Option) Options {
 	}
 
 	return opts
+}
+
+// WithConfig sets the config to Options.
+func WithConfig(n *Config) Option {
+	return func(o *Options) {
+		o.Config = n
+	}
 }
 
 // Server name.

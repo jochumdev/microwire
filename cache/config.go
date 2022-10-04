@@ -2,33 +2,31 @@
 
 package cache
 
-type CacheConfig struct {
+type Config struct {
 	Enabled bool   `json:"enabled" yaml:"Enabled"`
 	Plugin  string `json:"plugin,omitempty" yaml:"Plugin,omitempty"`
 }
 
-type Config struct {
-	Cache CacheConfig `json:"broker" yaml:"Cache"`
+type sourceConfig struct {
+	Cache Config `json:"broker" yaml:"Cache"`
 }
 
 func NewConfig() *Config {
 	return &Config{
-		Cache: CacheConfig{
-			Enabled: false,
-			Plugin:  "",
-		},
+		Enabled: false,
+		Plugin:  "",
 	}
 }
 
 func (d *Config) Merge(src *Config) error {
 	def := NewConfig()
 
-	if src.Cache.Enabled != def.Cache.Enabled {
-		d.Cache.Enabled = src.Cache.Enabled
+	if src.Enabled != def.Enabled {
+		d.Enabled = src.Enabled
 	}
 
-	if src.Cache.Plugin != def.Cache.Plugin {
-		d.Cache.Plugin = src.Cache.Plugin
+	if src.Plugin != def.Plugin {
+		d.Plugin = src.Plugin
 
 	}
 

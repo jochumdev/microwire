@@ -22,23 +22,23 @@ func NewService(opts ...Option) (Service, error) {
 
 	// Setup cli
 	cliConfig := cli.NewConfig()
-	cliConfig.Cli.Plugin = "urfave"
-	cliConfig.Cli.Name = options.Name
-	cliConfig.Cli.Version = options.Version
-	cliConfig.Cli.Description = options.Description
-	cliConfig.Cli.Usage = options.Usage
-	cliConfig.Cli.ArgPrefix = options.ArgPrefix
-	cliConfig.Cli.NoFlags = options.NoFlags
-	cliConfig.Cli.Flags = options.Flags
-	cliConfig.Cli.ConfigFile = options.ConfigFile
+	cliConfig.Plugin = "urfave"
+	cliConfig.Name = options.Name
+	cliConfig.Version = options.Version
+	cliConfig.Description = options.Description
+	cliConfig.Usage = options.Usage
+	cliConfig.ArgPrefix = options.ArgPrefix
+	cliConfig.NoFlags = options.NoFlags
+	cliConfig.Flags = options.Flags
+	cliConfig.ConfigFile = options.ConfigFile
 
 	serverConfig := server.NewConfig()
-	serverConfig.Server.Address = options.Address
-	serverConfig.Server.RegisterTTL = options.RegisterTTL
-	serverConfig.Server.RegisterInterval = options.RegisterInterval
-	serverConfig.Server.Metadata = options.Metadata
-	serverConfig.Server.WrapSubscriber = options.WrapSubscriber
-	serverConfig.Server.WrapHandler = options.WrapHandler
+	serverConfig.Address = options.Address
+	serverConfig.RegisterTTL = options.RegisterTTL
+	serverConfig.RegisterInterval = options.RegisterInterval
+	serverConfig.Metadata = options.Metadata
+	serverConfig.WrapSubscriber = options.WrapSubscriber
+	serverConfig.WrapHandler = options.WrapHandler
 
 	return newService(
 		options,

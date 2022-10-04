@@ -9,6 +9,9 @@ import (
 )
 
 type Options struct {
+	// Config is the configuration of this component.
+	Config *Config
+
 	Addrs     []string
 	Timeout   time.Duration
 	Secure    bool
@@ -58,6 +61,13 @@ func NewOptions(opts ...Option) *Options {
 	}
 
 	return &options
+}
+
+// WithConfig sets the config to Options.
+func WithConfig(n *Config) Option {
+	return func(o *Options) {
+		o.Config = n
+	}
 }
 
 // Addrs is the registry addresses to use.
