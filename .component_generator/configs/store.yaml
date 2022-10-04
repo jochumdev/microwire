@@ -3,13 +3,7 @@ Name: store
 CapsName: Store
 
 di_go:
-  Imports: |-
-    "strings"
-  DiFlags:
-    Fields: |-
-      Addresses string
-      Database  string
-      Table     string
+  Imports: ""
 
   Consts: |-
     cliArgAddresses = "store_address"
@@ -24,11 +18,10 @@ di_go:
       if err := c.Add(
         cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
         cli.Usage("Comma-separated list of store addresses"),
-        cli.Default(strings.Join(config.Store.Addresses, ",")),
+        cli.Default(config.Store.Addresses),
         cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
-        cli.Destination(&result.Addresses),
       ); err != nil {
-        return nil, err
+        return DiFlags{}, err
       }
 
       if err := c.Add(
@@ -36,9 +29,8 @@ di_go:
         cli.Usage("Database option for the underlying store"),
         cli.Default(config.Store.Database),
         cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgDatabase)),
-        cli.Destination(&result.Database),
       ); err != nil {
-        return nil, err
+        return DiFlags{}, err
       }
 
       if err := c.Add(
@@ -46,16 +38,21 @@ di_go:
         cli.Usage("Table option for the underlying store"),
         cli.Default(config.Store.Table),
         cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgTable)),
-        cli.Destination(&result.Table),
       ); err != nil {
-        return nil, err
+        return DiFlags{}, err
       }
 
   ProvideConfig:
     Body: |-
-      defConfig.Store.Addresses = strings.Split(flags.Addresses, ",")
-      defConfig.Store.Database = flags.Database
-      defConfig.Store.Table = flags.Table
+      if f, ok := c.Get(cliArgAddresses); ok {
+        defConfig.Store.Addresses = cli.FlagValue(f, []string{})
+      }
+      if f, ok := c.Get(cliArgDatabase); ok {
+        defConfig.Store.Database = cli.FlagValue(f, "")
+      }
+      if f, ok := c.Get(cliArgTable); ok {
+        defConfig.Store.Table = cli.FlagValue(f, "")
+      }
 
   Provide:
     Args: ""

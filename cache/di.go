@@ -11,9 +11,7 @@ import (
 	"github.com/google/wire"
 )
 
-type DiFlags struct {
-	Plugin string
-}
+type DiFlags struct{}
 
 // DiConfig is marker that DiFlags has been parsed into Config
 type DiConfig struct{}
@@ -26,31 +24,29 @@ func ProvideFlags(
 	config *Config,
 	cliConfig *cli.Config,
 	c cli.Cli,
-) (*DiFlags, error) {
+) (DiFlags, error) {
 	if cliConfig.Cli.NoFlags {
 		// Defined silently ignore that
-		return &DiFlags{}, nil
+		return DiFlags{}, nil
 	}
-
-	result := &DiFlags{}
 
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
 		cli.Usage("Cache k/v store"),
 		cli.Default(config.Cache.Plugin),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
-		cli.Destination(&result.Plugin),
 	); err != nil {
-		return nil, err
+		return DiFlags{}, err
 	}
 
-	return result, nil
+	return DiFlags{}, nil
 }
 
 func ProvideConfig(
 	_ di.DiConfig,
-	flags *DiFlags,
+	flags DiFlags,
 	config *Config,
+	c cli.Cli,
 	cliConfig *cli.Config,
 	configor config.Config,
 ) (DiConfig, error) {
@@ -71,7 +67,9 @@ func ProvideConfig(
 	}
 
 	defConfig = NewConfig()
-	defConfig.Cache.Plugin = flags.Plugin
+	if f, ok := c.Get(cliArgPlugin); ok {
+		defConfig.Cache.Plugin = cli.FlagValue(f, defConfig.Cache.Plugin)
+	}
 
 	if err := config.Merge(defConfig); err != nil {
 		return DiConfig{}, err

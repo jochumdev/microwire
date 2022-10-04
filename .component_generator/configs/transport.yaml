@@ -3,11 +3,7 @@ Name: transport
 CapsName: Transport
 
 di_go:
-  Imports: |-
-    "strings"
-  DiFlags:
-    Fields: |-
-      Addresses string
+  Imports: ""
   Consts: |-
     cliArgAddresses = "transport_address"
 
@@ -18,18 +14,18 @@ di_go:
     Body: |-
       if err := c.Add(
         cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
-        cli.Usage("Comma-separated list of transport addresses"),
-        cli.Default(strings.Join(config.Transport.Addresses, ",")),
+        cli.Usage("List of transport addresses"),
+        cli.Default(config.Transport.Addresses),
         cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
-        cli.Destination(&result.Addresses),
       ); err != nil {
-        return nil, err
+        return DiFlags{}, err
       }
 
   ProvideConfig:
     Body: |-
-      defConfig.Transport.Addresses = strings.Split(flags.Addresses, ",")
-
+      if f, ok := c.Get(cliArgAddresses); ok {
+        defConfig.Transport.Addresses = cli.FlagValue(f, []string{})
+      }
   Provide:
     Args: ""
     Body: |-

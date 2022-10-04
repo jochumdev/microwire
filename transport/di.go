@@ -4,7 +4,6 @@ package transport
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/go-micro/microwire/v5/cli"
 	"github.com/go-micro/microwire/v5/config"
@@ -12,10 +11,7 @@ import (
 	"github.com/google/wire"
 )
 
-type DiFlags struct {
-	Plugin    string
-	Addresses string
-}
+type DiFlags struct{}
 
 // DiConfig is marker that DiFlags has been parsed into Config
 type DiConfig struct{}
@@ -29,41 +25,38 @@ func ProvideFlags(
 	config *Config,
 	cliConfig *cli.Config,
 	c cli.Cli,
-) (*DiFlags, error) {
+) (DiFlags, error) {
 	if cliConfig.Cli.NoFlags {
 		// Defined silently ignore that
-		return &DiFlags{}, nil
+		return DiFlags{}, nil
 	}
-
-	result := &DiFlags{}
 
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
 		cli.Usage("Transport mechanism used; http"),
 		cli.Default(config.Transport.Plugin),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
-		cli.Destination(&result.Plugin),
 	); err != nil {
-		return nil, err
+		return DiFlags{}, err
 	}
 
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
-		cli.Usage("Comma-separated list of transport addresses"),
-		cli.Default(strings.Join(config.Transport.Addresses, ",")),
+		cli.Usage("List of transport addresses"),
+		cli.Default(config.Transport.Addresses),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
-		cli.Destination(&result.Addresses),
 	); err != nil {
-		return nil, err
+		return DiFlags{}, err
 	}
 
-	return result, nil
+	return DiFlags{}, nil
 }
 
 func ProvideConfig(
 	_ di.DiConfig,
-	flags *DiFlags,
+	flags DiFlags,
 	config *Config,
+	c cli.Cli,
 	cliConfig *cli.Config,
 	configor config.Config,
 ) (DiConfig, error) {
@@ -84,9 +77,12 @@ func ProvideConfig(
 	}
 
 	defConfig = NewConfig()
-	defConfig.Transport.Plugin = flags.Plugin
-
-	defConfig.Transport.Addresses = strings.Split(flags.Addresses, ",")
+	if f, ok := c.Get(cliArgPlugin); ok {
+		defConfig.Transport.Plugin = cli.FlagValue(f, defConfig.Transport.Plugin)
+	}
+	if f, ok := c.Get(cliArgAddresses); ok {
+		defConfig.Transport.Addresses = cli.FlagValue(f, []string{})
+	}
 	if err := config.Merge(defConfig); err != nil {
 		return DiConfig{}, err
 	}

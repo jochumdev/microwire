@@ -14,13 +14,7 @@ import (
 	"github.com/google/wire"
 )
 
-type DiFlags struct {
-	Plugin  string
-	Address string
-	ID      string
-	Name    string
-	Version string
-}
+type DiFlags struct{}
 
 // DiConfig is marker that DiFlags has been parsed into Config
 type DiConfig struct{}
@@ -37,22 +31,19 @@ func ProvideFlags(
 	config *Config,
 	cliConfig *cli.Config,
 	c cli.Cli,
-) (*DiFlags, error) {
+) (DiFlags, error) {
 	if cliConfig.Cli.NoFlags {
 		// Defined silently ignore that
-		return &DiFlags{}, nil
+		return DiFlags{}, nil
 	}
-
-	result := &DiFlags{}
 
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
 		cli.Usage("Server for go-micro; rpc"),
 		cli.Default(config.Server.Plugin),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
-		cli.Destination(&result.Plugin),
 	); err != nil {
-		return nil, err
+		return DiFlags{}, err
 	}
 
 	if err := c.Add(
@@ -60,45 +51,42 @@ func ProvideFlags(
 		cli.Usage("Bind address for the server, eg: 127.0.0.1:8080"),
 		cli.Default(config.Server.Address),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddress)),
-		cli.Destination(&result.Address),
 	); err != nil {
-		return nil, err
+		return DiFlags{}, err
 	}
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgID)),
 		cli.Usage("Id of the server. Auto-generated if not specified"),
 		cli.Default(config.Server.ID),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgID)),
-		cli.Destination(&result.ID),
 	); err != nil {
-		return nil, err
+		return DiFlags{}, err
 	}
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgName)),
 		cli.Usage("Name of the server. go.micro.srv.example"),
 		cli.Default(config.Server.Name),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgName)),
-		cli.Destination(&result.Name),
 	); err != nil {
-		return nil, err
+		return DiFlags{}, err
 	}
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgVersion)),
 		cli.Usage("Version of the server. 1.1.0"),
 		cli.Default(config.Server.Version),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgVersion)),
-		cli.Destination(&result.Version),
 	); err != nil {
-		return nil, err
+		return DiFlags{}, err
 	}
 
-	return result, nil
+	return DiFlags{}, nil
 }
 
 func ProvideConfig(
 	_ di.DiConfig,
-	flags *DiFlags,
+	flags DiFlags,
 	config *Config,
+	c cli.Cli,
 	cliConfig *cli.Config,
 	configor config.Config,
 ) (DiConfig, error) {
@@ -119,12 +107,21 @@ func ProvideConfig(
 	}
 
 	defConfig = NewConfig()
-	defConfig.Server.Plugin = flags.Plugin
-
-	defConfig.Server.Address = flags.Address
-	defConfig.Server.ID = flags.ID
-	defConfig.Server.Name = flags.Name
-	defConfig.Server.Version = flags.Version
+	if f, ok := c.Get(cliArgPlugin); ok {
+		defConfig.Server.Plugin = cli.FlagValue(f, defConfig.Server.Plugin)
+	}
+	if f, ok := c.Get(cliArgAddress); ok {
+		defConfig.Server.Address = cli.FlagValue(f, "")
+	}
+	if f, ok := c.Get(cliArgID); ok {
+		defConfig.Server.ID = cli.FlagValue(f, "")
+	}
+	if f, ok := c.Get(cliArgName); ok {
+		defConfig.Server.Name = cli.FlagValue(f, "")
+	}
+	if f, ok := c.Get(cliArgVersion); ok {
+		defConfig.Server.Version = cli.FlagValue(f, "")
+	}
 	if err := config.Merge(defConfig); err != nil {
 		return DiConfig{}, err
 	}

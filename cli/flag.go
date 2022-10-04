@@ -3,12 +3,15 @@
 
 package cli
 
-import "fmt"
+import (
+	"errors"
+)
 
 const (
-	FlagTypeNone   = iota
-	FlagTypeString = iota
-	FlagTypeInt    = iota
+	FlagTypeNone = iota
+	FlagTypeString
+	FlagTypeInt
+	FlagTypeStringSlice
 )
 
 type Flag struct {
@@ -18,11 +21,14 @@ type Flag struct {
 
 	FlagType int
 
-	DefaultString     string
-	DestinationString *string
+	DefaultString string
+	ValueString   string
 
-	DefaultInt     int
-	DestinationInt *int
+	DefaultInt int
+	ValueInt   int
+
+	DefaultStringSlice []string
+	ValueStringSlice   []string
 }
 
 type FlagOption func(*Flag)
@@ -39,6 +45,8 @@ func (f *Flag) AsOptions() []FlagOption {
 		result = append(result, Default(f.DefaultString))
 	case FlagTypeInt:
 		result = append(result, Default(f.DefaultInt))
+	case FlagTypeStringSlice:
+		result = append(result, Default(f.DefaultStringSlice))
 	}
 
 	return result
@@ -67,24 +75,45 @@ func Default[T any](n T) FlagOption {
 		switch any(n).(type) {
 		case string:
 			o.DefaultString = any(n).(string)
+			o.FlagType = FlagTypeString
 		case int:
 			o.DefaultInt = any(n).(int)
+			o.FlagType = FlagTypeInt
+		case []string:
+			o.DefaultStringSlice = any(n).([]string)
+			o.FlagType = FlagTypeStringSlice
+		default:
+			o.FlagType = FlagTypeNone
 		}
 	}
 }
 
-func Destination[T any](n T) FlagOption {
-	return func(o *Flag) {
-		switch any(n).(type) {
-		case *string:
-			o.FlagType = FlagTypeString
-			o.DestinationString = any(n).(*string)
-		case *int:
-			o.FlagType = FlagTypeInt
-			o.DestinationInt = any(n).(*int)
-		default:
-			o.FlagType = FlagTypeNone
-		}
+func UpdateFlagValue[T any](f *Flag, v T) error {
+	switch any(v).(type) {
+	case string:
+		f.ValueString = any(v).(string)
+	case []string:
+		f.ValueStringSlice = any(v).([]string)
+	case int:
+		f.ValueInt = any(v).(int)
+	default:
+		return errors.New("failed to update flag")
+	}
+
+	return nil
+}
+
+func FlagValue[T any](f *Flag, v T) T {
+	switch any(v).(type) {
+	case string:
+		return any(f.ValueString).(T)
+	case []string:
+		return any(f.ValueStringSlice).(T)
+	case int:
+		return any(f.ValueInt).(T)
+	default:
+		var result T
+		return result
 	}
 }
 
@@ -100,10 +129,6 @@ func NewFlag(opts ...FlagOption) (*Flag, error) {
 
 	for _, o := range opts {
 		o(options)
-	}
-
-	if options.FlagType == FlagTypeNone {
-		return nil, fmt.Errorf("found flag '%s' without an Destination() option", options.Name)
 	}
 
 	return options, nil

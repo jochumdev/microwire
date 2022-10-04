@@ -3,11 +3,7 @@ Name: registry
 CapsName: Registry
 
 di_go:
-  Imports: |-
-    "strings"
-  DiFlags:
-    Fields: |-
-      Addresses string
+  Imports: ""
   Consts: |-
     cliArgAddresses = "registry_address"
 
@@ -19,16 +15,17 @@ di_go:
       if err := c.Add(
         cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
         cli.Usage("Comma-separated list of registry addresses"),
-        cli.Default(strings.Join(config.Registry.Addresses, ",")),
+        cli.Default(config.Registry.Addresses),
         cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
-        cli.Destination(&result.Addresses),
       ); err != nil {
-        return nil, err
+        return DiFlags{}, err
       }
 
   ProvideConfig:
     Body: |-
-      defConfig.Registry.Addresses = strings.Split(flags.Addresses, ",")
+      if f, ok := c.Get(cliArgAddresses); ok {
+        defConfig.Registry.Addresses = cli.FlagValue(f, []string{})
+      }
 
   Provide:
     Args: ""

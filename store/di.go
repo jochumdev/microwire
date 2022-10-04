@@ -4,7 +4,6 @@ package store
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/go-micro/microwire/v5/cli"
 	"github.com/go-micro/microwire/v5/config"
@@ -12,12 +11,7 @@ import (
 	"github.com/google/wire"
 )
 
-type DiFlags struct {
-	Plugin    string
-	Addresses string
-	Database  string
-	Table     string
-}
+type DiFlags struct{}
 
 // DiConfig is marker that DiFlags has been parsed into Config
 type DiConfig struct{}
@@ -33,32 +27,28 @@ func ProvideFlags(
 	config *Config,
 	cliConfig *cli.Config,
 	c cli.Cli,
-) (*DiFlags, error) {
+) (DiFlags, error) {
 	if cliConfig.Cli.NoFlags {
 		// Defined silently ignore that
-		return &DiFlags{}, nil
+		return DiFlags{}, nil
 	}
-
-	result := &DiFlags{}
 
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
 		cli.Usage("Store for pub/sub. http, nats, rabbitmq"),
 		cli.Default(config.Store.Plugin),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgPlugin)),
-		cli.Destination(&result.Plugin),
 	); err != nil {
-		return nil, err
+		return DiFlags{}, err
 	}
 
 	if err := c.Add(
 		cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
 		cli.Usage("Comma-separated list of store addresses"),
-		cli.Default(strings.Join(config.Store.Addresses, ",")),
+		cli.Default(config.Store.Addresses),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
-		cli.Destination(&result.Addresses),
 	); err != nil {
-		return nil, err
+		return DiFlags{}, err
 	}
 
 	if err := c.Add(
@@ -66,9 +56,8 @@ func ProvideFlags(
 		cli.Usage("Database option for the underlying store"),
 		cli.Default(config.Store.Database),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgDatabase)),
-		cli.Destination(&result.Database),
 	); err != nil {
-		return nil, err
+		return DiFlags{}, err
 	}
 
 	if err := c.Add(
@@ -76,18 +65,18 @@ func ProvideFlags(
 		cli.Usage("Table option for the underlying store"),
 		cli.Default(config.Store.Table),
 		cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgTable)),
-		cli.Destination(&result.Table),
 	); err != nil {
-		return nil, err
+		return DiFlags{}, err
 	}
 
-	return result, nil
+	return DiFlags{}, nil
 }
 
 func ProvideConfig(
 	_ di.DiConfig,
-	flags *DiFlags,
+	flags DiFlags,
 	config *Config,
+	c cli.Cli,
 	cliConfig *cli.Config,
 	configor config.Config,
 ) (DiConfig, error) {
@@ -108,11 +97,18 @@ func ProvideConfig(
 	}
 
 	defConfig = NewConfig()
-	defConfig.Store.Plugin = flags.Plugin
-
-	defConfig.Store.Addresses = strings.Split(flags.Addresses, ",")
-	defConfig.Store.Database = flags.Database
-	defConfig.Store.Table = flags.Table
+	if f, ok := c.Get(cliArgPlugin); ok {
+		defConfig.Store.Plugin = cli.FlagValue(f, defConfig.Store.Plugin)
+	}
+	if f, ok := c.Get(cliArgAddresses); ok {
+		defConfig.Store.Addresses = cli.FlagValue(f, []string{})
+	}
+	if f, ok := c.Get(cliArgDatabase); ok {
+		defConfig.Store.Database = cli.FlagValue(f, "")
+	}
+	if f, ok := c.Get(cliArgTable); ok {
+		defConfig.Store.Table = cli.FlagValue(f, "")
+	}
 	if err := config.Merge(defConfig); err != nil {
 		return DiConfig{}, err
 	}

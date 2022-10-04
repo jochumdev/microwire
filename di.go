@@ -44,13 +44,13 @@ func NewService(opts ...Option) (Service, error) {
 }
 
 func ProvideFlags(
-	_ *auth.DiFlags,
-	_ *broker.DiFlags,
-	_ *cache.DiFlags,
-	_ *registry.DiFlags,
-	_ *server.DiFlags,
-	_ *store.DiFlags,
-	_ *transport.DiFlags,
+	_ auth.DiFlags,
+	_ broker.DiFlags,
+	_ cache.DiFlags,
+	_ registry.DiFlags,
+	_ server.DiFlags,
+	_ store.DiFlags,
+	_ transport.DiFlags,
 ) (di.DiFlags, error) {
 	return di.DiFlags{}, nil
 }

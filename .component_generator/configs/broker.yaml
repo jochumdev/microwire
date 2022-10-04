@@ -3,11 +3,7 @@ Name: broker
 CapsName: Broker
 
 di_go:
-  Imports: |-
-    "strings"
-  DiFlags:
-    Fields: |-
-      Addresses string
+  Imports: ""
   Consts: |-
     cliArgAddresses = "broker_address"
 
@@ -18,18 +14,18 @@ di_go:
     Body: |-
       if err := c.Add(
         cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
-        cli.Usage("Comma-separated list of broker addresses"),
-        cli.Default(strings.Join(config.Broker.Addresses, ",")),
+        cli.Usage("List of broker addresses"),
+        cli.Default(config.Broker.Addresses),
         cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddresses)),
-        cli.Destination(&result.Addresses),
       ); err != nil {
-        return nil, err
+        return DiFlags{}, err
       }
 
   ProvideConfig:
     Body: |-
-      defConfig.Broker.Addresses = strings.Split(flags.Addresses, ",")
-
+      if f, ok := c.Get(cliArgAddresses); ok {
+        defConfig.Broker.Addresses = cli.FlagValue(f, []string{})
+      }
   Provide:
     Args: ""
     Body: |-

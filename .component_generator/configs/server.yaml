@@ -8,12 +8,6 @@ di_go:
     "github.com/go-micro/microwire/v5/registry"
     "github.com/go-micro/microwire/v5/transport"
 
-  DiFlags:
-    Fields: |-
-      Address string
-      ID string
-      Name string
-      Version string
   Consts: |-
     cliArgAddress = "server_address"
     cliArgID = "server_id"
@@ -30,43 +24,47 @@ di_go:
         cli.Usage("Bind address for the server, eg: 127.0.0.1:8080"),
         cli.Default(config.Server.Address),
         cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgAddress)),
-        cli.Destination(&result.Address),
       ); err != nil {
-        return nil, err
+        return DiFlags{}, err
       }
       if err := c.Add(
         cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgID)),
         cli.Usage("Id of the server. Auto-generated if not specified"),
         cli.Default(config.Server.ID),
         cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgID)),
-        cli.Destination(&result.ID),
       ); err != nil {
-        return nil, err
+        return DiFlags{}, err
       }
       if err := c.Add(
         cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgName)),
         cli.Usage("Name of the server. go.micro.srv.example"),
         cli.Default(config.Server.Name),
         cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgName)),
-        cli.Destination(&result.Name),
       ); err != nil {
-        return nil, err
+        return DiFlags{}, err
       }
       if err := c.Add(
         cli.Name(cli.PrefixName(cliConfig.Cli.ArgPrefix, cliArgVersion)),
         cli.Usage("Version of the server. 1.1.0"),
         cli.Default(config.Server.Version),
         cli.EnvVars(cli.PrefixEnv(cliConfig.Cli.ArgPrefix, cliArgVersion)),
-        cli.Destination(&result.Version),
       ); err != nil {
-        return nil, err
+        return DiFlags{}, err
       }
   ProvideConfig:
     Body: |-
-      defConfig.Server.Address = flags.Address
-      defConfig.Server.ID = flags.ID
-      defConfig.Server.Name = flags.Name
-      defConfig.Server.Version = flags.Version
+      if f, ok := c.Get(cliArgAddress); ok {
+        defConfig.Server.Address = cli.FlagValue(f, "")
+      }
+      if f, ok := c.Get(cliArgID); ok {
+        defConfig.Server.ID = cli.FlagValue(f, "")
+      }
+      if f, ok := c.Get(cliArgName); ok {
+        defConfig.Server.Name = cli.FlagValue(f, "")
+      }
+      if f, ok := c.Get(cliArgVersion); ok {
+        defConfig.Server.Version = cli.FlagValue(f, "")
+      }
 
   Provide:
     Args: |-

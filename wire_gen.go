@@ -61,7 +61,7 @@ func newService(options *Options, cliConfig *cli.Config, authConfig *auth.Config
 	if err != nil {
 		return nil, err
 	}
-	diConfig, err := cli.ProvideConfig(diDiFlags, diParsed, cliConfig)
+	diConfig, err := cli.ProvideConfig(diDiFlags, diParsed, cliCli, cliConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func newService(options *Options, cliConfig *cli.Config, authConfig *auth.Config
 	if err != nil {
 		return nil, err
 	}
-	authDiConfig, err := auth.ProvideConfig(diConfig, diFlags, authConfig, cliConfig, config)
+	authDiConfig, err := auth.ProvideConfig(diConfig, diFlags, authConfig, cliCli, cliConfig, config)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func newService(options *Options, cliConfig *cli.Config, authConfig *auth.Config
 	if err != nil {
 		return nil, err
 	}
-	brokerDiConfig, err := broker.ProvideConfig(diConfig, brokerDiFlags, brokerConfig, cliConfig, config)
+	brokerDiConfig, err := broker.ProvideConfig(diConfig, brokerDiFlags, brokerConfig, cliCli, cliConfig, config)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func newService(options *Options, cliConfig *cli.Config, authConfig *auth.Config
 	if err != nil {
 		return nil, err
 	}
-	cacheDiConfig, err := cache.ProvideConfig(diConfig, cacheDiFlags, cacheConfig, cliConfig, config)
+	cacheDiConfig, err := cache.ProvideConfig(diConfig, cacheDiFlags, cacheConfig, cliCli, cliConfig, config)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func newService(options *Options, cliConfig *cli.Config, authConfig *auth.Config
 	if err != nil {
 		return nil, err
 	}
-	registryDiConfig, err := registry.ProvideConfig(diConfig, registryDiFlags, registryConfig, cliConfig, config)
+	registryDiConfig, err := registry.ProvideConfig(diConfig, registryDiFlags, registryConfig, cliCli, cliConfig, config)
 	if err != nil {
 		return nil, err
 	}
@@ -101,11 +101,11 @@ func newService(options *Options, cliConfig *cli.Config, authConfig *auth.Config
 	if err != nil {
 		return nil, err
 	}
-	serverDiConfig, err := server.ProvideConfig(diConfig, serverDiFlags, serverConfig, cliConfig, config)
+	serverDiConfig, err := server.ProvideConfig(diConfig, serverDiFlags, serverConfig, cliCli, cliConfig, config)
 	if err != nil {
 		return nil, err
 	}
-	transportDiConfig, err := transport.ProvideConfig(diConfig, transportDiFlags, transportConfig, cliConfig, config)
+	transportDiConfig, err := transport.ProvideConfig(diConfig, transportDiFlags, transportConfig, cliCli, cliConfig, config)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func newService(options *Options, cliConfig *cli.Config, authConfig *auth.Config
 	if err != nil {
 		return nil, err
 	}
-	storeDiConfig, err := store.ProvideConfig(diConfig, storeDiFlags, storeConfig, cliConfig, config)
+	storeDiConfig, err := store.ProvideConfig(diConfig, storeDiFlags, storeConfig, cliCli, cliConfig, config)
 	if err != nil {
 		return nil, err
 	}

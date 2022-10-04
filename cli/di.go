@@ -7,9 +7,7 @@ import (
 	"github.com/go-micro/microwire/v5/di"
 )
 
-type DiParsed struct {
-	ConfigFile string
-}
+type DiParsed struct{}
 
 func ProvideCli(
 	config *Config,
@@ -25,8 +23,8 @@ func ProvideCli(
 func ProvideParsed(
 	config *Config,
 	c Cli,
-) (*DiParsed, error) {
-	result := &DiParsed{}
+) (DiParsed, error) {
+	result := DiParsed{}
 
 	// User flags
 	for _, f := range config.Cli.Flags {
@@ -41,7 +39,6 @@ func ProvideParsed(
 			Usage("Config file"),
 			Default(config.Cli.ConfigFile),
 			EnvVars(PrefixEnv(config.Cli.ArgPrefix, "config")),
-			Destination(&result.ConfigFile),
 		); err != nil {
 			return result, err
 		}
@@ -63,13 +60,16 @@ func ProvideParsed(
 
 func ProvideConfig(
 	_ di.DiFlags,
-	diFlags *DiParsed,
+	diFlags DiParsed,
+	c Cli,
 	cfg *Config,
 ) (di.DiConfig, error) {
 	if cfg.Cli.NoFlags {
 		// Defined silently ignore that
 		defConfig := NewConfig()
-		defConfig.Cli.ConfigFile = diFlags.ConfigFile
+		if f, ok := c.Get("config"); ok {
+			defConfig.Cli.ConfigFile = FlagValue(f, "")
+		}
 		if err := cfg.Merge(defConfig); err != nil {
 			return "", err
 		}
