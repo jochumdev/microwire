@@ -73,7 +73,7 @@ transport:
 ---
 broker:
   addresses:
-  - nats://localhost:4222
+    - nats://localhost:4222
   plugin: nats
   logger:
     enabled: true
@@ -101,7 +101,7 @@ server:
     caller_skip_count: 2
     enabled: true
     plugin: zap
-    fields: 
+    fields:
       component: server
     level: info
   plugin: grpc
@@ -115,7 +115,7 @@ logger:
   level: trace
 registry:
   addresses:
-  - nats://localhost:4222
+    - nats://localhost:4222
   plugin: nats
   logger:
     enabled: true
