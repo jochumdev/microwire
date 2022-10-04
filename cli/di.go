@@ -33,7 +33,7 @@ func ProvideParsed(
 		}
 	}
 
-	if config.NoFlags {
+	if !config.NoFlags {
 		if err := c.Add(
 			Name(PrefixName(config.ArgPrefix, "config")),
 			Usage("Config file"),
@@ -64,8 +64,7 @@ func ProvideConfig(
 	c Cli,
 	cfg *Config,
 ) (di.DiConfig, error) {
-	if cfg.NoFlags {
-		// Defined silently ignore that
+	if !cfg.NoFlags {
 		defConfig := NewConfig()
 		if f, ok := c.Get("config"); ok {
 			defConfig.ConfigFile = FlagValue(f, "")

@@ -62,13 +62,14 @@ func ProvideConfig(
 	configor config.Config,
 ) (DiConfig, error) {
 	defConfig := NewConfig()
+	cfg := sourceConfig{Broker: *defConfig}
 
 	if configor != nil {
-		if err := configor.Scan(defConfig); err != nil {
+		if err := configor.Scan(&cfg); err != nil {
 			return DiConfig{}, err
 		}
 	}
-	if err := config.Merge(defConfig); err != nil {
+	if err := config.Merge(&cfg.Broker); err != nil {
 		return DiConfig{}, err
 	}
 

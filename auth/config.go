@@ -13,7 +13,7 @@ type Config struct {
 }
 
 type sourceConfig struct {
-	Auth Config `json:"broker" yaml:"Auth"`
+	Auth Config `json:"" yaml:"Auth"`
 }
 
 func NewConfig() *Config {

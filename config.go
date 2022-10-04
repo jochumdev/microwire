@@ -8,21 +8,21 @@ import (
 	"github.com/go-micro/microwire/v5/server"
 	"github.com/go-micro/microwire/v5/store"
 	"github.com/go-micro/microwire/v5/transport"
-	"github.com/go-micro/plugins/v4/config/encoder/yaml"
+	"gopkg.in/yaml.v3"
 )
 
 type configStruct struct {
-	Auth   *auth.Config   `json:",omitempty" yaml:",omitempty"`
-	Broker *broker.Config `json:",omitempty" yaml:",omitempty"`
-	// Cache     *cache.Config     `json:",omitempty" yaml:",omitempty"`
-	Client    *client.Config    `json:",omitempty" yaml:",omitempty"`
-	Server    *server.Config    `json:",omitempty" yaml:",omitempty"`
-	Store     *store.Config     `json:",omitempty" yaml:",omitempty"`
-	Registry  *registry.Config  `json:",omitempty" yaml:",omitempty"`
-	Transport *transport.Config `json:",omitempty" yaml:",omitempty"`
-	// Runtime   *runtime.Config `json:",omitempty" yaml:",omitempty"`
-	// Profile   *profile.Config `json:",omitempty" yaml:",omitempty"`
-	// Logger    *logger.Config `json:",omitempty" yaml:",omitempty"`
+	Auth   *auth.Config   `json:"auth,omitempty" yaml:"Auth,omitempty"`
+	Broker *broker.Config `json:"broker,omitempty" yaml:"Broker,omitempty"`
+	// Cache     *cache.Config     `json:"cache,omitempty" yaml:"Cache,omitempty"`
+	Client    *client.Config    `json:"client,omitempty" yaml:"Client,omitempty"`
+	Server    *server.Config    `json:"server,omitempty" yaml:"Server,omitempty"`
+	Store     *store.Config     `json:"store,omitempty" yaml:"Store,omitempty"`
+	Registry  *registry.Config  `json:"registry,omitempty" yaml:"Registry,omitempty"`
+	Transport *transport.Config `json:"transport,omitempty" yaml:"Transport,omitempty"`
+	// Runtime   *runtime.Config `json:"runtime,omitempty" yaml:"Runtime,omitempty"`
+	// Profile   *profile.Config `json:"profile,omitempty" yaml:"Profile,omitempty"`
+	// Logger    *logger.Config `json:"logger,omitempty" yaml:"Logger,omitempty"`
 }
 
 // DumpConfig dumps the config of a micro.Service to a yaml byte array.
@@ -37,5 +37,5 @@ func (s *service) DumpConfig() ([]byte, error) {
 	cfg.Registry = s.Options().Registry.Options().Config
 	cfg.Transport = s.Options().Transport.Options().Config
 
-	return yaml.NewEncoder().Encode(cfg)
+	return yaml.Marshal(cfg)
 }

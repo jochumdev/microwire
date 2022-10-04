@@ -9,7 +9,7 @@ type Config struct {
 }
 
 type sourceConfig struct {
-	Registry Config `json:"broker" yaml:"Registry"`
+	Registry Config `json:"" yaml:"Registry"`
 }
 
 func NewConfig() *Config {

@@ -44,26 +44,26 @@ See this Diagram for an overview:
 ```yaml
 ---
 Broker:
-  enabled: true
-  plugin: http
+    Enabled: true
+    Plugin: http
 Client:
-  enabled: true
-  plugin: rpc
-  pool_request_timeout: 5s
-  pool_retries: 1
-  pool_size: 1
-  pool_ttl: 1m
-Registry:
-  enabled: true
-  plugin: mdns
+    Enabled: true
+    Plugin: rpc
+    PoolSize: 1
+    PoolTTL: 1m
+    PoolRequestTimeout: 5s
+    PoolRetries: 1
 Server:
-  enabled: true
-  plugin: rpc
-  register_interval: 60
-  register_ttl: 30
+    Enabled: true
+    Plugin: rpc
+    RegisterTTL: 30
+    RegisterInterval: 60
+Registry:
+    Enabled: true
+    Plugin: mdns
 Transport:
-  enabled: true
-  plugin: http
+    Enabled: true
+    Plugin: http
 ```
 
 ### Example yaml config
@@ -71,22 +71,30 @@ Transport:
 ```yaml
 ---
 Broker:
-  Enabled: true
-  Plugin: nats
-  Addresses:
-    - nats://localhost:4222
+    Enabled: true
+    Plugin: nats
+    Addresses:
+        - nats://localhost:4222
+Client:
+    Enabled: true
+    Plugin: grpc
+    PoolSize: 100
+    PoolTTL: 5m
+    PoolRequestTimeout: 10s
+    PoolRetries: 5
+Server:
+    Enabled: true
+    Plugin: grpc
+    RegisterTTL: 30
+    RegisterInterval: 60
 Registry:
-  Enabled: true
-  Plugin: nats
-  Addresses:
-    - nats://localhost:4222
-Store:
-  Enabled: false
+    Enabled: true
+    Plugin: nats
+    Addresses:
+        - nats://localhost:4222
 Transport:
-  Enabled: true
-  Plugin: nats
-  Addresses:
-    - nats://localhost:4222
+    Enabled: true
+    Plugin: quic
 ```
 
 ## Overview

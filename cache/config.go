@@ -8,7 +8,7 @@ type Config struct {
 }
 
 type sourceConfig struct {
-	Cache Config `json:"broker" yaml:"Cache"`
+	Cache Config `json:"" yaml:"Cache"`
 }
 
 func NewConfig() *Config {

@@ -134,7 +134,7 @@ func ProvideConfigFile(
 	return di.DiConfig(options.ConfigFile), nil
 }
 
-// DiSet is a set of all things components need, except the components themself.
+// DiSet is a set of all components, with all v4 features by default enabled
 var DiSet = wire.NewSet(
 	configdi.ProvideConfigor,
 	auth.DiSet,
@@ -147,6 +147,7 @@ var DiSet = wire.NewSet(
 	transport.DiSet,
 )
 
+// DiNoCliSet is a set of all components, without cli
 var DiNoCliSet = wire.NewSet(
 	configdi.ProvideConfigor,
 	auth.DiNoCliSet,

@@ -9,7 +9,7 @@ type Config struct {
 }
 
 type sourceConfig struct {
-	{{CapsName}} Config `json:"broker" yaml:"{{CapsName}}"`
+	{{CapsName}} Config `json:"{{name}}" yaml:"{{CapsName}}"`
 }
 
 func NewConfig() *Config {

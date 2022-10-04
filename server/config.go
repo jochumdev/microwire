@@ -17,7 +17,7 @@ type Config struct {
 }
 
 type sourceConfig struct {
-	Server Config `json:"broker" yaml:"Server"`
+	Server Config `json:"" yaml:"Server"`
 }
 
 func NewConfig() *Config {
